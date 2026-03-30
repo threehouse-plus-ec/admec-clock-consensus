@@ -1,8 +1,122 @@
+# Rebuttal and Revised Projektantrag
+
+## Part I — Point-by-Point Rebuttal
+
+---
+
+### Response to the hostile review of ADM-EC Projektantrag v0.4
+
+The review is substantially correct in its diagnosis of the proposal's main weaknesses. The revision implements the three recommended cuts and addresses each major criticism. Where the review overstates, I note this briefly; where it is right, I concede and cut.
+
+---
+
+#### 1.1 "The central scientific object is still unclear"
+
+**Conceded.** The proposal tried to be three things simultaneously (new observable, new gating scheme, new epistemic vocabulary) and was convincing as none of them. The revision contracts the claim to:
+
+*A delay-constrained, anomaly-aware consensus scheme that explicitly preserves structured disagreement rather than suppressing it.*
+
+The "dual-mode epistemology" language is removed from the main text. If the results warrant it, the interpretation can be offered in a discussion section; it does not belong in the objectives.
+
+#### 1.2 "Sentinel remains under-justified and partly decorative"
+
+**Partially conceded.** The reviewer is right that the operational distinction between "sentinel" and "anomalous" is thin in the current implementation. The revision:
+
+- Demotes "sentinel" from an epistemic category to a *working label* for structured anomalies (high IC + temporal correlation). No philosophical claims are attached.
+- Removes the phrase "different epistemic mode" everywhere.
+- Retains the three-way classification as a *testable hypothesis* (does the structured/unstructured anomaly distinction yield different estimator behaviour?) rather than as an established fact.
+
+#### 1.3 "Generative models do not support conceptual claims"
+
+**Conceded.** This is the most damaging criticism. The revision:
+
+- Removes near-critical sensing from the project's evidentiary backbone. It is demoted to a *motivating analogy* in one paragraph of §2.1, not a claimed mechanism.
+- Adds one scenario (S8) with a genuine nonlinear bifurcation: a clock whose drift rate is a function of a control parameter approaching a fold bifurcation. This is the minimal scenario that actually instantiates critical slowing down.
+- Explicitly states that S6 (linear drift) and S7 (step change) do not test near-critical dynamics. They test anomaly detection and change-point detection respectively. Only S8 tests the near-critical claim.
+
+#### 1.4 "Benchmark is too synthetic"
+
+**Partially conceded.** All benchmarks are synthetic — that is inherent to a proposal without existing data. The revision:
+
+- Specifies the clock noise model using standard power-law noise types from the time-scale literature (white frequency, flicker frequency, random-walk frequency) with parameters drawn from published characterisations of hydrogen masers and caesium fountain clocks.
+- Specifies the network communication model (asynchronous update with Poisson-distributed delays).
+- Drops the claim that the benchmark "represents" real optical clock networks. It is a *controlled testbed* with parameters informed by metrology, not a replica of TAI.
+
+#### 1.5 "AI connection is opportunistic"
+
+**Conceded.** The revision moves all AI references to a single outlook paragraph. The project is a metrology-inspired simulation study. If the method works, the AI connection can be explored in a separate project with AI-native benchmarks. It is not tested here and should not be claimed here.
+
+#### 1.6 "May reduce to a robust statistics result"
+
+**Partially conceded — this is the key scientific risk.** The revision:
+
+- Adds three stronger baselines to the comparison set: a Huber M-estimator, a Bayesian online changepoint detector (Adams & MacKay 2007), and a switching state-space model (interacting multiple model filter). These are the minimum credible comparators.
+- Explicitly states: if ADM-EC does not outperform the Huber estimator or the changepoint detector on IC-independent metrics, the contribution reduces to "a gating heuristic with no advantage over established robust methods." That is a legitimate negative result.
+
+#### 2.1 "O1 is fragile"
+
+**Partially conceded.** The revision:
+
+- Tightens the DG-1 threshold stability criterion from "within factor 2" to "within factor 1.5."
+- Adds a sensitivity analysis: AIPP computed under ±20% perturbation of declared σ values.
+
+#### 2.2 "O2 is under-motivated"
+
+**Conceded.** O2 is demoted from a scientific objective to a technical sanity check. It no longer appears in the objectives table.
+
+#### 2.3 "DG-2 is vulnerable to cherry-picking"
+
+**Partially conceded.** The revision:
+
+- Changes "MSE *or* structure correlation" to "MSE *and* at least one of {CI, structure correlation}." Both accuracy and diversity preservation must improve.
+- Requires improvement in S1 *and* S3 (both, not either).
+- Specifies: 15% means relative reduction in mean MSE across seeds.
+
+#### 2.4 "DG-2b uses circular synthetic ground truth"
+
+**Conceded in spirit.** The revision explicitly states that DG-2b validates classifier behaviour against designer-injected structure, not against an independently established "sentinel" category. It is an internal consistency check, not an external validation.
+
+#### 2.5 "Lead–lag is statistically shaky"
+
+**Partially conceded.** The revision:
+
+- Adds a permutation test (100 shuffles per scenario) as the primary significance test, replacing the percentile-of-null approach.
+- Adds sensitivity analysis over window size W ∈ {10, 15, 20, 30}.
+- Downgrades O7 from a core objective to an *exploratory analysis*. If it works, it is reported; if not, no claim is made.
+
+#### 2.6 "Ordinans remains underdefined"
+
+**Conceded.** The revision:
+
+- Specifies the Ordinans filter as a projection operator: proposed updates are projected onto the feasible set defined by three explicit constraints (variance ratio ∈ [0.5, 1.5], step size ≤ 3σ per node, total correction energy ≤ Nσ²). The projection is Euclidean (closest-point).
+- Removes the Ordinans framework's broader vocabulary (Affectio, Habitus, Integratio, etc.) from the proposal. These belong to the interpretive essay, not to a technical project description.
+
+#### 2.7 "Causal language is stronger than the method"
+
+**Conceded.** The revision:
+
+- Replaces "causal gating" with "delay-constrained updating" throughout.
+- Removes the Pearl citation. The method does not perform causal inference; it respects communication delays. That is a network constraint, not a causal model.
+
+#### 3.1 "Weak fit to review board 303"
+
+**Acknowledged.** The project is a methods study with physics motivation, not an experimental physics project. The revision reframes it accordingly and suggests review board 312 (Mathematik / Informatik) or an interdisciplinary panel as potentially more appropriate.
+
+#### 3.2 "Too much essay logic"
+
+**Conceded.** The revision removes: "dual-mode epistemology," "sentinel tradition," "routes around non-invertibility," "principled distinction." What remains is technical description.
+
+---
+
+## Part II — Revised Projektantrag v0.5
+
+---
+
 # Projektantrag — Beschreibung des Vorhabens
 
 ## Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
-*Following DFG Sachbeihilfe structure (form 54.01). Not for funding submission. For internal rigour. Version 0.5.2 (frozen).*
+*Following DFG Sachbeihilfe structure (form 54.01). Not for funding submission. For internal rigour. Version 0.5.3 (frozen).*
 
 ---
 
@@ -36,7 +150,7 @@ Whether structured anomalies carry predictive lead–lag information about netwo
 
 **2.1.1 Time-scale construction.** International Atomic Time (TAI) is constructed by the ALGOS algorithm at BIPM: a stability-weighted average of ~450 atomic clocks with iterative outlier detection (Panfilo & Arias 2019). TAI achieves ~2 × 10⁻¹⁶ frequency stability over one month. The present project does not propose to improve TAI. It uses simulated clock networks as a controlled testbed for studying how consensus methods handle heterogeneous, delay-constrained ensembles — a regime that will become increasingly relevant as optical clock networks with sub-10⁻¹⁸ instability become operational (Lisdat et al. 2016, Bothwell et al. 2022).
 
-**2.1.2 Robust consensus and anomaly detection.** Robust estimation (Huber 1981) downweights or removes observations inconsistent with a central model. Bayesian online changepoint detection (Adams & MacKay 2007) identifies abrupt distributional shifts and implicitly distinguishes pre- from post-change regimes. Switching state-space models (interacting multiple model filters; Blom & Bar-Shalom 1988) maintain parallel hypotheses about system mode and can, in principle, track temporally structured departures. These methods address anomaly handling in estimation, and some (BOCPD, IMM) do capture temporal structure to varying degrees. However, their default response to detected anomalies is still to exclude, downweight, or absorb the anomalous node into a revised model — not to preserve its output as a separately tracked information channel under communication constraints.
+**2.1.2 Robust consensus and anomaly detection.** Robust estimation (Huber 1981) downweights or removes observations inconsistent with a central model. Bayesian online changepoint detection (Adams & MacKay 2007) identifies abrupt distributional shifts and implicitly distinguishes pre- from post-change regimes. Switching state-space models (interacting multiple model filters; Blom & Bar-Shalom 1988) maintain parallel hypotheses about system mode and can, in principle, track temporally structured departures. These methods address anomaly handling in estimation, and some (BOCPD, IMM) do capture temporal structure to varying degrees. However, their default response to detected anomalies is still typically to exclude, downweight, or absorb the anomalous node into a revised model — not to preserve its output as a separately tracked information channel under communication constraints.
 
 **2.1.3 Early warning signals.** Rising variance and autocorrelation near bifurcations are generic early-warning indicators (Scheffer et al. 2009, Dakos et al. 2012). These statistics have known failure modes (false positives under correlated noise, false negatives under fast transitions). The present project uses them as a classification heuristic for one scenario type (S8, near-bifurcation), not as a general detection theory.
 
@@ -60,8 +174,8 @@ Whether structured anomalies carry predictive lead–lag information about netwo
 
 | ID | Objective | Success criterion |
 |----|-----------|-------------------|
-| O1 | Calibrate IC as a distributional inconsistency measure under null models | AIPP converges to ~0.55 bit (±5%) for Gaussian null at N ≥ 100; percentile thresholds stable within factor 1.5 across noise models; robust under ±20% σ perturbation |
-| O2 | Demonstrate that three-way classification (stable / structured anomaly / unstructured anomaly) yields measurably different estimator behaviour from two-way (normal / anomalous) | Classification-aware estimator outperforms exclusion-based estimator (FREQ-exclude) and Huber M-estimator on MSE *and* at least one of {collapse index, structure correlation}, in S1 and S3 |
+| O1 | Calibrate IC as a distributional inconsistency measure under null models | AIPP converges to theoretical limit ≈ 1.25 bit (±5%) for Gaussian null at N ≥ 100; percentile thresholds stable within factor 1.5 across noise models including correlated noise; robust under ±20% σ perturbation |
+| O2 | Demonstrate that three-way classification (stable / structured anomaly / unstructured anomaly) yields measurably better consensus than both two-way classification and established robust baselines | ADMEC-full outperforms the best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 and S3 (DG-2). ADMEC-full also outperforms ADMEC-two-class (DG-3), confirming the structured/unstructured distinction adds value beyond binary anomaly handling. |
 | O3 | Demonstrate that delay constraints improve robustness | Delay-constrained estimator outperforms unconstrained variant on IC-independent metrics |
 | O4 | Demonstrate that update-size constraints independently improve structure preservation | Full-constraint estimator outperforms delay-only variant on collapse index |
 | O5 (exploratory) | Test whether structured-anomaly nodes carry predictive lead–lag information | Cross-correlation analysis with permutation test; reported but not a gate condition |
@@ -72,7 +186,7 @@ O2 is the core scientific question. If it fails, the three-way classification ad
 
 **WP1 — IC Calibration (months 1–2)**
 
-Tasks: Implement IC (interval probability, analytic Gaussian CDF). IC is nonparametric in the functional form of anomalies but calibrated under specific null models; the term "model-free" refers to the absence of a parametric signal model, not to the absence of distributional assumptions in calibration. Verify AIPP → 0.55 bit (Gaussian null). Null-model calibration: Gaussian i.i.d., heteroscedastic Gaussian, Student-t (ν = 3, 5, 10), power-law (Pareto α = 2.5, 3.0), AR(1) with ρ ∈ {0.3, 0.7, 0.9} (correlated noise), 1/f (flicker) via AR(1) approximation. Finite-N bias quantification. σ-sensitivity analysis (±20% perturbation). Percentile thresholds (95th, 99th). When IC thresholds are applied across N nodes × T time steps, report the effective false-positive rate per scenario and note that no formal family-wise or FDR correction is applied; the threshold is a classification heuristic, not a hypothesis test.
+Tasks: Implement IC (interval probability, analytic Gaussian CDF). IC is nonparametric in the functional form of anomalies but calibrated under specific null models; the term "model-free" refers to the absence of a parametric signal model, not to the absence of distributional assumptions in calibration. Verify AIPP convergence to the theoretical large-N limit (≈ 1.25 bit for σ_data = σ_declared = 1; derived from the convolution of the data distribution with the Gaussian kernel). Null-model calibration: Gaussian i.i.d., heteroscedastic Gaussian, Student-t (ν = 3, 5, 10), power-law (Pareto α = 2.5, 3.0), AR(1) with ρ ∈ {0.3, 0.7, 0.9} (correlated noise), 1/f (flicker) via AR(1) approximation. Finite-N bias quantification. σ-sensitivity analysis (±20% perturbation). Percentile thresholds (95th, 99th). Thresholds are used only to define operating regions for the classifier and are not interpreted as formal significance levels. When applied across N nodes × T time steps, the effective false-positive rate per scenario is reported; no formal family-wise or FDR correction is applied.
 
 Deliverables: IC specification document. Tested Python module (< 100 lines). Calibration figures including correlated-noise nulls.
 
@@ -91,8 +205,10 @@ where dW is Wiener, dB(flicker) is a fractional noise process approximated by an
 Classification rule:
 
     STABLE:              IC < threshold
-    STRUCTURED ANOMALY:  IC ≥ threshold AND (variance trend > 0 OR autocorrelation trend > 0) over window W
-    UNSTRUCTURED ANOMALY: IC ≥ threshold AND no temporal trend
+    STRUCTURED ANOMALY:  IC ≥ threshold AND (variance trend slope > δ_min OR autocorrelation trend slope > δ_min) over window W
+    UNSTRUCTURED ANOMALY: IC ≥ threshold AND no trend exceeding δ_min
+
+where δ_min is a minimum effect-size threshold fixed a priori as the median absolute slope observed under the null scenarios (S4/S5). A positive trend is counted only if it exceeds this null-calibrated floor.
 
 Robustness: classification tested under W ∈ {10, 15, 20, 30}. The temporal-trend criteria are heuristic classifiers, not formal structural inference methods; they are sensitive to noise colour and window length. The project tests whether this simple heuristic is sufficient to yield measurable estimator improvement, not whether it is optimal.
 
@@ -103,9 +219,9 @@ Estimators (nine):
 | FREQ-global | Σ w_i f_i, weights ∝ 1/σ²_running | Standard weighted mean |
 | FREQ-local | Same, restricted to delay-accessible neighbours | Weighted mean over {j : τ_{ij} ≤ Δt} |
 | FREQ-exclude | Weighted mean excluding IC ≥ threshold nodes | Exclusion-based robust average |
-| HUBER | Huber M-estimator; tuning constant c tested at {1.0, 1.345, 2.0} and best-performing value used per scenario (reported) | Iteratively reweighted least squares |
-| BOCPD | Bayesian online changepoint detection (Adams & MacKay 2007) per node; hazard rate λ tested at {50, 100, 200} steps; post-changepoint nodes excluded | Run-length posterior; best hazard per scenario reported |
-| IMM | Interacting multiple model filter (Blom & Bar-Shalom 1988) with two modes: nominal and anomalous; transition probabilities tested at p_switch ∈ {0.01, 0.05, 0.1} | Two-mode Kalman bank with Markov switching; best transition matrix per scenario reported |
+| HUBER | Huber M-estimator; tuning constant c tested at {1.0, 1.345, 2.0}; best c selected on null scenarios (S4/S5) and then fixed for all signal scenarios | Iteratively reweighted least squares |
+| BOCPD | Bayesian online changepoint detection (Adams & MacKay 2007) per node; hazard rate λ tested at {50, 100, 200}; best λ selected on null scenarios (S4/S5) and fixed for all signal scenarios; post-changepoint nodes excluded | Run-length posterior |
+| IMM | Interacting multiple model filter (Blom & Bar-Shalom 1988) with two modes: nominal and anomalous; p_switch tested at {0.01, 0.05, 0.1}; best selected on null scenarios (S4/S5) and fixed | Two-mode Kalman bank with Markov switching |
 | ADMEC-unconstrained | IC-based classification, no delay or update constraints | Three-way classification, uniform correction |
 | ADMEC-delay | IC-based classification + delay-constrained updates | Corrections restricted to delay-accessible neighbours |
 | ADMEC-full | IC-based classification + delay constraints + update-size constraints (projection onto feasible set: variance ratio ∈ [0.5, 1.5], step ≤ 3σ, total energy ≤ Nσ²; thresholds fixed a priori from running-noise scale, not tuned post hoc; sensitivity tested under ±30% variation in WP3). The energy bound Nσ² is chosen as the expected total squared fluctuation under the null; the variance-ratio bounds [0.5, 1.5] encode the requirement that a single update step should neither halve nor double ensemble variance. If the feasible set is empty (all three constraints cannot be simultaneously satisfied), the update is rejected entirely and the previous state is retained. | Full scheme |
@@ -121,13 +237,13 @@ Scenarios (eight):
 | S5 | 50 | Random-sparse | Poisson(4.0) | None | Null at scale |
 | S6 | 15 | Ring | Poisson(2.0) | Linear drift on 2 clocks | Anomaly detection (not near-critical) |
 | S7 | 30 | Ring | Poisson(2.0) | Step-function shift on 3 clocks at t = T/2 | Change-point detection (not near-critical) |
-| S8 | 15 | Ring | Poisson(2.0) | 2 clocks with drift rate approaching fold bifurcation: drift(t) = r(t) where dr/dt = ε, dynamics dx/dt = r + x². Physically: models a slow degradation of one clock's control parameter (e.g. cavity drift, electronics ageing) that gradually reduces the restoring force of the frequency servo until the lock point vanishes. | Near-critical dynamics with genuine CSD |
+| S8 | 15 | Ring | Poisson(2.0) | 2 clocks with drift rate approaching fold bifurcation: drift(t) = r(t) where dr/dt = ε, dynamics dx/dt = r + x². Physically: models a slow degradation of one clock's control parameter (e.g. cavity drift, electronics ageing) that gradually reduces the restoring force of the frequency servo until the lock point vanishes. The bifurcation enters the simulation as a slow loss of restoring behaviour, producing increased variance and autocorrelation in the measured frequency residuals before loss of lock. | Near-critical dynamics with genuine CSD |
 
 Each scenario: 10 seeds (increased from 5). Report mean ± std.
 
 IC-independent metrics: MSE (relative reduction in mean across seeds), collapse index, structure correlation (Pearson r with injected signal on signal clocks after onset).
 
-Decision gate DG-2: ADMEC-full shows ≥ 15% relative reduction in MSE *and* improvement in ≥ 1 of {CI, structure correlation} versus FREQ-global, in S1 *and* S3. ADMEC-full outperforms FREQ-exclude, HUBER, BOCPD, and IMM on ≥ 1 IC-independent metric. ADMEC-full outperforms ADMEC-delay (update constraints contribute). *Fail: archive as negative result. Explicitly report comparison with all baselines.*
+Decision gate DG-2: ADMEC-full must outperform the best-performing non-ADMEC baseline (whichever of FREQ-global, FREQ-exclude, HUBER, BOCPD, or IMM scores highest) on at least two IC-independent metrics (from {MSE, CI, structure correlation}), in S1 *and* S3. ADMEC-full must also outperform ADMEC-delay (update constraints contribute independently). *Fail: archive as negative result. Explicitly report comparison with all baselines.*
 
 Decision gate DG-2b (classification validation): Evaluated against designer-injected structure (not an independent ground truth). True positive rate ≥ 70%. This is an internal consistency check, not an external validation. *Fail: three-way classification does not reliably separate structured from unstructured anomalies. Collapse to two-way (normal/anomalous) and report.*
 
@@ -210,8 +326,7 @@ No human subjects, animal subjects, dual-use, or sensitive data. AI tools (Claud
 10. Grünwald, P. D. *The Minimum Description Length Principle* (MIT Press, 2007).
 11. Lamport, L. *Commun. ACM* **21**, 558–565 (1978).
 12. Warring, U. Amplifiers at the boundary. Preprint (2026a).
-13. Warring, U. What can make a complex system an ordinans? (2025).
-14. Warring, U. Causal Clock Unification Framework. Zenodo DOI: 10.5281/zenodo.17948436 (2026b).
+13. Warring, U. Causal Clock Unification Framework. Zenodo DOI: 10.5281/zenodo.17948436 (2026b).
 
 ---
 
@@ -235,10 +350,10 @@ No human subjects, animal subjects, dual-use, or sensitive data. AI tools (Claud
 
 | Gate | Pass | Fail |
 |------|------|------|
-| DG-1 | AIPP ≈ 0.55 bit (±5%); thresholds ×1.5; σ-robust | Halt |
-| DG-2 | ADMEC-full ≥ 15% MSE reduction AND ≥ 1 other metric, in S1 AND S3; outperforms Huber, BOCPD, and IMM on ≥ 1 metric | Archive negative result |
-| DG-2b | Three-way TP ≥ 70% (internal check) | Collapse to two-way |
-| DG-3 | Each constraint ≥ 10%; three-way > two-way | Archive |
+| DG-1 | AIPP ≈ 1.25 bit (±5%); thresholds ×1.5 across all nulls including correlated; σ-robust | Halt |
+| DG-2 | ADMEC-full outperforms best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 AND S3; outperforms ADMEC-delay | Archive negative result |
+| DG-2b | Three-way TP ≥ 70% against synthetic ground truth (internal check) | Collapse to stable / anomalous (two-way) |
+| DG-3 | Each constraint ≥ 10%; three-way > two-way (ADMEC-full > ADMEC-two-class) | Archive |
 
 ---
 
