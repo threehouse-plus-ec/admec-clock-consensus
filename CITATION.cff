@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: "Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks"
+message: "If you use this software or its results, please cite it as below."
+type: software
+authors:
+  - family-names: Warring
+    given-names: Ulrich
+    affiliation: "Physikalisches Institut, Albert-Ludwigs-Universität Freiburg"
+    orcid: ""
+version: 0.0.1
+date-released: "2026-03-30"
+license: MIT
+repository-code: ""
+abstract: >
+  A research project testing whether distinguishing structured from
+  unstructured anomalies in a heterogeneous clock network — and
+  responding to each differently under communication-delay and
+  update-size constraints — yields measurable improvement over
+  established robust consensus methods.
+keywords:
+  - consensus estimation
+  - anomaly classification
+  - clock networks
+  - information content
+  - robust aggregation
