@@ -100,7 +100,7 @@ The pre-registered bound was 15% relative AIPP shift. Systematic −20% underest
 
 ### Harbourmaster ruling: proceed with worst-case threshold calibration
 
-**Decision:** The project proceeds. The mitigation is operational, not a criterion revision.
+**Decision:** The project proceeds. The mitigation is operational, not a criterion revision. It is a procedural workaround — IC remains intrinsically sensitive to the fidelity of declared uncertainties.
 
 **Rationale:** The 15% pre-registered bound stands — it is not relaxed. The systematic −20% condition genuinely fails it. However, the failure does not trigger the DG-1 halt condition ("Halt project") because:
 

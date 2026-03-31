@@ -5,7 +5,9 @@ title: Home
 
 # ADM-EC Clock Consensus
 
-**Current status:** DG-1 closed. IC calibrated across ten null models (max threshold ratio 1.24×). Finite-N bias < 1% at N ≥ 75. One sub-criterion failed: systematic σ-underestimation shifts AIPP by 19.3% (exceeds 15% bound); mitigated by worst-case threshold calibration for WP2. Remaining WP1 item: effect-size threshold δ_min.
+**Current status:** DG-1 closed. IC calibrated across ten null models (max threshold ratio 1.24×). Finite-N bias < 1% at N ≥ 75. One sub-criterion failed: systematic σ-underestimation shifts AIPP by 19.3% (exceeds 15% bound); mitigated by worst-case threshold calibration for WP2 — this is a procedural workaround, not an intrinsic fix; IC remains sensitive to the fidelity of declared uncertainties. WP1 remaining: effect-size threshold δ_min (not a gate criterion; needed before WP2 classifier design).
+
+*IC is stable under tested nulls and finite-N effects. Sensitivity to σ-misestimation indicates dependence on the fidelity of declared uncertainties rather than intrinsic robustness. WP2 will test whether classification-based response compensates for this sensitivity at the system level.*
 
 ---
 
