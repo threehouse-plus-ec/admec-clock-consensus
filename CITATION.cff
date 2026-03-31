@@ -7,10 +7,10 @@ authors:
     given-names: Ulrich
     affiliation: "Physikalisches Institut, Albert-Ludwigs-Universität Freiburg"
     orcid: ""
-version: 0.0.1
-date-released: "2026-03-30"
+version: 0.2.0
+date-released: "2026-03-31"
 license: MIT
-repository-code: ""
+repository-code: "https://github.com/threehouse-plus-ec/admec-clock-consensus"
 abstract: >
   A research project testing whether distinguishing structured from
   unstructured anomalies in a heterogeneous clock network — and

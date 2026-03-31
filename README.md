@@ -1,6 +1,6 @@
 # Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
-**Status:** WP1 in progress. DG-1 partially passed (convergence and threshold stability verified; σ-sensitivity and extended nulls remain).
+**Status:** DG-1 closed. IC calibrated across ten null models; thresholds stable (max ratio 1.24×). One sub-criterion failed: systematic σ-underestimation exceeds 15% bound; mitigated by worst-case threshold calibration. Remaining WP1 item: effect-size threshold δ_min.
 
 ---
 
@@ -29,25 +29,26 @@ The project may produce a positive result (the three-way classification improves
 
 | Module | Description | Status |
 |--------|-------------|--------|
-| `src/ic.py` | Information Content: interval-probability definition, analytic Gaussian CDF | Implemented (WP1) |
+| `src/ic.py` | Information Content: interval-probability definition, analytic Gaussian CDF, σ-perturbation | Implemented (WP1) |
+| `src/noise.py` | Noise generators: symmetric Pareto, fractional Gaussian noise (Davies-Harte), random walk, AR(1) | Implemented (WP1) |
 | `src/clocks.py` | Clock model with power-law noise (white, flicker, random-walk) | Not yet implemented |
 | `src/network.py` | Network topology and delay model | Not yet implemented |
 | `src/estimators.py` | All nine estimators (FREQ-global/local/exclude, Huber, BOCPD, IMM, ADMEC variants) | Not yet implemented |
 | `src/constraints.py` | Update-size constraint projection (variance ratio, step size, energy bound) | Not yet implemented |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured anomaly) | Not yet implemented |
-| `tests/` | Unit tests for IC calibration, estimator correctness, constraint feasibility | 24 passing (IC) |
+| `tests/` | Unit tests for IC calibration, noise generators, σ-sensitivity, threshold stability | 63 tests (61 passing, 2 known failures) |
 | `notebooks/` | WP1 calibration, WP2 simulation runs, WP3 ablation | Not yet implemented |
 
 ## Decision gates
 
 The project has explicit stop/go gates. Results are published regardless of outcome.
 
-| Gate | Condition | If fail |
-|------|-----------|---------|
-| **DG-1** | IC calibration: AIPP ≈ 1.25 bit (±5% relative) for Gaussian null; thresholds stable within ×1.5 across noise models including correlated noise | Halt project |
-| **DG-2** | ADMEC-full ≥ 15% MSE reduction AND ≥ 1 other metric vs FREQ-global, in S1 AND S3; outperforms Huber, BOCPD, IMM | Archive as negative result |
-| **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | Collapse to two-way classification |
-| **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Archive |
+| Gate | Condition | Status | If fail |
+|------|-----------|--------|---------|
+| **DG-1** | IC calibration: AIPP converges to 1.25 bit (±5% relative); thresholds stable within ×1.5 across noise models including correlated noise; σ-sensitivity bounded | Closed (see logbook entries 001–003) | Halt project |
+| **DG-2** | ADMEC-full outperforms best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 and S3; outperforms ADMEC-delay | Not started | Archive as negative result |
+| **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | Not started | Collapse to two-way classification |
+| **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Not started | Archive |
 
 ## Timeline
 

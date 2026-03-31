@@ -6,7 +6,6 @@ title: Home
 # ADM-EC Clock Consensus
 
 **Current status:** DG-1 closed. IC calibrated across ten null models (max threshold ratio 1.24×). Finite-N bias < 1% at N ≥ 75. One sub-criterion failed: systematic σ-underestimation shifts AIPP by 19.3% (exceeds 15% bound); mitigated by worst-case threshold calibration for WP2. Remaining WP1 item: effect-size threshold δ_min.
-{: .status-banner}
 
 ---
 
@@ -59,7 +58,8 @@ Source: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tre
 | Gate | Condition | Status |
 |------|-----------|--------|
 | **DG-1** | IC calibration: AIPP converges to 1.25 bit (±5% relative); thresholds stable within ×1.5; σ-sensitivity bounded | Closed — all criteria pass except systematic σ-underestimation (mitigated; see entry 002) |
-| **DG-2** | ADMEC-full ≥ 15% MSE reduction vs best non-ADMEC baseline in S1 and S3 | Not started |
+| **DG-2** | ADMEC-full outperforms best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 and S3; outperforms ADMEC-delay | Not started |
+| **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | Not started |
 | **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Not started |
 
 ## Timeline

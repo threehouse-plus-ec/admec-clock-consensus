@@ -175,7 +175,7 @@ The near-critical sensing analogy (Warring 2026a) motivates the design but is no
 | Month | Activity | Gate |
 |-------|----------|------|
 | 1–2 | WP1: IC calibration | DG-1 |
-| 2–5 | WP2: Simulation (8 scenarios × 10 seeds × 8 estimators) + lead–lag analysis | DG-2, DG-2b |
+| 2–5 | WP2: Simulation (8 scenarios × 10 seeds × 9 estimators) + lead–lag analysis | DG-2, DG-2b |
 | 5 | WP3: Ablation (5 configs × 3 scenarios × 10 seeds) | DG-3 |
 | 5–9 | WP4: Manuscript | Submission |
 | 9–12 | Buffer: revisions, code release | — |
