@@ -53,7 +53,7 @@ Implemented as `perturb_sigmas()` in `src/ic.py`.
 | Systematic +20% | −12.7% | ✅ PASS | −13.5% | ✅ PASS |
 | Systematic −20% | +19.3% | ❌ FAIL | +18.1% | ✅ PASS |
 
-**DG-1 σ-sensitivity criterion: CONDITIONAL PASS — random and systematic overestimate pass; systematic underestimate exceeds the 15% AIPP bound.**
+**DG-1 σ-sensitivity criterion against pre-registered 15% bound: FAIL.** Random and systematic overestimate pass; systematic underestimate (+19.3%) exceeds the bound. See Harbourmaster ruling below.
 
 ### 4. Figure
 
@@ -78,7 +78,9 @@ The random ±20% condition is nearly invisible (+1.2% shift) because the positiv
 
 ## What this means for the project
 
-### DG-1 status update
+### DG-1 σ-sensitivity: FAIL against pre-registered criterion
+
+The pre-registered bound was 15% relative AIPP shift. Systematic −20% underestimation produces a 19.3% shift. This is a genuine failure, not a borderline case.
 
 | Criterion | Status |
 |-----------|--------|
@@ -90,25 +92,35 @@ The random ±20% condition is nearly invisible (+1.2% shift) because the positiv
 | Finite-N bias quantified | ⬜ Not yet tested |
 | Power-law and 1/f nulls | ⬜ Not yet tested |
 
-### Consequences
+### Physical interpretation
 
 1. **IC is robust against random calibration noise.** In real clock networks, uncertainty budgets have random errors from characterisation noise — the IC handles this without issue.
 
 2. **Coherent underestimation is the dangerous case.** If all clocks systematically understate their uncertainty (e.g., due to an unmodelled noise floor), AIPP inflates by ~19%. This could cause false anomaly detections if the threshold is calibrated under correct-σ assumptions.
 
-3. **Mitigation options for WP2:**
-   - Calibrate thresholds under the worst-case σ condition (systematic −20%), not the nominal condition. This makes the test conservative.
-   - Use the `verify_sigmas` function (already implemented) as a pre-filter: if declared σ deviates from observed variance by more than a factor, flag the node before applying IC classification.
-   - Accept the 19% shift as within a relaxed 20% criterion. The 15% was a reasonable pre-choice, but 19% may still be acceptable if the classification rule uses robust thresholds.
+### Harbourmaster ruling: proceed with worst-case threshold calibration
 
-4. **The project is not blocked.** The systematic −20% failure is a calibration sensitivity, not a fundamental flaw. The downstream classification (WP2) can account for it.
+**Decision:** The project proceeds. The mitigation is operational, not a criterion revision.
+
+**Rationale:** The 15% pre-registered bound stands — it is not relaxed. The systematic −20% condition genuinely fails it. However, the failure does not trigger the DG-1 halt condition ("Halt project") because:
+
+1. The failure is confined to a single pathological condition (coherent underestimation across all nodes simultaneously). Random misspecification — the realistic case — shows negligible shift (+1.2%).
+2. The 95th-percentile threshold is stable even under systematic −20% (shift 18.1%, within the 20% threshold-stability bound). The anomaly-detection operating point is not destroyed.
+3. A concrete operational mitigation exists that does not require changing the IC definition.
+
+**Chosen mitigation for WP2:** Calibrate anomaly-detection thresholds under the worst-case σ condition (systematic −20%), not the nominal condition. This means the WP2 threshold table will be computed using `perturb_sigmas(sigmas, mode='systematic-', magnitude=0.2)` as the calibration null. This makes the test conservative: any anomaly that exceeds the worst-case threshold is anomalous regardless of σ-budget errors up to 20%.
+
+The `verify_sigmas` pre-filter (already implemented) provides a second line of defence: nodes whose declared σ deviates from observed variance by more than 2× are flagged before IC classification is applied.
+
+**What is NOT done:** The 15% criterion is not relaxed to 20% post-hoc. That would be fitting the criterion to the result. The failure is recorded, the mitigation is recorded, and the decision to proceed is recorded.
 
 ## Remaining WP1 tasks
 
-1. Power-law null (Pareto α = 2.5, 3.0)
-2. 1/f (flicker) null via AR(1) approximation with spectral slope h_α = −1
-3. Finite-N bias: fit empirical AIPP(N) curve
-4. Effect-size threshold δ_min for the classification rule
+1. ~~σ-sensitivity resolution~~ → resolved: worst-case threshold calibration (this entry)
+2. Power-law null (Pareto α = 2.5, 3.0)
+3. 1/f (flicker) null via AR(1) approximation with spectral slope h_α = −1
+4. Finite-N bias: fit empirical AIPP(N) curve
+5. Effect-size threshold δ_min for the classification rule
 
 ## Files changed
 
