@@ -5,7 +5,7 @@ title: Home
 
 # ADM-EC Clock Consensus
 
-**Current status:** DG-1 closed. IC calibrated across ten null models (max threshold ratio 1.24×). Finite-N bias < 1% at N ≥ 75. One sub-criterion failed: systematic σ-underestimation shifts AIPP by 19.3% (exceeds 15% bound); mitigated by worst-case threshold calibration for WP2 — this is a procedural workaround, not an intrinsic fix; IC remains sensitive to the fidelity of declared uncertainties. WP1 remaining: effect-size threshold δ_min (not a gate criterion; needed before WP2 classifier design).
+**Current status:** WP1 complete. WP2 not started. DG-1 closed; IC calibrated across ten null models. One sub-criterion failed: systematic σ-underestimation exceeds 15% bound — this is a procedural workaround (worst-case threshold calibration), not an intrinsic fix; IC remains sensitive to the fidelity of declared uncertainties. Three-way classification rule fully specified (δ_min calibrated).
 
 *IC is stable under tested nulls and finite-N effects. Sensitivity to σ-misestimation indicates dependence on the fidelity of declared uncertainties rather than intrinsic robustness. WP2 will test whether classification-based response compensates for this sensitivity at the system level.*
 
@@ -20,7 +20,7 @@ This project tests that question on simulated clock networks, comparing the prop
 ### Where to start
 
 1. **[Project Proposal](docs/projektantrag.md)** — objectives, work packages, decision gates, failure conditions. Start here for the full picture.
-2. **[Latest logbook entry](logbook/003_2026-03-31_powerlaw-nulls-and-finite-n-bias.md)** — what was done most recently and what it means for the gates.
+2. **[Latest logbook entry](logbook/004_2026-03-31_delta-min-calibration.md)** — what was done most recently and what it means for the gates.
 3. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
 
 ---
@@ -31,6 +31,7 @@ This project tests that question on simulated clock networks, comparing the prop
 |----------|-------------|
 | [Project Proposal](docs/projektantrag.md) | Internal project proposal (DFG Sachbeihilfe structure, v0.5.3 frozen). Defines objectives, work packages, scenarios, estimators, decision gates, and failure conditions. |
 | [Rebuttal](docs/rebuttal.md) | Point-by-point response to a hostile internal review of proposal v0.4. Documents what was conceded, what was cut, and why. |
+| [Outreach](docs/outreach.md) | Non-technical overview: when clocks disagree — noise, signal, and the value of anomalies. |
 
 ## Logbook
 
@@ -41,6 +42,7 @@ Chronological record of what was done, what was found, and what it means for the
 | [001 — IC Implementation and AIPP Correction](logbook/001_2026-03-31_ic-implementation-and-aipp-correction.md) | 2026-03-31 | IC implemented; AIPP null limit corrected from 0.55 to 1.25 bit; convergence and threshold stability pass DG-1 |
 | [002 — σ-Sensitivity Analysis](logbook/002_2026-03-31_sigma-sensitivity-analysis.md) | 2026-03-31 | Systematic −20% σ-underestimation fails pre-registered 15% bound; proceed with worst-case threshold calibration |
 | [003 — Power-Law Nulls and Finite-N Bias](logbook/003_2026-03-31_powerlaw-nulls-and-finite-n-bias.md) | 2026-03-31 | All ten null models within ×1.5; finite-N bias < 1% at N ≥ 75; DG-1 closed |
+| [004 — δ_min Calibration](logbook/004_2026-03-31_delta-min-calibration.md) | 2026-03-31 | Effect-size thresholds calibrated; classification rule complete; WP1 complete |
 
 ## Code
 
@@ -49,6 +51,7 @@ Source: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tre
 | Module | Description | Status |
 |--------|-------------|--------|
 | [`ic.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/ic.py) | Information Content: interval-probability definition, analytic Gaussian CDF, σ-perturbation | Implemented |
+| [`temporal.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/temporal.py) | Temporal-structure statistics and δ_min calibration for three-way classifier | Implemented |
 | [`clocks.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/clocks.py) | Clock model with power-law noise | Not yet implemented |
 | [`network.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/network.py) | Network topology and delay model | Not yet implemented |
 | [`estimators.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/estimators.py) | All nine estimators | Not yet implemented |
