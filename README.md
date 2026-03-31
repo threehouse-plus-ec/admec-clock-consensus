@@ -1,6 +1,6 @@
 # Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
-**Status:** WP1 complete. WP2 not started. DG-1 closed; IC calibrated across ten null models. Three-way classification rule fully specified.
+**Status:** WP1 complete. WP2 not started. DG-1 closed with one recorded failure: systematic σ-underestimation exceeds the pre-registered 15% bound (mitigated by worst-case threshold calibration; see logbook entry 002). Three-way classification rule fully specified.
 
 ---
 
@@ -46,7 +46,7 @@ The project has explicit stop/go gates. Results are published regardless of outc
 
 | Gate | Condition | Status | If fail |
 |------|-----------|--------|---------|
-| **DG-1** | IC calibration: AIPP converges to 1.25 bit (±5% relative); thresholds stable within ×1.5 across noise models including correlated noise; σ-sensitivity bounded | Closed (see logbook entries 001–003) | Halt project |
+| **DG-1** | IC calibration: AIPP converges to 1.25 bit (±5% relative); thresholds stable within ×1.5 across noise models including correlated noise; σ-sensitivity bounded | Closed — all criteria pass except systematic σ-underestimation (fails pre-registered 15% bound at +19.3%; mitigated by worst-case threshold calibration, not relaxed; see logbook entries 001–003) | Halt project |
 | **DG-2** | ADMEC-full outperforms best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 and S3; outperforms ADMEC-delay | Not started | Archive as negative result |
 | **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | Not started | Collapse to two-way classification |
 | **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Not started | Archive |

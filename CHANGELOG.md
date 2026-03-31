@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] — 2026-03-31
+
+### Added
+- `src/temporal.py`: Temporal-structure statistics — `compute_temporal_structure`, `calibrate_delta_min`
+- `tests/test_temporal.py`: 13 tests for temporal statistics, δ_min calibration, and detectability
+- `scripts/fig06_delta_min_calibration.py`: Figure generation script
+- `logbook/`: Entry 004 (δ_min calibration)
+- `docs/outreach.md`: Non-technical overview
+
+### Changed
+- `src/classify.py`: Stub updated to reflect calibrated thresholds (δ_min_var = 0.2105, δ_min_acf = 0.8703) and corrected classifier definition (plain lag-1 acf, not acf trend slope)
+- `docs/projektantrag.md`: Classifier rule updated to match WP1 implementation (autocorrelation trend slope → plain lag-1 autocorrelation)
+- `README.md`, `index.md`: DG-1 status now consistently reports the σ-sensitivity failure and mitigation
+
+### Status
+- **WP1: Complete.** All tasks done (entries 001–004). DG-1 closed with one recorded failure (systematic σ-underestimation, mitigated).
+- **76 tests total**, 74 passing (2 known failures: systematic −20% σ-sensitivity).
+- Three-way classification rule fully specified.
+
 ## [0.2.0] — 2026-03-31
 
 ### Added

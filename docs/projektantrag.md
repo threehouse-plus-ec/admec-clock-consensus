@@ -90,13 +90,13 @@ Stochastic differential equation per clock:
 
 where dW is Wiener, dB(flicker) is a fractional noise process approximated by an AR(1) filter with spectral slope h_α = −1 (flicker frequency). Parameters scaled from the reference maser characterisation above.
 
-Classification rule:
+Classification rule (revised during WP1 calibration — see logbook entry 004):
 
     STABLE:              IC < threshold
-    STRUCTURED ANOMALY:  IC ≥ threshold AND (variance trend slope > δ_min OR autocorrelation trend slope > δ_min) over window W
-    UNSTRUCTURED ANOMALY: IC ≥ threshold AND no trend exceeding δ_min
+    STRUCTURED ANOMALY:  IC ≥ threshold AND (|variance slope| > δ_min_var OR |lag-1 autocorrelation| > δ_min_acf) over window W
+    UNSTRUCTURED ANOMALY: IC ≥ threshold AND |variance slope| ≤ δ_min_var AND |lag-1 autocorrelation| ≤ δ_min_acf
 
-where δ_min is a minimum effect-size threshold fixed a priori as the median absolute slope observed under the null scenarios (S4/S5). A positive trend is counted only if it exceeds this null-calibrated floor.
+The original proposal specified "autocorrelation trend slope" (the rate of change of autocorrelation over the window). During WP1 calibration, this was simplified to plain lag-1 autocorrelation, which is more stable under null models and directly interpretable as a persistence indicator. δ_min_var is calibrated as k × median(|slope|) under the hardest null (k = 3); δ_min_acf is calibrated as the 95th percentile of |acf| under the hardest null (percentile-based because acf is bounded to [-1, 1]).
 
 Robustness: classification tested under W ∈ {10, 15, 20, 30}. The temporal-trend criteria are heuristic classifiers, not formal structural inference methods; they are sensitive to noise colour and window length. The project tests whether this simple heuristic is sufficient to yield measurable estimator improvement, not whether it is optimal.
 
