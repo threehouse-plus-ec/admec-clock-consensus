@@ -1,10 +1,8 @@
-# Rebuttal and Revised Projektantrag
+# Rebuttal to Internal Review
 
-## Part I — Point-by-Point Rebuttal
+Response to the hostile review of ADM-EC Projektantrag v0.4. The review led to the revised Projektantrag v0.5 (see [Projektantrag](projektantrag.md)).
 
 ---
-
-### Response to the hostile review of ADM-EC Projektantrag v0.4
 
 The review is substantially correct in its diagnosis of the proposal's main weaknesses. The revision implements the three recommended cuts and addresses each major criticism. Where the review overstates, I note this briefly; where it is right, I concede and cut.
 
