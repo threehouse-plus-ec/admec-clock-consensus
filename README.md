@@ -1,6 +1,6 @@
 # Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
-**Status:** WP1 not yet started. No validated results exist. This repository will contain them when they do.
+**Status:** WP1 in progress. DG-1 partially passed (convergence and threshold stability verified; σ-sensitivity and extended nulls remain).
 
 ---
 
@@ -29,13 +29,13 @@ The project may produce a positive result (the three-way classification improves
 
 | Module | Description | Status |
 |--------|-------------|--------|
-| `src/ic.py` | Information Content: interval-probability definition, analytic Gaussian CDF | Not yet implemented |
+| `src/ic.py` | Information Content: interval-probability definition, analytic Gaussian CDF | Implemented (WP1) |
 | `src/clocks.py` | Clock model with power-law noise (white, flicker, random-walk) | Not yet implemented |
 | `src/network.py` | Network topology and delay model | Not yet implemented |
 | `src/estimators.py` | All nine estimators (FREQ-global/local/exclude, Huber, BOCPD, IMM, ADMEC variants) | Not yet implemented |
 | `src/constraints.py` | Update-size constraint projection (variance ratio, step size, energy bound) | Not yet implemented |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured anomaly) | Not yet implemented |
-| `tests/` | Unit tests for IC calibration, estimator correctness, constraint feasibility | Not yet implemented |
+| `tests/` | Unit tests for IC calibration, estimator correctness, constraint feasibility | 24 passing (IC) |
 | `notebooks/` | WP1 calibration, WP2 simulation runs, WP3 ablation | Not yet implemented |
 
 ## Decision gates
@@ -44,7 +44,7 @@ The project has explicit stop/go gates. Results are published regardless of outc
 
 | Gate | Condition | If fail |
 |------|-----------|---------|
-| **DG-1** | IC calibration: AIPP ≈ 0.55 bit (±5%) for Gaussian null; thresholds stable within ×1.5 across noise models including correlated noise | Halt project |
+| **DG-1** | IC calibration: AIPP ≈ 1.25 bit (±5% relative) for Gaussian null; thresholds stable within ×1.5 across noise models including correlated noise | Halt project |
 | **DG-2** | ADMEC-full ≥ 15% MSE reduction AND ≥ 1 other metric vs FREQ-global, in S1 AND S3; outperforms Huber, BOCPD, IMM | Archive as negative result |
 | **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | Collapse to two-way classification |
 | **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Archive |

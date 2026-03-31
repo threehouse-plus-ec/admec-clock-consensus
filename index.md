@@ -45,7 +45,7 @@ Source code: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensu
 
 | Gate | Condition | Status |
 |------|-----------|--------|
-| **DG-1** | IC calibration: AIPP converges to 1.25 bit (±5%); thresholds stable within ×1.5 | Partial pass |
+| **DG-1** | IC calibration: AIPP converges to 1.25 bit (±5% relative); thresholds stable within ×1.5 | Partial pass |
 | **DG-2** | ADMEC-full ≥ 15% MSE reduction vs FREQ-global in S1 and S3 | Not started |
 | **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric | Not started |
 
