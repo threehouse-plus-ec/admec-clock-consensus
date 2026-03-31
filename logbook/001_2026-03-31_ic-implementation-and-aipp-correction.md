@@ -25,7 +25,7 @@ The implementation is fully vectorised (O(N²) via broadcasting, no loops over p
 
 ### 2. The AIPP correction — the main finding
 
-The Projektantrag (all versions through v0.5.2) stated:
+The project proposal (all versions through v0.5.2) stated:
 
 > AIPP → −log₂(erf(1/√2)) ≈ 0.55 bit as N → ∞ (Gaussian null)
 
@@ -146,9 +146,9 @@ tests/test_ic.py::TestAggregates::test_aipp PASSED
 | Finite-N bias quantified | ⬜ Empirically observed; formal fit not yet done |
 | Power-law and 1/f nulls | ⬜ Not yet tested |
 
-### Consequence for the Projektantrag
+### Consequence for the project proposal
 
-The Projektantrag v0.5.3 has been updated to state the correct limit (1.25 bit). All decision gates referencing the AIPP null value have been corrected.
+The project proposal v0.5.3 has been updated to state the correct limit (1.25 bit). All decision gates referencing the AIPP null value have been corrected.
 
 ### The lesson
 

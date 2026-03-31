@@ -1,6 +1,6 @@
 # Rebuttal to Internal Review
 
-Response to the hostile review of ADM-EC Projektantrag v0.4. The review led to the revised Projektantrag v0.5 (see [Projektantrag](projektantrag.md)).
+Response to the hostile review of ADM-EC project proposal v0.4. The review led to the revised proposal v0.5 (see [Project Proposal](projektantrag.md)).
 
 ---
 

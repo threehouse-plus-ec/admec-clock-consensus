@@ -22,7 +22,7 @@ The project may produce a positive result (the three-way classification improves
 
 | Document | Description | Status |
 |----------|-------------|--------|
-| [`docs/projektantrag.md`](docs/projektantrag.md) | Internal project description following DFG Sachbeihilfe structure. Defines objectives, work packages, decision gates, and failure conditions. | v0.5.2 (frozen) |
+| [`docs/projektantrag.md`](docs/projektantrag.md) | Project proposal (DFG Sachbeihilfe structure). Defines objectives, work packages, decision gates, and failure conditions. | v0.5.3 (frozen) |
 | [`docs/rebuttal.md`](docs/rebuttal.md) | Point-by-point rebuttal to a hostile internal review. Documents how the project scope was contracted. | v1.0 |
 
 ## Code

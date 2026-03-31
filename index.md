@@ -18,7 +18,7 @@ This project tests that question on simulated clock networks, comparing the prop
 
 ### Where to start
 
-1. **[Projektantrag](docs/projektantrag.md)** — the project proposal: objectives, work packages, decision gates, failure conditions. Start here for the full picture.
+1. **[Project Proposal](docs/projektantrag.md)** — objectives, work packages, decision gates, failure conditions. Start here for the full picture.
 2. **[Latest logbook entry](logbook/003_2026-03-31_powerlaw-nulls-and-finite-n-bias.md)** — what was done most recently and what it means for the gates.
 3. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
 
@@ -28,8 +28,8 @@ This project tests that question on simulated clock networks, comparing the prop
 
 | Document | Description |
 |----------|-------------|
-| [Projektantrag](docs/projektantrag.md) | Internal project proposal (DFG Sachbeihilfe structure, v0.5.3 frozen). Defines objectives, work packages, scenarios, estimators, decision gates, and failure conditions. |
-| [Rebuttal](docs/rebuttal.md) | Point-by-point response to a hostile internal review of Projektantrag v0.4. Documents what was conceded, what was cut, and why. |
+| [Project Proposal](docs/projektantrag.md) | Internal project proposal (DFG Sachbeihilfe structure, v0.5.3 frozen). Defines objectives, work packages, scenarios, estimators, decision gates, and failure conditions. |
+| [Rebuttal](docs/rebuttal.md) | Point-by-point response to a hostile internal review of proposal v0.4. Documents what was conceded, what was cut, and why. |
 
 ## Logbook
 

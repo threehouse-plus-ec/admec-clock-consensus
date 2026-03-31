@@ -1,4 +1,4 @@
-# Projektantrag — Beschreibung des Vorhabens
+# Project Proposal
 
 ## Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
@@ -8,10 +8,10 @@ This proposal was revised in response to an internal review. See the [Rebuttal](
 
 ---
 
-**Antragsteller:** Dr Ulrich Warring
+**Applicant:** Dr Ulrich Warring
 **Institution:** Physikalisches Institut, Albert-Ludwigs-Universität Freiburg
-**Fachgebiet:** Experimentalphysik / Messtechnik
-**Geplante Laufzeit:** 12 Monate (April 2026 – March 2027)
+**Field:** Experimental physics / Metrology
+**Planned duration:** 12 months (April 2026 – March 2027)
 **Requested resources:** None (self-funded; internal discipline device)
 
 ---
