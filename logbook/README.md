@@ -7,3 +7,4 @@ Entries are Markdown files named `YYYY-MM-DD_title.md`. Figures are stored along
 | Entry | Date | Summary |
 |-------|------|---------|
 | [001](001_2026-03-31_ic-implementation-and-aipp-correction.md) | 2026-03-31 | IC implementation, AIPP null limit corrected from 0.55 to 1.25 bit |
+| [002](002_2026-03-31_sigma-sensitivity-analysis.md) | 2026-03-31 | σ-sensitivity: random and systematic+ pass; systematic −20% exceeds 15% bound |

@@ -2,7 +2,7 @@
 Tests for IC module — WP1 validation.
 
 These tests constitute the first part of DG-1:
-    - AIPP converges to ~0.55 bit for Gaussian i.i.d.
+    - AIPP converges to ~1.25 bit for Gaussian i.i.d. (see logbook entry 001)
     - IC handles edge cases correctly
     - σ-verification flags discrepancies
 """

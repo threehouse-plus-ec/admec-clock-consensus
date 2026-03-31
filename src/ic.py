@@ -22,10 +22,10 @@ Analytic evaluation via Gaussian CDF (scipy.special.erf). No numerical
 integration, no KDE.
 
 Expected null behaviour:
-    For Gaussian i.i.d. with constant σ, as N → ∞:
-        p_k → erf(1/√2) ≈ 0.6827
-        I_k → -log₂(0.6827) ≈ 0.5510 bit
-        AIPP → 0.5510 bit
+    For Gaussian i.i.d. with σ_data = σ_declared = 1, as N → ∞:
+        The mixture P(y) converges to N(0, √2) (convolution of data
+        distribution with kernel), giving AIPP → ≈ 1.25 bit.
+        The earlier claim of 0.55 bit was incorrect — see logbook entry 001.
 
 Author: U. Warring
 Version: 0.1.0
@@ -168,6 +168,52 @@ def aipp_gaussian_limit(sigma_data: float = 1.0,
     p = np.clip(p, 1e-300, 1.0)
     ic = -np.log2(p)
     return float(np.mean(ic))
+
+
+def perturb_sigmas(sigmas: np.ndarray,
+                   mode: str = 'random',
+                   magnitude: float = 0.2,
+                   rng: Optional[np.random.Generator] = None) -> np.ndarray:
+    """
+    Perturb declared uncertainties for σ-sensitivity analysis.
+
+    Each σ_k is replaced by σ_k × (1 + ε_k), where ε_k depends on mode:
+      - 'random':       ε_k ~ Uniform(-magnitude, +magnitude)  i.i.d.
+      - 'systematic+':  ε_k = +magnitude  (coherent overestimate)
+      - 'systematic-':  ε_k = -magnitude  (coherent underestimate)
+
+    Parameters
+    ----------
+    sigmas : array of shape (N,)
+        Original declared uncertainties (must be > 0).
+    mode : str
+        Perturbation mode: 'random', 'systematic+', or 'systematic-'.
+    magnitude : float
+        Perturbation magnitude (fraction of σ). Default 0.2 (±20%).
+    rng : numpy Generator, optional
+        Random number generator (used only for 'random' mode).
+
+    Returns
+    -------
+    perturbed : array of shape (N,)
+        Perturbed σ values, guaranteed > 0.
+    """
+    sigmas = np.asarray(sigmas, dtype=np.float64)
+    if mode == 'random':
+        if rng is None:
+            rng = np.random.default_rng()
+        eps = rng.uniform(-magnitude, magnitude, sigmas.shape)
+    elif mode == 'systematic+':
+        eps = magnitude
+    elif mode == 'systematic-':
+        eps = -magnitude
+    else:
+        raise ValueError(f"Unknown mode: {mode!r}. "
+                         f"Use 'random', 'systematic+', or 'systematic-'.")
+    perturbed = sigmas * (1.0 + eps)
+    # Ensure positivity (relevant for large random perturbations)
+    perturbed = np.maximum(perturbed, 1e-10)
+    return perturbed
 
 
 def verify_sigmas(values: np.ndarray,
