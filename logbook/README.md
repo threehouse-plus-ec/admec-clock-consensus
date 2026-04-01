@@ -10,3 +10,4 @@ Entries are Markdown files named `NNN_YYYY-MM-DD_title.md`. Figures are stored i
 | [002](002_2026-03-31_sigma-sensitivity-analysis.md) | 2026-03-31 | σ-sensitivity: systematic −20% fails 15% bound; proceed with worst-case calibration |
 | [003](003_2026-03-31_powerlaw-nulls-and-finite-n-bias.md) | 2026-03-31 | Power-law, flicker, random-walk nulls all pass ×1.5; finite-N bias < 1% at N ≥ 75; DG-1 closed |
 | [004](004_2026-03-31_delta-min-calibration.md) | 2026-03-31 | δ_min calibrated: var_slope 0.21, autocorr 0.87; classification rule complete; WP1 complete |
+| [005](005_2026-04-01_positioning-ic-against-fom.md) | 2026-04-01 | IC positioned against χ², Huber, Allan deviation; property table; data infrastructure created |

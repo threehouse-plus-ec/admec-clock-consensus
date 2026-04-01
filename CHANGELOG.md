@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] — 2026-04-01
+
+### Added
+- `src/comparison.py`: Comparison figures of merit — `compute_chi2`, `compute_huber`, `compute_allan_deviation`
+- `tests/test_comparison.py`: 12 tests for comparison functions and ordering consistency
+- `scripts/fig07_comparison_fom.py`: Figure generation for Entry 005
+- `scripts/save_wp1_data.py`: Retroactive data export for entries 001–004
+- `data/`: Data directory with `.npz` archives for all five logbook entries
+- `data/README.md`: Data naming conventions, contents, and regeneration instructions
+- `logbook/`: Entry 005 (positioning IC against established figures of merit)
+
+### Status
+- **WP1 addendum.** Does not modify DG-1 ruling. Triggered by external review.
+- **88 tests total**, 86 passing (2 known failures: systematic −20% σ-sensitivity).
+
 ## [0.3.0] — 2026-03-31
 
 ### Added
