@@ -19,9 +19,10 @@ This project tests that question on simulated clock networks, comparing the prop
 
 ### Where to start
 
-1. **[Project Proposal](docs/projektantrag.md)** — objectives, work packages, decision gates, failure conditions. Start here for the full picture.
-2. **[Latest logbook entry](logbook/005_2026-04-01_positioning-ic-against-fom.md)** — what was done most recently and what it means for the gates.
-3. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
+1. **[WP1 Tutorial](notebooks/wp1_tutorial.ipynb)** — executable walkthrough of IC definition, calibration, and classification (~15 seconds to run). [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp1_tutorial.ipynb)
+2. **[Project Proposal](docs/projektantrag.md)** — objectives, work packages, decision gates, failure conditions. Start here for the full picture.
+3. **[Latest logbook entry](logbook/005_2026-04-01_positioning-ic-against-fom.md)** — what was done most recently and what it means for the gates.
+4. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
 
 ---
 
