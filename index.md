@@ -79,7 +79,7 @@ Source: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tre
 
 | WP | Description | Status |
 |----|-------------|--------|
-| **WP1** | IC calibration: convergence, threshold stability, σ-sensitivity, δ_min | Complete (logbook entries 001–004) |
+| **WP1** | IC calibration: convergence, threshold stability, σ-sensitivity, δ_min | Complete (logbook entries 001–005; [summary](logbook/wp1-summary.md)) |
 | **WP2** | Clock network simulation: 8 scenarios × 10 seeds × 9 estimators | Not started |
 | **WP3** | Ablation: 5 configurations × 3 scenarios × 10 seeds | Not started |
 | **WP4** | Manuscript | Not started |
