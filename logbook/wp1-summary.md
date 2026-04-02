@@ -28,7 +28,7 @@ High IC indicates that reading k is unlikely given the clock's own track record 
 
 IC requires no parametric model for the anomaly itself. The Gaussian-mixture form of P(y) is part of the IC definition; what is established through null calibration is the expected baseline AIPP and the percentile thresholds under specific noise models.
 
-**Mathematical note on scope.** The function `compute_ic(values, sigmas)` is mathematically agnostic: it takes any array of N values with N declared uncertainties and returns IC per point. The same computation applies whether the N points are temporal readings from one clock (longitudinal — the WP1 calibration mode) or simultaneous readings from N clocks (cross-sectional — as used in the Entry 005 comparison example). WP1 defines and calibrates IC in the longitudinal mode. Entry 005 applies it cross-sectionally to demonstrate its properties relative to χ² and Huber; this is a legitimate use of the same mathematics but operates in the mode that WP2 will develop further. The extension to cross-clock comparisons — where passage of time between readings defines a network structure — requires the Lamport-clock perspective (establishing causal ordering between clocks before comparing their IC profiles).
+**Mathematical note on scope.** The function `compute_ic(values, sigmas)` is mathematically agnostic: it takes any array of N values with N declared uncertainties and returns IC per point. The same computation applies whether the N points are temporal readings from one clock (longitudinal — the WP1 calibration mode) or simultaneous readings from N clocks (cross-sectional — as used in the Entry 005 comparison example). WP1 defines and calibrates IC in the longitudinal mode. Entry 005 applies it cross-sectionally to demonstrate its properties relative to χ² and Huber; this is a legitimate use of the same mathematics but operates in the mode that WP2 will develop further. The extension to cross-clock comparisons requires a causal-ordering layer. In a distributed clock network, physical clocks produce readings (frequency measurements with declared uncertainties) — IC operates on these. But clocks do not share a global time axis; before comparing their IC profiles, one must establish which readings were available to which node and in what order. Lamport timestamps (Lamport 1978) provide this causal scaffold: they are logical counters that enforce "A happened before B" ordering across distributed events, without reference to physical time. They do not produce data that IC analyses; they organise the exchange of IC-classified physical clock data across the network. This causal-ordering layer is a WP2 concern.
 
 **AIPP (average information per point).** The ensemble-level aggregate over one clock's N readings:
 
@@ -69,7 +69,7 @@ IC does not replace these measures. It provides a complementary quantity: a scal
 
 WP1 does not demonstrate that IC improves timekeeping or enables better consensus performance. It does not provide a complete taxonomy of anomaly types beyond the binary structured/unstructured distinction defined by δ_min. It does not resolve whether the separation of detection and interpretation — the architectural choice being tested — yields measurable advantage at the network level. These are WP2 questions.
 
-IC as defined and calibrated in WP1 is a single-clock, longitudinal observable. Extending it to a network — where IC profiles from multiple clocks are compared, and where causal ordering between clocks (Lamport timestamps) defines the temporal structure of cross-clock comparisons — is the conceptual step required for WP2. The clock-network context that motivates this extension is the emerging regime of optical clock networks with sub-10⁻¹⁸ instability (Lisdat et al. 2016, Bothwell et al. 2022), where effects previously negligible become detectable and the distinction between informative and uninformative anomalies becomes worth testing. WP1 establishes the per-clock foundation; WP2 tests whether the network-level architecture built on it adds value.
+IC as defined and calibrated in WP1 is a single-clock, longitudinal observable. Extending it to a network — where IC profiles from multiple clocks are compared — requires a causal-ordering layer that determines which physical clock readings were available to which node at which moment. Lamport timestamps provide this ordering without assuming a shared physical time axis; they structure the exchange of data, not the data itself. This is the conceptual step required for WP2. The clock-network context that motivates this extension is the emerging regime of optical clock networks with sub-10⁻¹⁸ instability (Lisdat et al. 2016, Bothwell et al. 2022), where effects previously negligible become detectable and the distinction between informative and uninformative anomalies becomes worth testing. WP1 establishes the per-clock foundation; WP2 tests whether the network-level architecture built on it adds value.
 
 IC remains a pointwise observable. It does not distinguish between random and structured deviations — that distinction requires the temporal-structure layer (variance slope, lag-1 autocorrelation) calibrated via δ_min. Alone, IC can flag that a clock reading is anomalous but cannot say whether the anomaly is a one-off outlier or a persistent drift.
 
@@ -83,25 +83,28 @@ UNSTRUCTURED ANOMALY: IC ≥ threshold_95  AND  |var_slope| ≤ 0.2105  AND  |au
 
 where threshold_95 is the 95th-percentile AIPP value from the null calibration (Entry 001), recalibrated under worst-case σ conditions (systematic −20% underestimation, Entry 002). The variance slope and autocorrelation are computed over a trailing window of W = 20 time steps within a single clock's reading sequence.
 
+Note: the threshold_95 used here is derived from the AIPP distribution (average over N readings). When applied to classify individual readings in WP2, this threshold must be replaced by the corresponding percentile of the per-reading I_k distribution, which has higher variance. This recalibration is a WP2 task.
+
 ## Decision gate outcome
 
 DG-1 closed with one identified limitation: systematic σ-underestimation exceeds the pre-registered 15% sensitivity bound (actual: 19.3%). The 15% criterion was not relaxed post hoc. The failure is recorded, and the mitigation (worst-case threshold calibration) is adopted for WP2. All other DG-1 sub-criteria pass.
 
 ## Transition to WP2
 
-WP2 will evaluate whether the separation of inconsistency detection (IC) and temporal-structure classification (δ_min) enables improved handling of anomalous clocks at the network level. This requires extending the single-clock IC observable to a network context in which causal ordering between clocks (Lamport-clock perspective) defines passage of time between readings. The comparison set includes frequentist weighted averaging, Huber M-estimation (Huber 1981), Bayesian online changepoint detection (Adams & MacKay 2007), and an interacting multiple model filter (Blom & Bar-Shalom 1988). Clock noise parameters are drawn from published hydrogen maser characterisations (Panfilo & Arias 2019). Both positive and negative results will be published.
+WP2 will evaluate whether the separation of inconsistency detection (IC) and temporal-structure classification (δ_min) enables improved handling of anomalous clocks at the network level. This requires extending the single-clock IC observable to a network context with a causal-ordering layer (Lamport timestamps) that determines which physical clock readings are available to which node and when — structuring the exchange of IC-classified data without assuming a shared physical time axis. The comparison set includes frequentist weighted averaging, Huber M-estimation (Huber 1981), Bayesian online changepoint detection (Adams & MacKay 2007), and an interacting multiple model filter (Blom & Bar-Shalom 1988). Clock noise parameters are drawn from published hydrogen maser characterisations (Panfilo & Arias 2019). Both positive and negative results will be published.
 
 ## References
 
-1. Allan, D. W. Statistics of atomic frequency standards. *Proc. IEEE* **54**, 221–230 (1966).
-2. Huber, P. J. *Robust Statistics* (Wiley, 1981).
-3. Blom, H. A. P. & Bar-Shalom, Y. The interacting multiple model algorithm. *IEEE Trans. Automat. Contr.* **33**, 780–783 (1988).
-4. Adams, R. P. & MacKay, D. J. C. Bayesian online changepoint detection. Preprint arXiv:0710.3742 (2007).
-5. Scheffer, M. et al. Early-warning signals for critical transitions. *Nature* **461**, 53–59 (2009).
-6. Dakos, V. et al. Methods for detecting early warnings of critical transitions. *PLoS ONE* **7**, e41010 (2012).
-7. Lisdat, C. et al. A clock network for geodesy and fundamental science. *Nat. Commun.* **7**, 12443 (2016).
-8. Panfilo, G. & Arias, F. The Coordinated Universal Time (UTC). *Metrologia* **56**, 042001 (2019).
-9. Bothwell, T. et al. Resolving the gravitational redshift across a millimetre-scale atomic sample. *Nature* **602**, 420–424 (2022).
+1. Lamport, L. Time, clocks, and the ordering of events in a distributed system. *Commun. ACM* **21**, 558–565 (1978).
+2. Allan, D. W. Statistics of atomic frequency standards. *Proc. IEEE* **54**, 221–230 (1966).
+3. Huber, P. J. *Robust Statistics* (Wiley, 1981).
+4. Blom, H. A. P. & Bar-Shalom, Y. The interacting multiple model algorithm. *IEEE Trans. Automat. Contr.* **33**, 780–783 (1988).
+5. Adams, R. P. & MacKay, D. J. C. Bayesian online changepoint detection. Preprint arXiv:0710.3742 (2007).
+6. Scheffer, M. et al. Early-warning signals for critical transitions. *Nature* **461**, 53–59 (2009).
+7. Dakos, V. et al. Methods for detecting early warnings of critical transitions. *PLoS ONE* **7**, e41010 (2012).
+8. Lisdat, C. et al. A clock network for geodesy and fundamental science. *Nat. Commun.* **7**, 12443 (2016).
+9. Panfilo, G. & Arias, F. The Coordinated Universal Time (UTC). *Metrologia* **56**, 042001 (2019).
+10. Bothwell, T. et al. Resolving the gravitational redshift across a millimetre-scale atomic sample. *Nature* **602**, 420–424 (2022).
 
 ## Artefacts
 
