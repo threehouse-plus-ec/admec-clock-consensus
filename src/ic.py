@@ -21,6 +21,12 @@ null noise assumptions.
 Analytic evaluation via Gaussian CDF (scipy.special.erf). No numerical
 integration, no KDE.
 
+Scope: compute_ic is mathematically agnostic — it takes any array of N
+values with N declared uncertainties. The N points may be temporal
+readings from one clock (longitudinal — the WP1 calibration mode) or
+simultaneous readings from N clocks (cross-sectional — WP2 mode).
+See logbook/wp1-summary.md, "Mathematical note on scope."
+
 Expected null behaviour:
     For Gaussian i.i.d. with σ_data = σ_declared = 1, as N → ∞:
         The mixture P(y) converges to N(0, √2) (convolution of data

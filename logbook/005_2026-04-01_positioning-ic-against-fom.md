@@ -27,7 +27,7 @@ Note: `compute_chi2` returns the per-point squared normalised residual, not the 
 
 ## Controlled example
 
-**Setup:** 20 clocks, T = 200 steps, seed `np.random.default_rng(2026)`.
+**Setup:** 20 clocks, T = 200 steps, seed `np.random.default_rng(2026)`. [2026-04-02: Scope clarification — this comparison uses IC in cross-sectional mode (N = 20 simultaneous clocks at each time step), which is mathematically identical to `compute_ic(values, sigmas)` but operationally distinct from WP1's longitudinal calibration (one clock, N readings over time). This previews the WP2 network-level usage.]
 
 - 19 stable clocks: Gaussian noise, σ = 1.
 - 1 drifting clock (index 0): Gaussian noise σ = 1 plus linear drift of 0.02 per step.

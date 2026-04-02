@@ -10,7 +10,9 @@ Three established measures for context:
 These are not competitors to IC in the project's design — IC operates on
 a different axis (distributional inconsistency via interval probability).
 This module exists solely for Entry 005, which positions IC against
-familiar quantities.
+familiar quantities. Entry 005 applies IC in cross-sectional mode
+(N clocks at one time step), previewing WP2 methodology; WP1's core
+calibration uses IC longitudinally (one clock, N readings over time).
 
 Author: U. Warring
 Version: 0.1.0
