@@ -32,6 +32,7 @@ This project tests that question on simulated clock networks, comparing the prop
 | [Project Proposal](docs/projektantrag.md) | Internal project proposal (DFG Sachbeihilfe structure, v0.5.3 frozen). Defines objectives, work packages, scenarios, estimators, decision gates, and failure conditions. |
 | [Rebuttal](docs/rebuttal.md) | Point-by-point response to a hostile internal review of proposal v0.4. Documents what was conceded, what was cut, and why. |
 | [Outreach](docs/outreach.md) | Non-technical overview: when clocks disagree — noise, signal, and the value of anomalies. |
+| [WP1 Summary](logbook/wp1-summary.md) | What was defined, demonstrated, and not solved in WP1. Consolidates entries 001–005. |
 
 ## Data
 
