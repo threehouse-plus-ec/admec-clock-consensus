@@ -122,23 +122,37 @@ spread-preserving methods are shown):
 `admec_full` always has lower (better) collapse index than `admec_delay`,
 confirming the constraint layer suppresses spurious per-node disagreement.
 
-Mean structure correlation, signal scenarios only:
+Mean structure correlation, signal scenarios only. `freq_local` entries
+are means over the finite-seed subset (some seeds collapse to a constant
+residual on signal-bearing nodes, giving an undefined Pearson r):
 
 | Scenario | freq_global | freq_local | freq_exclude | huber | bocpd | imm | admec_unc | admec_delay | admec_full |
-|----------|------------:|-----------:|-------------:|------:|------:|----:|----------:|------------:|-----------:|
-| S1 | 0.951 | NaN | 0.955 | 0.955 | 0.952 | **0.956** | 0.955 | 0.800 | 0.897 |
-| S2 | 0.951 | 0.951 | 0.955 | 0.955 | 0.952 | 0.956 | 0.955 | 0.954 | **0.958** ✓ |
-| S3 | 0.959 | NaN | 0.960 | 0.960 | 0.960 | **0.960** | 0.960 | 0.866 | 0.887 |
-| S6 | 0.455 | NaN | 0.458 | **0.460** | 0.454 | 0.447 | 0.458 | 0.175 | 0.312 |
-| S7 | 0.901 | 0.093 | **1.002** | 0.967 | 0.910 | 0.914 | 1.002 | 0.713 | 0.835 |
-| S8 | 0.205 | NaN | 0.204 | **0.204** | 0.205 | 0.197 | 0.204 | 0.075 | 0.113 |
+|----------|------------:|--------------------:|-------------:|------:|------:|----:|----------:|------------:|-----------:|
+| S1 | 0.951 | 0.598 (8/10 seeds)  | 0.955 | 0.955 | 0.952 | **0.956** | 0.955 | 0.800 | 0.897 |
+| S2 | 0.951 | 0.951 (10/10 seeds) | 0.955 | 0.955 | 0.952 | 0.956 | 0.955 | 0.954 | **0.958** ✓ |
+| S3 | 0.959 | 0.884 (7/10 seeds)  | 0.960 | 0.960 | 0.960 | **0.960** | 0.960 | 0.866 | 0.887 |
+| S6 | 0.455 | 0.200 (7/10 seeds)  | 0.458 | **0.460** | 0.454 | 0.447 | 0.458 | 0.175 | 0.312 |
+| S7 | 0.901 | 0.093 (10/10 seeds) | **1.002** | 0.967 | 0.910 | 0.914 | 1.002 | 0.713 | 0.835 |
+| S8 | 0.205 | 0.083 (7/10 seeds)  | 0.204 | **0.204** | 0.205 | 0.197 | 0.204 | 0.075 | 0.113 |
 
-`freq_local` is NaN on most scenarios because the per-node residual variance
-collapses to zero when each node retains its own reading (no shrinkage).
-S6 and S8 have low absolute correlation across all methods because the
-injected signals (slow drift; pre-bifurcation creep) sit close to the noise
-floor over T = 200; this is a property of the scenarios, not of the
-estimators.
+`freq_local` collapses to a constant per-node residual on a subset of
+seeds because, on a sparse delay-accessible neighbourhood, each node's
+estimate frequently equals its own reading exactly — making
+`reading − estimate ≡ 0` and the Pearson correlation undefined. The
+table reports the mean over the finite-seed subset and the seed count
+explicitly, rather than dropping the column. S6 and S8 have low absolute
+correlation across all methods because the injected signals (slow drift;
+pre-bifurcation creep) sit close to the noise floor over T = 200; this
+is a property of the scenarios, not of the estimators.
+
+S7's `freq_exclude` value of 1.002 (and `admec_unconstrained` 1.002)
+sits slightly above 1.0 because for the constant post-step signal the
+correlation function falls back to a residual-magnitude ratio; values
+near 1 indicate that the consensus left the entire 5σ step in the
+residual rather than absorbing it. The `freq_local` value of 0.093 for
+S7 is finite (10/10 seeds) but small because in the ring topology with
+delay 2 each node mixes its own stepped reading with non-stepped
+neighbours, partly absorbing the step.
 
 `admec_full` does not beat the best non-ADMEC baseline on structure
 correlation in any scenario except **S2**.
@@ -186,8 +200,8 @@ correlation in any scenario except **S2**.
 | Metric | Best baseline | admec_full | Pass? |
 |--------|--------------|------------|-------|
 | MSE | freq_exclude = 0.135 | 0.732 | ❌ FAIL |
-| Collapse index | freq_exclude = 0.000 | 0.622 | ❌ FAIL |
-| Structure correlation | imm = 0.955 | 0.899 | ❌ FAIL |
+| Collapse index | freq_exclude = 0.000 | 0.644 | ❌ FAIL |
+| Structure correlation | imm = 0.956 | 0.897 | ❌ FAIL |
 
 **S1 result: 0/3 metrics pass.**
 
@@ -196,8 +210,8 @@ correlation in any scenario except **S2**.
 | Metric | Best baseline | admec_full | Pass? |
 |--------|--------------|------------|-------|
 | MSE | freq_exclude = 0.025 | 0.741 | ❌ FAIL |
-| Collapse index | freq_exclude = 0.000 | 0.820 | ❌ FAIL |
-| Structure correlation | imm = 0.952 | 0.795 | ❌ FAIL |
+| Collapse index | imm = 0.000 | 0.808 | ❌ FAIL |
+| Structure correlation | imm = 0.960 | 0.887 | ❌ FAIL |
 
 **S3 result: 0/3 metrics pass.**
 
@@ -233,10 +247,34 @@ delay-accessibility constraint is essentially inactive.
 
 ## DG-2b classification validation
 
-TPR/FPR over all anomaly detections (structured + unstructured):
-- TPR = 0.465, FPR = 0.0111, precision = 0.808, F1 = 0.590
+Recomputed reproducibly from `scripts/wp2_classification_check.py`,
+which mirrors the campaign loop and aggregates `classification_metrics`
+against designer-injected ground truth (signal-bearing clocks
+post-onset). Two reports are given because the choice of denominator
+for FPR / precision is itself ambiguous — *all eight scenarios* dilutes
+FPR with the null scenarios' large pool of true negatives, while
+*signal scenarios only* (S1, S2, S3, S6, S7, S8) restricts the denominator
+to settings where ground-truth anomalies actually exist.
 
-Strict STRUCTURED-only TPR = 0.0071. Most detections classify as UNSTRUCTURED, not STRUCTURED. Both classes produce the same exclusion effect on consensus, so the low STRUCTURED TPR does not compromise DG-2 functionality. It does, however, indicate that the temporal-statistic gates (var_slope, acf) are not yet sensitive enough to capture structured anomalies in these short (T=200) runs.
+| Scope | TPR | FPR | precision | F1 |
+|-------|----:|----:|----------:|---:|
+| All 8 scenarios | 0.432 | 0.010 | 0.767 | 0.553 |
+| Signal scenarios only (6) | 0.432 | 0.010 | 0.834 | 0.569 |
+
+Strict STRUCTURED-only TPR = **0.007** (signal scenarios). Almost all
+detections classify as UNSTRUCTURED. Both classes produce the same
+exclusion effect on consensus, so the low STRUCTURED TPR does not
+compromise DG-2 functionality — but it does mean the *three-way*
+distinction the proposal motivates is not detectably operative at
+T = 200 with these signals; the temporal-statistic gates (var_slope,
+acf) almost never fire on top of an IC-flagged reading. WP3 ablation 4
+(two-way vs three-way) is the direct test of whether the distinction
+adds anything.
+
+An earlier draft of this entry quoted TPR = 0.465 / precision = 0.808 /
+F1 = 0.590 from a different aggregation pass; those values have been
+replaced by the `wp2_classification_check.py` output above so the
+numbers are reproducible from a script in the repository.
 
 ---
 
@@ -256,7 +294,7 @@ Strict STRUCTURED-only TPR = 0.0071. Most detections classify as UNSTRUCTURED, n
 - `test_does_not_freeze_at_initial_reading`: asserts estimates evolve away from `Y[0, :]` and MSE stays below 0.5 on pure noise
 - `test_fully_connected_stays_near_delay_variant`: asserts `admec_full` stays within 2.0 of `admec_delay` on fully-connected zero-delay data
 
-Suite now **260 tests / 258 passing** (the 2 failing tests are the documented entry-002 σ-underestimation cases).
+Suite now **261 tests / 259 passing** (the 2 failing tests are the documented entry-002 σ-underestimation cases).
 
 ---
 

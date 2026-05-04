@@ -182,7 +182,10 @@ def is_feasible(state: np.ndarray,
         return False
 
     var_before = float(np.var(state))
-    if var_before > 0:
+    # Same FP guard as project_update -- np.var of a constant array can
+    # return ~3e-33, not exactly 0. Treat anything below 1e-20 as zero
+    # so is_feasible agrees with project_update on near-uniform states.
+    if var_before > 1e-20:
         ratio = float(np.var(state + upd)) / var_before
         if not (params.var_ratio_min <= ratio <= params.var_ratio_max):
             return False

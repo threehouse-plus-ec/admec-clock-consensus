@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.1] — 2026-05-04
+
+### Fixed
+- `src/constraints.py:is_feasible`: matched the FP guard in `project_update` (`var_before > 1e-20` rather than `> 0`). Previously the two functions disagreed on near-uniform states because `np.var` of a constant array returns ~3e-33: `is_feasible` would mark a small update as infeasible while `project_update` would accept it. Added regression test `test_constant_state_agrees_with_project_update`.
+- `logbook/007_2026-05-04_wp2-simulation-harness.md`: corrected the S1 / S3 DG-2 result tables to match the canonical archive — S1 collapse-index `0.622 → 0.644` and structure-correlation `0.899 → 0.897`; S3 collapse-index baseline `freq_exclude → imm`, value `0.820 → 0.808`; S3 structure-correlation baseline `imm 0.952 → 0.960` and admec_full `0.795 → 0.887`. Verdict (NOT MET, S1 = 0/3, S3 = 0/3) is unchanged.
+- `logbook/007*.md` and `logbook/wp2-summary.md`: re-derived DG-2b classification metrics with `scripts/wp2_classification_check.py` (now in the repository). Reports both "all 8 scenarios" (TPR 0.432, FPR 0.010, precision 0.767, F1 0.553) and "signal scenarios only" (precision 0.834, F1 0.569). Strict STRUCTURED-only TPR ≈ 0.007. The earlier `0.808 / 0.590` figures were from a separate aggregation that is no longer in the repository; the current values are reproducible from a checked-in script.
+- `logbook/007*.md`: structure-correlation table now reports `freq_local` as a mean over the finite-seed subset with explicit seed counts (`0.598 (8/10 seeds)`, etc.) rather than as `NaN`. The collapse-to-zero residual on signal-bearing nodes leaves the Pearson r undefined on a subset of seeds, but the mean over the finite seeds is still informative.
+
+### Added
+- `scripts/wp2_classification_check.py`: reproducible DG-2b recomputation. Mirrors the campaign loop and reports `classification_metrics` for both "all scenarios" and "signal scenarios only" denominators, plus the strict STRUCTURED-only TPR.
+
+### Status
+- 261 tests / 259 passing (one new regression test for the `is_feasible` FP guard; 2 known WP1 failures from entry-002 σ-underestimation, mitigated).
+
 ## [0.6.0] — 2026-05-04
 
 ### Added
@@ -15,7 +29,7 @@ All notable changes to this project will be documented in this file.
 ### Status
 - WP2 closed. **DG-2 NOT MET** (negative result, recorded as anticipated by the proposal). DG-2b strict-three-way TPR ≈ 0.7 % (also not met). The constraint layer beats `admec_delay` on every scenario but cannot close the gap to centralised exclusion methods on sparse-with-delay topologies.
 - WP3 ablations now scoped to characterise the failure mode (delay convention, classification threshold, constraint sensitivity, two-vs-three-way, ADMEC-full-lagged).
-- 260 tests / 258 passing (unchanged; 2 known WP1 failures from entry-002 σ-underestimation, mitigated by worst-case threshold calibration in entry 006).
+- 261 tests / 259 passing (unchanged; 2 known WP1 failures from entry-002 σ-underestimation, mitigated by worst-case threshold calibration in entry 006).
 
 ## [0.5.3] — 2026-05-04
 

@@ -92,7 +92,14 @@ Both fixes have regression tests in `tests/test_constraints.py` and `tests/test_
 
 ## DG-2b classification validation
 
-DG-2b required the three-way classifier to report TPR ≥ 70 % against designer-injected ground truth. Across the campaign the overall TPR (treating either STRUCTURED or UNSTRUCTURED detection as a positive) is 0.465, FPR 0.011, precision 0.808, F1 0.590. Strict STRUCTURED-only TPR is 0.0071 — almost all detections classify as UNSTRUCTURED.
+DG-2b required the three-way classifier to report TPR ≥ 70 % against designer-injected ground truth. Recomputed reproducibly from `scripts/wp2_classification_check.py`, with the choice of FPR / precision denominator made explicit:
+
+| Scope | TPR | FPR | precision | F1 |
+|-------|----:|----:|----------:|---:|
+| All 8 scenarios | 0.432 | 0.010 | 0.767 | 0.553 |
+| Signal scenarios only (S1, S2, S3, S6, S7, S8) | 0.432 | 0.010 | 0.834 | 0.569 |
+
+Strict STRUCTURED-only TPR is **0.007** — almost all detections classify as UNSTRUCTURED.
 
 **DG-2b NOT MET on the strict three-way criterion.** The temporal-statistic gates that distinguish STRUCTURED from UNSTRUCTURED rarely fire on the tested scenarios, consistent with entry-006's docstring observation that the calibrated δ_min values are tuned for critical-slowing-down dynamics, not for the linear drifts (S6) or step changes (S7) that dominate the WP2 signal injection. Whether the structured/unstructured distinction adds anything beyond binary anomaly handling is the explicit DG-3 question; the current data already hints at the answer.
 
@@ -112,7 +119,7 @@ The 5-configuration × 3-scenario × 10-seed WP3 design is described in `docs/pr
 
 ## Resulting status
 
-**WP2 closed:** all five WP2 modules implemented (`clocks.py`, `network.py`, `classify.py`, `constraints.py`, `estimators.py`), full campaign archive saved, test suite at 260 / 258 passing (the 2 known WP1 failures from entry 002 σ-underestimation, mitigated by worst-case threshold calibration). Entry 007 records the harness build, the two bug fixes, and the DG-2 verdict.
+**WP2 closed:** all five WP2 modules implemented (`clocks.py`, `network.py`, `classify.py`, `constraints.py`, `estimators.py`), full campaign archive saved, test suite at 261 / 259 passing (the 2 known WP1 failures from entry 002 σ-underestimation, mitigated by worst-case threshold calibration). Entry 007 records the harness build, the two bug fixes, and the DG-2 verdict.
 
 **Decision-gate state after WP2:**
 
@@ -138,7 +145,7 @@ The 5-configuration × 3-scenario × 10-seed WP3 design is described in `docs/pr
 | Campaign archive (canonical) | `data/wp2_campaign_20260504_fix.npz` |
 | Logbook entry 007 (harness, bugs, DG-2 verdict) | `logbook/007_2026-05-04_wp2-simulation-harness.md` |
 | Source modules | `src/clocks.py`, `src/network.py`, `src/classify.py`, `src/constraints.py`, `src/estimators.py`, `src/metrics.py` |
-| Test suite | `tests/test_clocks.py`, `tests/test_network.py`, `tests/test_classify.py`, `tests/test_constraints.py`, `tests/test_estimators.py`, `tests/test_metrics.py` (105 tests added in WP2; 260 / 258 passing total) |
+| Test suite | `tests/test_clocks.py`, `tests/test_network.py`, `tests/test_classify.py`, `tests/test_constraints.py`, `tests/test_estimators.py`, `tests/test_metrics.py` (105 tests added in WP2; 261 / 259 passing total) |
 | Tutorial | `notebooks/wp2_tutorial.ipynb`, rendered as `docs/wp2_tutorial.md` |
 
 ---

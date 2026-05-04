@@ -206,6 +206,18 @@ class TestIsFeasible:
         upd = -state
         assert not is_feasible(state, upd, sigmas)
 
+    def test_constant_state_agrees_with_project_update(self):
+        """is_feasible and project_update must agree on near-uniform
+        states. Without the matching FP guard, is_feasible returns
+        False (np.var(constant) ~= 3e-33 enters the variance-ratio
+        branch and the ratio explodes) while project_update accepts."""
+        state = np.full(N, 2.5)
+        sigmas = np.ones(N)
+        upd = np.full(N, 0.1)
+        assert is_feasible(state, upd, sigmas)
+        out, status = project_update(state, upd, sigmas)
+        assert not status['rejected']
+
 
 class TestProjectionOrdering:
     """Sequential projection is approximate; verify it produces a feasible

@@ -39,7 +39,7 @@ The project may produce a positive result (the three-way classification improves
 | `src/constraints.py` | Update-size constraint projection: per-node 3σ box, total Nσ² energy ball (sequential projection), variance-ratio fallback rejection | Implemented (WP2) |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured) with calibrated defaults from entries 004 and 006; scalar, vectorised, single-series, and network APIs | Implemented (WP2) |
 | `src/metrics.py` | WP2 simulation metrics: MSE, collapse index, structure correlation, classification diagnostics (TPR/FPR/F1) | Implemented (WP2) |
-| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators, metrics | 260 tests (258 passing, 2 known failures) |
+| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators, metrics | 261 tests (259 passing, 2 known failures) |
 | `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–007 |
 | `notebooks/` | WP1 tutorial (`wp1_tutorial.ipynb`), WP2 tutorial (`wp2_tutorial.ipynb`); WP3 ablations not yet implemented | WP1 + WP2 done |
 
