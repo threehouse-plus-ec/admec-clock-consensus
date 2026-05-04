@@ -133,7 +133,12 @@ def project_update(state: np.ndarray,
     # 3. Variance-ratio constraint
     var_before = float(np.var(state))
     var_after = float(np.var(state + upd))
-    if var_before > 0:
+    # Guard against floating-point noise: np.var on a constant array
+    # returns ~1e-33 instead of 0.0.  Using the raw value causes
+    # var_after/var_before to blow up to ~1e30, rejecting every
+    # update on dense networks where the consensus state is nearly
+    # uniform.  See logbook entry 007.
+    if var_before > 1e-20:
         ratio = var_after / var_before
         status['var_ratio'] = ratio
         if not (params.var_ratio_min <= ratio <= params.var_ratio_max):
@@ -143,10 +148,9 @@ def project_update(state: np.ndarray,
                 f"[{params.var_ratio_min}, {params.var_ratio_max}]")
             upd = np.zeros_like(upd)
             status['var_ratio'] = 1.0
-    # If state is constant (var_before == 0), any non-zero upd would
-    # produce var_after > 0, an undefined ratio. We pass through
-    # silently; this is an edge case the network shouldn't be in
-    # at consensus time.
+    # If state is constant (var_before <= 1e-20), any non-zero upd
+    # would produce var_after > 0, an undefined ratio.  We pass
+    # through silently; this is the expected case at consensus time.
 
     return upd, status
 

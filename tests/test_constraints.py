@@ -155,13 +155,31 @@ class TestEdgeCases:
         with pytest.raises(ValueError, match="must all match"):
             project_update(np.zeros(5), np.zeros(7), np.ones(5))
 
-    def test_constant_state_passes(self):
+    def test_constant_state_zero_update_passes(self):
         # Variance ratio undefined; the projector should not crash
         state = np.full(N, 2.5)
         sigmas = np.ones(N)
         upd = np.zeros(N)
         out, st = project_update(state, upd, sigmas)
         assert not st['rejected']
+
+    def test_constant_state_nonzero_update_passes(self):
+        """Regression: np.var(constant) returns ~1e-33, not 0.0.
+
+        Prior to the logbook-007 fix, any non-zero proposed update on a
+        constant state produced var_after/var_before ~ 1e30, triggering
+        rejection 100% of the time on dense networks where the consensus
+        state is uniform.  The fix treats var_before <= 1e-20 as zero.
+        """
+        state = np.full(N, 2.5)
+        sigmas = np.ones(N)
+        upd = np.full(N, 0.1)  # small constant update
+        out, st = project_update(state, upd, sigmas)
+        assert not st['rejected'], (
+            f"Rejected on constant state: var_before={np.var(state):.3e}, "
+            f"reason={st['reason']}"
+        )
+        np.testing.assert_allclose(out, upd)
 
 
 class TestIsFeasible:
