@@ -36,9 +36,9 @@ The project may produce a positive result (the three-way classification improves
 | `src/clocks.py` | Clock model with power-law noise (white, flicker, random-walk), four signal generators (sinusoidal, linear, step, fold), heavy-tail and degradation modes, scenario builder | Implemented (WP2) |
 | `src/network.py` | Ring / random-sparse / fully-connected topologies with symmetric Poisson delays | Implemented (WP2) |
 | `src/estimators.py` | All nine estimators (FREQ-global/local/exclude, Huber, BOCPD, IMM, ADMEC variants) | Not yet implemented |
-| `src/constraints.py` | Update-size constraint projection (variance ratio, step size, energy bound) | Not yet implemented |
+| `src/constraints.py` | Update-size constraint projection: per-node 3σ box, total Nσ² energy ball (sequential projection), variance-ratio fallback rejection | Implemented (WP2) |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured) with calibrated defaults from entries 004 and 006; scalar, vectorised, single-series, and network APIs | Implemented (WP2) |
-| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier | 172 tests (170 passing, 2 known failures) |
+| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints | 191 tests (189 passing, 2 known failures) |
 | `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–006 |
 | `notebooks/` | WP1 calibration, WP2 simulation runs, WP3 ablation | Not yet implemented |
 

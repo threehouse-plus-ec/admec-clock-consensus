@@ -65,7 +65,7 @@ Source: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tre
 | [`clocks.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/clocks.py) | Clock model with power-law noise, four signal generators, heavy-tail and degradation modes, scenario builder | Implemented (WP2) |
 | [`network.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/network.py) | Ring / random-sparse / fully-connected topologies with symmetric Poisson delays | Implemented (WP2) |
 | [`estimators.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/estimators.py) | All nine estimators | Not yet implemented |
-| [`constraints.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/constraints.py) | Update-size constraint projection | Not yet implemented |
+| [`constraints.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/constraints.py) | Update-size constraint projection (3σ box, Nσ² energy, variance-ratio rejection) | Implemented (WP2) |
 | [`classify.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/classify.py) | Three-way node classification with calibrated defaults (entries 004 + 006) | Implemented (WP2) |
 
 ## Decision gates

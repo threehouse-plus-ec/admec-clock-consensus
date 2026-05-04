@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] — 2026-05-04
+
+### Added
+- `src/constraints.py`: Update-size projector for ADMEC-full. `ConstraintParams` dataclass (defaults match proposal spec: max_step_factor=3, energy_factor=1, var_ratio in [0.5, 1.5]); `project_update(state, proposed_update, sigmas)` performs sequential projection (per-node box → energy ball → variance-ratio rejection fallback) and returns (filtered_update, status); `is_feasible` diagnostic helper.
+- `tests/test_constraints.py`: 19 tests covering passthrough, box clipping (per-node and per-sigma-vector), energy scaling, variance-ratio rejection (collapsing and inflating), variance-neutral updates, edge cases (scalar sigma, negative sigma, shape mismatch, constant state), `is_feasible` paths, and a sequential-projection feasibility sweep.
+
+### Status
+- WP2 modules implemented: `clocks.py`, `network.py`, `classify.py`, `constraints.py`. Only `estimators.py` remains a stub.
+- **191 tests total**, 189 passing (2 known failures: systematic -20% sigma-sensitivity, mitigated by worst-case calibration).
+
 ## [0.4.1] — 2026-05-04
 
 ### Added
