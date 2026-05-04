@@ -1,6 +1,6 @@
 # Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
-**Status:** WP1 complete. WP2 complete. **DG-2 NOT MET** (negative result, as anticipated). WP3 ablation 1 (delay convention) complete: switching from drop to stale-reading mode reduces `admec_full` MSE by 38–44 % on S1/S3 but does not close the gap to centralised baselines (still 3.1× on S1, 18× on S3) — DG-2 robustly NOT MET across delay conventions. DG-1 closed with one recorded sub-criterion failure (σ-underestimation, mitigated; entries 002, 006). See [WP2 summary](logbook/wp2-summary.md), [entry 007](logbook/007_2026-05-04_wp2-simulation-harness.md), and [entry 008](logbook/008_2026-05-04_wp3-ablation-delay-convention.md).
+**Status:** WP1 complete. WP2 complete. **DG-2 NOT MET** (negative result, as anticipated). WP3 ablations 1 + 3 complete: switching to stale-reading mode reduces `admec_full` MSE by 38–44 % on S1/S3, and loosening the variance-ratio bound (`var_loose` [0.35, 1.65]) reduces S3 stale MSE by another 33 %, recovering the conventional `admec_full < admec_delay` ordering. Combined the two reach S3 admec_full = 0.307 — still 12× worse than centralised `imm` = 0.025. The remaining gap is structural (centralised-vs-local information-theoretic ceiling). DG-2 NOT MET across all 14 (delay mode × constraint variant) configurations. See [WP2 summary](logbook/wp2-summary.md), [entry 008](logbook/008_2026-05-04_wp3-ablation-delay-convention.md), [entry 009](logbook/009_2026-05-04_wp3-ablation-constraint-sensitivity.md).
 
 ---
 

@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1] — 2026-05-04
+
+### Added
+- `scripts/wp3_ablation_constraint_sensitivity.py`: WP3 ablation 3 harness — 7 constraint variants (baseline + ±30 % on `max_step_factor`, `energy_factor`, and `var_ratio_min/max`) × 2 delay modes × 3 scenarios × 10 seeds = 420 admec_full runs plus 60 admec_delay comparator runs. RNG ordering matched to `scripts/wp2_campaign.py` so the baseline reproduces the WP2 canonical archive.
+- `data/wp3_ablation_constraint_sensitivity_20260504.npz`: ablation archive.
+- `logbook/009_2026-05-04_wp3-ablation-constraint-sensitivity.md`: WP3 ablation-3 entry.
+
+### Findings
+- **`var_loose` [0.35, 1.65] is the only constraint variant that recovers `admec_full < admec_delay` on S3 stale.** S3 stale admec_full MSE drops from 0.461 → 0.307 (−33 %), beating admec_delay 0.340. Confirms the entry-008 hypothesis that the variance-ratio bound was over-tight under stale-mode noisier proposed updates.
+- `energy_tight` (0.7×) also helps materially on S1 drop (−19 %) and S3 stale (−26 %); the energy bound acts as a soft variance regulariser when the proposed update is noisy.
+- **The remaining gap to centralised baselines is structural.** Even with `stale` + `var_loose` (the best combination), S3 admec_full = 0.307 is 12× worse than `imm` = 0.025 — consistent with the centralised-vs-local information-theoretic ceiling. **DG-2 stays NOT MET under all 14 (mode × variant) configurations.**
+- Constraint sensitivity is heavily scenario-dependent: S2 is essentially insensitive, S1 drop is most sensitive to `energy_tight`, S3 stale is most sensitive to `var_loose`.
+- Structure correlation is largely insensitive to constraint tuning (< 0.04 spread across all variants).
+
+### Status
+- WP3 ablations 1 + 3 of 5 complete. Together they characterise the WP2 failure: drop convention contributed ~40 % of the gap, variance-ratio bound was the binding constraint under stale, and a 12× residual gap on S3 is information-theoretic. No design tuning can rescue DG-2.
+- 271 / 269 passing (no test additions in this commit; harness validation by reproducibility against ablation-1 archive).
+- Next ablation: 4 (two-way vs three-way) — the most informative remaining test given DG-2b strict-STRUCTURED TPR ≈ 0.7 %.
+
 ## [0.7.0] — 2026-05-04
 
 ### Added
