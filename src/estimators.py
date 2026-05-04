@@ -121,6 +121,14 @@ def freq_local(Y: np.ndarray,
     A neighbour j is accessible to i at step t iff
         adj[i, j]  AND  delays[i, j] <= freshness.
     The node itself is always included (delay 0 to itself).
+
+    NOTE: an inaccessible neighbour (delay > freshness) is dropped
+    from the consensus at step t. This estimator does NOT use stale
+    readings Y[t - delays[i, j], j] from past steps. Storing and
+    correlating delayed readings would be a different estimator (a
+    delayed Kalman variant), to be considered as a WP3 ablation if
+    reviewers raise it. See user-feedback comment after batch (a)
+    review.
     """
     Y = np.asarray(Y, dtype=np.float64)
     Sigmas = np.asarray(Sigmas, dtype=np.float64)
@@ -286,7 +294,12 @@ def admec_delay(Y: np.ndarray,
                 delta_min_acf: float = DELTA_MIN_ACF,
                 window: int = 20) -> np.ndarray:
     """Per-node ADMEC: weighted mean over delay-accessible STABLE
-    neighbours (including self if STABLE)."""
+    neighbours (including self if STABLE).
+
+    NOTE: same delay convention as freq_local -- a neighbour with
+    delays[i, j] > freshness is dropped, not pulled from history.
+    Stale-reading variants are deferred to WP3 ablations.
+    """
     Y = np.asarray(Y, dtype=np.float64)
     Sigmas = np.asarray(Sigmas, dtype=np.float64)
     T, N = Y.shape
@@ -327,6 +340,10 @@ def admec_full(Y: np.ndarray,
     vector is then projected through src/constraints.py:project_update,
     using Sigmas[t, :] as per-node sigmas. Rejection (variance ratio
     out of [0.5, 1.5]) carries the previous estimate forward.
+
+    NOTE: same delay convention as freq_local and admec_delay --
+    a neighbour with delays[i, j] > freshness is dropped, not
+    pulled from history. Stale-reading variants are deferred to WP3.
     """
     Y = np.asarray(Y, dtype=np.float64)
     Sigmas = np.asarray(Sigmas, dtype=np.float64)
@@ -361,6 +378,195 @@ def admec_full(Y: np.ndarray,
 
 
 # ---------------------------------------------------------------
+# BOCPD (Adams & MacKay 2007)
+# ---------------------------------------------------------------
+
+def _logsumexp(x: np.ndarray) -> float:
+    """Stable log-sum-exp for a 1-D array."""
+    m = float(np.max(x))
+    if not np.isfinite(m):
+        return m
+    return m + float(np.log(np.sum(np.exp(x - m))))
+
+
+def bocpd_run_length_posterior(values: np.ndarray,
+                               sigmas: np.ndarray,
+                               hazard_lambda: float,
+                               r_max: int = 200,
+                               prior_mean: float = 0.0,
+                               prior_var: float = 1.0e6
+                               ) -> np.ndarray:
+    """Per-node Bayesian online changepoint detection (Adams & MacKay 2007).
+
+    Gaussian observations with known per-sample sigma; the unknown
+    segment mean has prior N(prior_mean, prior_var). The hazard is
+    constant: h(r) = 1 / hazard_lambda.
+
+    Implementation follows Adams & MacKay (2007) eq. 1-7 in log-space
+    with truncation at r_max (the standard message-passing
+    truncation): once a hypothetical run length exceeds r_max it is
+    dropped. This keeps the per-step cost O(r_max) instead of O(t).
+
+    Run-length convention: r_t is the number of observations PRECEDING
+    x_t in the current segment (Adams & MacKay's convention). r_t = 0
+    means a changepoint occurred at time t.
+
+    Parameters
+    ----------
+    values : array of shape (T,)
+    sigmas : array of shape (T,)
+    hazard_lambda : float
+        Hazard parameter; expected segment length under the geometric
+        run-length distribution. Tested at {50, 100, 200} per proposal.
+    r_max : int
+        Truncation point for the run-length posterior. r_max = 200
+        is safe for T up to a few thousand at lambda <= 200.
+    prior_mean, prior_var : float
+        Gaussian prior on the segment mean. Defaults are weakly
+        informative.
+
+    Returns
+    -------
+    posterior : array of shape (T, r_max + 1)
+        posterior[t, r] = P(r_t = r | x_{1:t}). Rows sum to 1.
+    """
+    values = np.asarray(values, dtype=np.float64)
+    sigmas = np.asarray(sigmas, dtype=np.float64)
+    T = values.size
+    if T == 0:
+        return np.zeros((0, r_max + 1))
+    if hazard_lambda <= 1.0:
+        raise ValueError(
+            f"hazard_lambda must be > 1, got {hazard_lambda}")
+    if np.any(sigmas <= 0):
+        raise ValueError("sigmas must be positive")
+
+    log_h = -np.log(hazard_lambda)
+    log_1mh = np.log1p(-1.0 / hazard_lambda)
+
+    prior_prec = 1.0 / prior_var
+
+    # Sufficient statistics indexed by r_{t-1} (= number of
+    # observations in the run BEFORE the current step's observation).
+    post_prec = np.full(r_max + 1, prior_prec)
+    post_mean = np.full(r_max + 1, prior_mean)
+
+    # Joint log P(r_{t-1} = r, x_{1:t-1}). Initialise at t = 0 with
+    # P(r_{-1} = 0) = 1 by convention.
+    log_joint = np.full(r_max + 1, -np.inf)
+    log_joint[0] = 0.0
+
+    posterior = np.zeros((T, r_max + 1))
+
+    for t in range(T):
+        x = values[t]
+        s2 = sigmas[t] ** 2
+
+        # Predictive log-likelihood for each r_{t-1}
+        pred_var = 1.0 / post_prec + s2
+        log_pi = (-0.5 * np.log(2.0 * np.pi * pred_var)
+                  - 0.5 * (x - post_mean) ** 2 / pred_var)
+
+        # Update joint
+        log_growth = log_joint + log_pi + log_1mh   # for r_t = r + 1
+        log_change = _logsumexp(log_joint + log_pi + log_h)  # r_t = 0
+
+        new_log_joint = np.full(r_max + 1, -np.inf)
+        new_log_joint[0] = log_change
+        new_log_joint[1:r_max + 1] = log_growth[:r_max]
+
+        # Normalise to posterior at step t
+        log_evidence = _logsumexp(new_log_joint)
+        log_post = new_log_joint - log_evidence
+        posterior[t, :] = np.exp(log_post)
+
+        # Sufficient statistics for the next step
+        new_post_prec = np.full(r_max + 1, prior_prec)
+        new_post_mean = np.full(r_max + 1, prior_mean)
+        new_post_prec[1:r_max + 1] = post_prec[:r_max] + 1.0 / s2
+        new_post_mean[1:r_max + 1] = (
+            (post_prec[:r_max] * post_mean[:r_max] + x / s2)
+            / new_post_prec[1:r_max + 1])
+        post_prec = new_post_prec
+        post_mean = new_post_mean
+
+        log_joint = log_post
+
+    return posterior
+
+
+def bocpd_excluded(values: np.ndarray,
+                   sigmas: np.ndarray,
+                   hazard_lambda: float,
+                   r_max: int = 200,
+                   min_run_keep: int = 10,
+                   prior_mean: float = 0.0,
+                   prior_var: float = 1.0e6) -> np.ndarray:
+    """Per-step exclusion mask for one node based on BOCPD.
+
+    Excludes the node at step t if the MAP run-length is less than
+    min_run_keep (recently changed; the proposal's "post-changepoint
+    nodes excluded" rule). Returns a (T,) bool array.
+    """
+    posterior = bocpd_run_length_posterior(
+        values, sigmas, hazard_lambda,
+        r_max=r_max, prior_mean=prior_mean, prior_var=prior_var)
+    r_map = np.argmax(posterior, axis=1)
+    return r_map < min_run_keep
+
+
+def bocpd(Y: np.ndarray,
+          Sigmas: np.ndarray,
+          adj: Optional[np.ndarray] = None,
+          delays: Optional[np.ndarray] = None,
+          hazard_lambda: float = 100.0,
+          r_max: int = 200,
+          min_run_keep: int = 10,
+          prior_mean: float = 0.0,
+          prior_var: float = 1.0e6) -> np.ndarray:
+    """Centralised consensus via BOCPD-based per-node exclusion.
+
+    Each node runs Adams & MacKay 2007 BOCPD over its own reading
+    sequence. At each step, nodes whose MAP run-length is below
+    min_run_keep are excluded; the consensus is an inverse-variance
+    weighted mean over the rest.
+
+    The proposal evaluates hazard_lambda in {50, 100, 200} on null
+    scenarios (S4/S5) and fixes the best for signal scenarios.
+    """
+    Y = np.asarray(Y, dtype=np.float64)
+    Sigmas = np.asarray(Sigmas, dtype=np.float64)
+    T, N = Y.shape
+
+    excluded = np.zeros((T, N), dtype=bool)
+    for j in range(N):
+        excluded[:, j] = bocpd_excluded(
+            Y[:, j], Sigmas[:, j], hazard_lambda,
+            r_max=r_max, min_run_keep=min_run_keep,
+            prior_mean=prior_mean, prior_var=prior_var)
+
+    estimates = np.zeros((T, N))
+    for t in range(T):
+        keep = ~excluded[t, :]
+        if keep.any():
+            m = _weighted_mean(Y[t, :], Sigmas[t, :], mask=keep)
+        else:
+            m = np.nan
+        if np.isnan(m):
+            # Fallback: centralised all-nodes mean at t=0 (BOCPD's
+            # MAP run-length always starts at 1, so the first step
+            # is excluded by construction). Carry forward later.
+            if t == 0:
+                m_all = _weighted_mean(Y[t, :], Sigmas[t, :])
+                estimates[t, :] = m_all if not np.isnan(m_all) else 0.0
+            else:
+                estimates[t, :] = estimates[t - 1, :]
+        else:
+            estimates[t, :] = m
+    return estimates
+
+
+# ---------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------
 
@@ -369,9 +575,9 @@ ESTIMATORS = {
     'freq_local': freq_local,
     'freq_exclude': freq_exclude,
     'huber': huber,
+    'bocpd': bocpd,
     'admec_unconstrained': admec_unconstrained,
     'admec_delay': admec_delay,
     'admec_full': admec_full,
 }
-"""Registry of estimators implemented so far. BOCPD and IMM will
-be added in subsequent commits."""
+"""Registry of estimators. IMM will be added in the next commit."""

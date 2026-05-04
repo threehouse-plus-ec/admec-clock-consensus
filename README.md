@@ -35,10 +35,10 @@ The project may produce a positive result (the three-way classification improves
 | `src/comparison.py` | Comparison figures of merit: per-point χ², Huber loss, Allan deviation | Implemented (WP1 addendum) |
 | `src/clocks.py` | Clock model with power-law noise (white, flicker, random-walk), four signal generators (sinusoidal, linear, step, fold), heavy-tail and degradation modes, scenario builder | Implemented (WP2) |
 | `src/network.py` | Ring / random-sparse / fully-connected topologies with symmetric Poisson delays | Implemented (WP2) |
-| `src/estimators.py` | Seven of nine estimators implemented (FREQ-global/local/exclude, Huber, ADMEC-unconstrained/-delay/-full); BOCPD and IMM still pending | Partially implemented (WP2) |
+| `src/estimators.py` | Eight of nine estimators implemented (FREQ-global/local/exclude, Huber, BOCPD, ADMEC-unconstrained/-delay/-full); IMM still pending | Partially implemented (WP2) |
 | `src/constraints.py` | Update-size constraint projection: per-node 3σ box, total Nσ² energy ball (sequential projection), variance-ratio fallback rejection | Implemented (WP2) |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured) with calibrated defaults from entries 004 and 006; scalar, vectorised, single-series, and network APIs | Implemented (WP2) |
-| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators | 218 tests (216 passing, 2 known failures) |
+| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators | 229 tests (227 passing, 2 known failures) |
 | `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–006 |
 | `notebooks/` | WP1 calibration, WP2 simulation runs, WP3 ablation | Not yet implemented |
 

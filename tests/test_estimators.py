@@ -21,6 +21,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from estimators import (freq_global, freq_local, freq_exclude, huber,
                         admec_unconstrained, admec_delay, admec_full,
+                        bocpd, bocpd_run_length_posterior, bocpd_excluded,
                         ESTIMATORS)
 from network import make_network, make_ring, make_fully_connected
 from clocks import (ClockParams, simulate_network_clocks,
@@ -270,22 +271,127 @@ class TestAdmecFull:
 
 
 # ---------------------------------------------------------------
-# Registry
+# BOCPD
 # ---------------------------------------------------------------
 
-class TestRegistry:
+class TestBocpdPosterior:
+    """Adams & MacKay 2007 run-length posterior."""
 
-    def test_seven_estimators_registered(self):
-        assert len(ESTIMATORS) == 7
-        for name in ['freq_global', 'freq_local', 'freq_exclude', 'huber',
-                     'admec_unconstrained', 'admec_delay', 'admec_full']:
-            assert name in ESTIMATORS
-            assert callable(ESTIMATORS[name])
+    def test_shape(self):
+        rng = np.random.default_rng(0)
+        x = rng.normal(0, 1, 100)
+        s = np.ones(100)
+        post = bocpd_run_length_posterior(x, s, hazard_lambda=50, r_max=30)
+        assert post.shape == (100, 31)
+
+    def test_rows_sum_to_one(self):
+        rng = np.random.default_rng(0)
+        x = rng.normal(0, 1, 100)
+        s = np.ones(100)
+        post = bocpd_run_length_posterior(x, s, hazard_lambda=50, r_max=30)
+        np.testing.assert_allclose(post.sum(axis=1), 1.0, atol=1e-9)
+
+    def test_map_grows_under_null(self):
+        """Under no-change Gaussian null the MAP run-length climbs."""
+        rng = np.random.default_rng(0)
+        x = rng.normal(0, 1, 200)
+        s = np.ones(200)
+        post = bocpd_run_length_posterior(x, s, hazard_lambda=200, r_max=200)
+        r_map = np.argmax(post, axis=1)
+        # Late-time MAP should be much larger than early-time MAP
+        assert np.median(r_map[100:]) > 30, (
+            f"MAP run-length stayed small under null: late median "
+            f"{np.median(r_map[100:])}")
+
+    def test_map_collapses_at_changepoint(self):
+        """A step at t=100 should drive MAP run-length toward 0 around t=100."""
+        rng = np.random.default_rng(0)
+        x = rng.normal(0, 1, 200)
+        x[100:] += 5.0  # large step
+        s = np.ones(200)
+        post = bocpd_run_length_posterior(x, s, hazard_lambda=100, r_max=100)
+        r_map = np.argmax(post, axis=1)
+        # Just after the step, MAP must be small
+        assert r_map[100] < 5, (
+            f"MAP at t=100 didn't collapse: {r_map[100]}")
+        # And just before, MAP should be near (or saturated at) ~99
+        assert r_map[99] >= 50, (
+            f"MAP just before step too small: {r_map[99]}")
+
+    def test_invalid_hazard_lambda_raises(self):
+        with pytest.raises(ValueError, match="hazard_lambda"):
+            bocpd_run_length_posterior(
+                np.zeros(10), np.ones(10), hazard_lambda=0.5)
+
+    def test_negative_sigma_raises(self):
+        with pytest.raises(ValueError, match="sigmas must be positive"):
+            bocpd_run_length_posterior(
+                np.zeros(10), -np.ones(10), hazard_lambda=50)
+
+
+class TestBocpdExclusion:
+    """The exclusion mask flags steps with small MAP run-length."""
+
+    def test_excludes_post_step(self):
+        rng = np.random.default_rng(2026)
+        x = rng.normal(0, 1, 200)
+        x[100:] += 5.0
+        s = np.ones(200)
+        excl = bocpd_excluded(x, s, hazard_lambda=100, min_run_keep=10)
+        # BOCPD typically needs a step or two to confirm the change
+        # against 100 prior observations; assert exclusion within the
+        # first few post-step samples.
+        assert np.any(excl[100:106]), (
+            "step at t=100 should trigger exclusion within 5 steps")
+        assert excl[105], "node should still be excluded by t=105"
+        # And not excluded long before
+        assert not excl[80], "should not exclude in stable pre-step region"
+
+
+class TestBocpdEstimator:
+
+    def test_shape(self):
+        Y, S = gaussian_network()
+        E = bocpd(Y, S)
+        assert E.shape == (T, N)
+
+    def test_centralised_consistency(self):
+        """All nodes get the same centralised estimate (same as FREQ-global
+        when no node is excluded)."""
+        Y, S = gaussian_network(seed=2026)
+        E = bocpd(Y, S, hazard_lambda=200, min_run_keep=5)
+        for t in range(T):
+            assert np.allclose(E[t, :], E[t, 0])
+
+    def test_excludes_node_with_step(self):
+        """A node that takes a step at t=100 should be down-weighted in
+        the BOCPD consensus, so the consensus stays closer to the
+        unaffected nodes. With min_run_keep=10 the node is re-included
+        once its post-step run grows past 10, so we check t=105 when
+        the exclusion is still active."""
+        Y, S = gaussian_network(seed=2026)
+        Y[100:, 5] += 5.0  # step on one node
+        E_bocpd = bocpd(Y, S, hazard_lambda=100, min_run_keep=10)
+        E_global = freq_global(Y, S)
+        assert abs(E_bocpd[105, 0]) < abs(E_global[105, 0]), (
+            f"bocpd failed to suppress step: bocpd={E_bocpd[105, 0]:.3f}, "
+            f"global={E_global[105, 0]:.3f}")
 
 
 # ---------------------------------------------------------------
 # Cross-method sanity: shape and finiteness across the whole batch
 # ---------------------------------------------------------------
+
+class TestRegistry:
+
+    def test_eight_estimators_registered(self):
+        assert len(ESTIMATORS) == 8
+        for name in ['freq_global', 'freq_local', 'freq_exclude', 'huber',
+                     'bocpd', 'admec_unconstrained', 'admec_delay',
+                     'admec_full']:
+            assert name in ESTIMATORS
+            assert callable(ESTIMATORS[name])
+
 
 @pytest.mark.parametrize("method_name", list(ESTIMATORS.keys()))
 def test_method_shape_and_finite(method_name):

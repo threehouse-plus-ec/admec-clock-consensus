@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] — 2026-05-04
+
+### Added
+- `src/estimators.py:bocpd_run_length_posterior`: Adams & MacKay 2007 Bayesian online changepoint detection in log-space, with message-passing truncation at `r_max` (default 200) keeping per-step cost O(r_max). Gaussian observations with known per-sample sigma; Gaussian prior on the segment mean (default weakly informative). Constant hazard h(r) = 1/`hazard_lambda`.
+- `src/estimators.py:bocpd_excluded`: per-node exclusion mask — True when MAP run-length is below `min_run_keep` (default 10), interpreting the proposal's "post-changepoint nodes excluded" rule.
+- `src/estimators.py:bocpd`: centralised consensus estimator using inverse-variance weighted mean over non-excluded nodes. Carries previous estimate forward when all nodes are excluded; uses an all-nodes weighted-mean fallback at t=0 (BOCPD's MAP run-length always starts at 1, so the first step is excluded by construction).
+- `tests/test_estimators.py`: 11 new tests for BOCPD covering posterior shape and normalisation, MAP-run-length growth under null, MAP collapse around a step changepoint, exclusion-mask behaviour with one-or-two-step detection lag, centralised-consistency across all nodes, and step suppression on a network with one stepped clock.
+
+### Changed
+- `src/estimators.py`: Added documentation comments to `freq_local`, `admec_delay`, and `admec_full` clarifying that delay-inaccessible neighbours are dropped (not pulled from history). Stale-reading variants are deferred to WP3 ablations per user-feedback after batch (a) review.
+- `ESTIMATORS` registry now exposes 8 of 9 entries (`bocpd` added).
+
+### Status
+- WP2 modules `clocks.py`, `network.py`, `classify.py`, `constraints.py`, and `estimators.py` (8/9). Only IMM remains.
+- **229 tests total**, 227 passing (2 known failures: systematic -20% sigma-sensitivity, mitigated by worst-case calibration).
+
 ## [0.5.0] — 2026-05-04
 
 ### Added

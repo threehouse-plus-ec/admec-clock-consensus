@@ -64,7 +64,7 @@ Source: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tre
 | [`comparison.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/comparison.py) | Comparison figures of merit: per-point χ², Huber loss, Allan deviation | Implemented |
 | [`clocks.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/clocks.py) | Clock model with power-law noise, four signal generators, heavy-tail and degradation modes, scenario builder | Implemented (WP2) |
 | [`network.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/network.py) | Ring / random-sparse / fully-connected topologies with symmetric Poisson delays | Implemented (WP2) |
-| [`estimators.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/estimators.py) | 7/9 estimators (FREQ × 3, Huber, ADMEC × 3); BOCPD and IMM pending | Partially implemented (WP2) |
+| [`estimators.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/estimators.py) | 8/9 estimators (FREQ × 3, Huber, BOCPD, ADMEC × 3); IMM pending | Partially implemented (WP2) |
 | [`constraints.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/constraints.py) | Update-size constraint projection (3σ box, Nσ² energy, variance-ratio rejection) | Implemented (WP2) |
 | [`classify.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/classify.py) | Three-way node classification with calibrated defaults (entries 004 + 006) | Implemented (WP2) |
 
