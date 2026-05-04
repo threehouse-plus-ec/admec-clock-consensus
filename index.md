@@ -62,8 +62,8 @@ Source: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tre
 | [`ic.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/ic.py) | Information Content: interval-probability definition, analytic Gaussian CDF, σ-perturbation | Implemented |
 | [`temporal.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/temporal.py) | Temporal-structure statistics and δ_min calibration for three-way classifier | Implemented |
 | [`comparison.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/comparison.py) | Comparison figures of merit: per-point χ², Huber loss, Allan deviation | Implemented |
-| [`clocks.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/clocks.py) | Clock model with power-law noise | Not yet implemented |
-| [`network.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/network.py) | Network topology and delay model | Not yet implemented |
+| [`clocks.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/clocks.py) | Clock model with power-law noise, four signal generators, heavy-tail and degradation modes, scenario builder | Implemented (WP2) |
+| [`network.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/network.py) | Ring / random-sparse / fully-connected topologies with symmetric Poisson delays | Implemented (WP2) |
 | [`estimators.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/estimators.py) | All nine estimators | Not yet implemented |
 | [`constraints.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/constraints.py) | Update-size constraint projection | Not yet implemented |
 | [`classify.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/src/classify.py) | Three-way node classification | Not yet implemented |

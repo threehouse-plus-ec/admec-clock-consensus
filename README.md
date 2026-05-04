@@ -33,12 +33,12 @@ The project may produce a positive result (the three-way classification improves
 | `src/noise.py` | Noise generators: symmetric Pareto, fractional Gaussian noise (Davies-Harte), random walk, AR(1) | Implemented (WP1) |
 | `src/temporal.py` | Temporal-structure statistics (variance slope, lag-1 autocorrelation) and δ_min calibration | Implemented (WP1) |
 | `src/comparison.py` | Comparison figures of merit: per-point χ², Huber loss, Allan deviation | Implemented (WP1 addendum) |
-| `src/clocks.py` | Clock model with power-law noise (white, flicker, random-walk) | Not yet implemented |
-| `src/network.py` | Network topology and delay model | Not yet implemented |
+| `src/clocks.py` | Clock model with power-law noise (white, flicker, random-walk), four signal generators (sinusoidal, linear, step, fold), heavy-tail and degradation modes, scenario builder | Implemented (WP2) |
+| `src/network.py` | Ring / random-sparse / fully-connected topologies with symmetric Poisson delays | Implemented (WP2) |
 | `src/estimators.py` | All nine estimators (FREQ-global/local/exclude, Huber, BOCPD, IMM, ADMEC variants) | Not yet implemented |
 | `src/constraints.py` | Update-size constraint projection (variance ratio, step size, energy bound) | Not yet implemented |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured anomaly) | Not yet implemented |
-| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold | 107 tests (105 passing, 2 known failures) |
+| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network | 149 tests (147 passing, 2 known failures) |
 | `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–006 |
 | `notebooks/` | WP1 calibration, WP2 simulation runs, WP3 ablation | Not yet implemented |
 

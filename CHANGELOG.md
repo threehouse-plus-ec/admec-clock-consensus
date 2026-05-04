@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] — 2026-05-04
+
+### Added
+- `src/clocks.py`: WP2 clock simulator. `ClockParams` dataclass; `simulate_clock` / `simulate_network_clocks`; signal generators `signal_sinusoidal`, `signal_linear_drift`, `signal_step`, `signal_fold_bifurcation` (S8); `hydrogen_maser` reference preset (Panfilo & Arias 2019); `build_scenario_clocks` composer for the eight WP2 scenarios.
+- `src/network.py`: WP2 network topology + delay model. `make_ring`, `make_fully_connected`, `make_random_sparse` (k-regular spanning-tree heuristic, no networkx dependency); `sample_delays` (symmetric Poisson on edges); `make_network` dispatcher.
+- `tests/test_clocks.py`: 21 tests covering noise levels, declared sigma, signal additivity for all four generators, heavy-tail behaviour, multi-clock simulation, hydrogen-maser preset, and the scenario builder.
+- `tests/test_network.py`: 21 tests covering topology shapes, symmetry, connectivity, degree targets, delay symmetry/integer/edge-only/Poisson-mean behaviour, and the dispatcher.
+
+### Status
+- WP2 foundational modules (`clocks.py`, `network.py`) implemented. `classify.py`, `estimators.py`, `constraints.py` remain stubs.
+- **149 tests total**, 147 passing (2 known failures: systematic -20% sigma-sensitivity, mitigated by worst-case calibration).
+
 ## [0.3.2] — 2026-05-04
 
 ### Added
