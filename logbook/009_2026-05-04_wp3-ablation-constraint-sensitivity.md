@@ -114,7 +114,20 @@ The S3 structure-correlation gap is now within Monte-Carlo noise (0.953 vs 0.960
 - Constraint sensitivity is heavily scenario-dependent: S2 is almost insensitive, S1 drop is most sensitive to `energy_tight`, S3 stale is most sensitive to `var_loose`.
 
 **It does not show:**
-- That the WP3-recommended `var_loose` setting is universally preferable. On S3 drop it modestly hurts (0.741 → 0.757); on S2 drop it raises MSE from 0.093 to 0.095. The right setting depends on the network geometry and delay distribution.
+- **That the WP3-recommended `var_loose` setting is universally preferable.** Cross-scenario MSE deltas vs baseline:
+
+  | scenario × mode | baseline | var_loose | delta |
+  |-----------------|---------:|----------:|------:|
+  | S3 stale | 0.461 | 0.307 | **−33.5 %** |
+  | S2 stale | 0.104 | 0.103 | −1.6 % |
+  | S1 stale | 0.413 | 0.408 | −1.3 % |
+  | S2 drop | 0.093 | 0.095 | +2.2 % |
+  | S3 drop | 0.741 | 0.757 | +2.2 % |
+  | **S1 drop** | **0.732** | **0.830** | **+13.4 %** |
+
+  `var_loose` is **scenario-specific, not a blanket recommendation**: it is a clear win on S3 stale, roughly neutral on five of six (scenario, mode) cells, and a meaningful regression on S1 drop where the +13.4 % hurt arises because under the WP2 baseline (drop) the variance-ratio bound was *helping* on the noisy ring topology. Adopting `var_loose` globally would trade a 33 % S3-stale gain for a 13 % S1-drop loss.
+
+  The operational recommendation is conditional: use `var_loose` *only when* the proposed update vector inherits extra variance from multi-step lags (i.e. when paired with stale-reading mode on a sparse high-delay topology). The right cross-scenario default would set `var_ratio_min/max` adaptively from the per-step proposed-update statistics — not a tuning question this entry resolves.
 - That constraint tuning is irrelevant. It moves admec_full from "embarrassing" to "respectable" on S3, even if it cannot close the gap to centralised methods. For applications where local consensus is required by design (decentralised networks without a global aggregator), the WP3 tuning is operationally important.
 - That further multi-axis exploration (e.g. `var_loose × energy_tight`) might find a deeper optimum. The pre-registered ±30 % single-axis design is what the proposal called for; cross-axis sweeps are out of scope here.
 

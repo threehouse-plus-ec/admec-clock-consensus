@@ -265,7 +265,8 @@ def _classify_network_full(Y: np.ndarray,
                            window: int,
                            threshold: float,
                            delta_min_var: float,
-                           delta_min_acf: float
+                           delta_min_acf: float,
+                           two_way: bool = False
                            ) -> np.ndarray:
     """Compute the (T, N) Mode array from raw readings.
 
@@ -285,7 +286,8 @@ def _classify_network_full(Y: np.ndarray,
     return classify_array(IC, var_slopes, acfs,
                           threshold=threshold,
                           delta_min_var=delta_min_var,
-                          delta_min_acf=delta_min_acf)
+                          delta_min_acf=delta_min_acf,
+                          two_way=two_way)
 
 
 def admec_unconstrained(Y: np.ndarray,
@@ -295,16 +297,25 @@ def admec_unconstrained(Y: np.ndarray,
                         threshold: float = THRESHOLD_95,
                         delta_min_var: float = DELTA_MIN_VAR,
                         delta_min_acf: float = DELTA_MIN_ACF,
-                        window: int = 20) -> np.ndarray:
+                        window: int = 20,
+                        two_way: bool = False) -> np.ndarray:
     """Centralised ADMEC: weighted mean over STABLE nodes; STRUCTURED
     and UNSTRUCTURED nodes are excluded from the consensus output
     (STRUCTURED is "tracked and gated" per the proposal -- not absorbed
-    into the consensus)."""
+    into the consensus).
+
+    `two_way` (WP3 ablation 4 -- DG-3 sub-criterion) collapses the
+    STRUCTURED/UNSTRUCTURED split into a single ANOMALOUS class. At
+    the consensus level this is operationally identical to the
+    three-way default, since both classes are excluded equally from
+    the STABLE-only weighted mean.
+    """
     Y = np.asarray(Y, dtype=np.float64)
     Sigmas = np.asarray(Sigmas, dtype=np.float64)
     T, N = Y.shape
     modes = _classify_network_full(Y, Sigmas, window, threshold,
-                                    delta_min_var, delta_min_acf)
+                                    delta_min_var, delta_min_acf,
+                                    two_way=two_way)
     estimates = np.zeros((T, N))
     for t in range(T):
         keep = modes[t, :] == int(Mode.STABLE)
@@ -328,7 +339,8 @@ def admec_delay(Y: np.ndarray,
                 delta_min_var: float = DELTA_MIN_VAR,
                 delta_min_acf: float = DELTA_MIN_ACF,
                 window: int = 20,
-                delay_mode: str = 'drop') -> np.ndarray:
+                delay_mode: str = 'drop',
+                two_way: bool = False) -> np.ndarray:
     """Per-node ADMEC: weighted mean over delay-accessible STABLE
     neighbours (including self if STABLE).
 
@@ -346,7 +358,8 @@ def admec_delay(Y: np.ndarray,
     Sigmas = np.asarray(Sigmas, dtype=np.float64)
     T, N = Y.shape
     modes = _classify_network_full(Y, Sigmas, window, threshold,
-                                    delta_min_var, delta_min_acf)
+                                    delta_min_var, delta_min_acf,
+                                    two_way=two_way)
     stable = (modes == int(Mode.STABLE))
     estimates = np.zeros((T, N))
 
@@ -404,7 +417,8 @@ def admec_full(Y: np.ndarray,
                delta_min_acf: float = DELTA_MIN_ACF,
                window: int = 20,
                constraint_params: Optional[ConstraintParams] = None,
-               delay_mode: str = 'drop'
+               delay_mode: str = 'drop',
+               two_way: bool = False
                ) -> np.ndarray:
     """ADMEC-delay + sequential constraint projection on the per-node
     update vector.
@@ -445,7 +459,8 @@ def admec_full(Y: np.ndarray,
             f"Unknown delay_mode: {delay_mode!r}. Use 'drop' or 'stale'.")
 
     modes = _classify_network_full(Y, Sigmas, window, threshold,
-                                    delta_min_var, delta_min_acf)
+                                    delta_min_var, delta_min_acf,
+                                    two_way=two_way)
     stable = (modes == int(Mode.STABLE))
 
     if delay_mode == 'drop':

@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.2] — 2026-05-04
+
+### Added
+- `src/classify.py:classify_array` -- `two_way: bool = False` parameter. When True, the temporal-statistic split is bypassed and every flagged reading collapses to UNSTRUCTURED (a single ANOMALOUS class).
+- `src/estimators.py` -- `two_way` parameter on `_classify_network_full`, `admec_unconstrained`, `admec_delay`, `admec_full`. Default `False` preserves the WP2 baseline exactly.
+- `scripts/wp3_ablation_two_vs_three_way.py`: WP3 ablation 4 harness -- 3 scenarios × 10 seeds × 3 ADMEC estimators × 2 delay modes × 2 classifier variants = 360 cells.
+- `data/wp3_ablation_two_vs_three_way_20260504.npz`: ablation archive.
+- `logbook/010_2026-05-04_wp3-ablation-two-vs-three-way.md`: WP3 ablation-4 entry.
+- `tests/test_classify.py:TestTwoWayClassifier` (5 tests) covering STABLE-region equivalence, STRUCTURED → UNSTRUCTURED collapse, no-STRUCTURED-in-two-way, NaN handling.
+
+### Findings
+- **Across 360 (scenario × seed × estimator × delay-mode × classifier) cells, the max absolute MSE delta is 0.0000e+00 and the max absolute structure-correlation delta is 0.0000e+00.** Three-way and two-way produce *byte-identical* consensus output.
+- The classification counts differ as expected: three-way has 5–6 STRUCTURED cells per scenario; two-way has 0. But the STABLE count is identical between modes, so the STABLE-only consensus mask is identical, and so are the metrics.
+- **DG-3 "three-way > two-way" sub-criterion NOT MET (delta = 0).** A stronger negative result than DG-2 — the gap is exactly zero, not just small. The architectural complexity of the structured/unstructured distinction buys nothing at the level DG-3 measures.
+- The corollary insight: the proposal's "tracked and gated" language for STRUCTURED would require an update rule that uses STRUCTURED status (e.g. include with reduced weight) to have any operational effect on the consensus. The current ADMEC architecture excludes both anomaly classes equally.
+
+### Notes
+- entry 009 revised to flag `var_loose`'s S1 drop +13.4 % regression explicitly; the recommendation is now scenario-conditional, not a blanket fix.
+
+### Status
+- WP3 ablations 1 + 3 + 4 of 5 complete. Combined: DG-2 NOT MET; DG-2b NOT MET; DG-3 NOT MET on the three-way clause. The findings are mutually consistent — STRUCTURED is rare (DG-2b) and operationally inert (this entry).
+- 276 / 274 passing (5 new TestTwoWayClassifier tests).
+- Next ablation: 2 (threshold sweep) -- quick hygiene check; expected to confirm IC threshold's narrow active region.
+
 ## [0.7.1] — 2026-05-04
 
 ### Added

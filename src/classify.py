@@ -125,12 +125,25 @@ def classify_array(ic: np.ndarray,
                    acfs: np.ndarray,
                    threshold: float = THRESHOLD_95,
                    delta_min_var: float = DELTA_MIN_VAR,
-                   delta_min_acf: float = DELTA_MIN_ACF) -> np.ndarray:
-    """Vectorised three-way classification.
+                   delta_min_acf: float = DELTA_MIN_ACF,
+                   two_way: bool = False) -> np.ndarray:
+    """Vectorised classification.
 
     Accepts arrays of any matching shape (1-D for a single clock series,
     or 2-D for a network: typically (T, N)). Returns an int array of
     Mode values with the same shape.
+
+    If `two_way` is True (WP3 ablation 4 -- DG-3 sub-criterion), the
+    temporal-statistic split is skipped: every reading with
+    `ic >= threshold` is labelled UNSTRUCTURED (acting as a generic
+    "ANOMALOUS" class). The var_slopes / acfs arrays are still
+    consumed for NaN handling consistency. The default `two_way=False`
+    preserves the WP2 three-way rule.
+
+    The collapse direction (STRUCTURED -> UNSTRUCTURED rather than a
+    new ANOMALOUS code) is chosen so that `Mode.UNSTRUCTURED` continues
+    to mean "exclude from consensus" in both modes; the downstream
+    estimators do not need a code change.
     """
     ic = np.asarray(ic, dtype=np.float64)
     var_slopes = np.asarray(var_slopes, dtype=np.float64)
@@ -146,7 +159,14 @@ def classify_array(ic: np.ndarray,
     stable = (~flagged) & ~np.isnan(ic)
     out[stable] = int(Mode.STABLE)
 
-    # For flagged points we need temporal stats to be finite
+    if two_way:
+        # Anything flagged with finite IC -> UNSTRUCTURED (= anomalous);
+        # NaN IC stays UNDEFINED. Temporal stats are not consulted.
+        anomalous = flagged & ~np.isnan(ic)
+        out[anomalous] = int(Mode.UNSTRUCTURED)
+        return out
+
+    # Three-way: subdivide flagged readings using temporal stats
     temporal_ok = flagged & ~np.isnan(var_slopes) & ~np.isnan(acfs)
     has_structure = (np.abs(var_slopes) > delta_min_var) | \
                     (np.abs(acfs) > delta_min_acf)

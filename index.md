@@ -57,6 +57,7 @@ Chronological record of what was done, what was found, and what it means for the
 | [007 — WP2 Simulation Harness](logbook/007_2026-05-04_wp2-simulation-harness.md) | 2026-05-04 | WP2 campaign harness (8 scenarios × 10 seeds × 9 estimators); metrics module; `admec_full` initialization bug fixed |
 | [008 — WP3 Ablation 1: Delay Convention](logbook/008_2026-05-04_wp3-ablation-delay-convention.md) | 2026-05-04 | Stale-reading mode reduces `admec_full` MSE by 38–44 % on S1/S3 but does not close the gap to centralised baselines; DG-2 robustly NOT MET |
 | [009 — WP3 Ablation 3: Constraint Sensitivity](logbook/009_2026-05-04_wp3-ablation-constraint-sensitivity.md) | 2026-05-04 | `var_loose` [0.35, 1.65] recovers `admec_full < admec_delay` on S3 stale (−33 % MSE); no variant closes the 12× gap to centralised baselines; DG-2 NOT MET across all 14 (mode × variant) configurations |
+| [010 — WP3 Ablation 4: Two-vs-Three-Way](logbook/010_2026-05-04_wp3-ablation-two-vs-three-way.md) | 2026-05-04 | Three-way and two-way classifiers produce byte-identical consensus (max delta = 0 across 360 cells). DG-3 "three-way > two-way" NOT MET — the structured/unstructured split has no operational effect under the WP2 architecture |
 
 ## Code
 
@@ -80,7 +81,7 @@ Source: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tre
 | **DG-1** | IC calibration: AIPP converges to 1.25 bit (±5% relative); thresholds stable within ×1.5; σ-sensitivity bounded | Closed — all criteria pass except systematic σ-underestimation (mitigated; see entry 002) |
 | **DG-2** | ADMEC-full outperforms best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 and S3; outperforms ADMEC-delay | **NOT MET** — S1 = 0/3, S3 = 0/3 metrics pass (entry 007); only S2 wins on MSE. `admec_full` does beat `admec_delay` on every scenario |
 | **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | NOT MET on strict three-way (TPR ≈ 0.7 %); overall anomaly TPR 0.46 |
-| **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Will be addressed in WP3 ablations |
+| **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | **NOT MET on three-way > two-way** (entry 010): three-way and two-way produce byte-identical consensus across all 360 cells (max delta = 0). Constraint clause satisfied (entry 009) but the three-way clause cannot be satisfied without an architectural redesign |
 
 ## Work packages
 
@@ -88,7 +89,7 @@ Source: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tre
 |----|-------------|--------|
 | **WP1** | IC calibration: convergence, threshold stability, σ-sensitivity, δ_min | Complete (logbook entries 001–005; [summary](logbook/wp1-summary.md)) |
 | **WP2** | Clock network simulation: 8 scenarios × 10 seeds × 9 estimators | Complete (entry 007; [summary](logbook/wp2-summary.md)) — DG-2 NOT MET |
-| **WP3** | Ablation: 5 configurations × 3 scenarios × 10 seeds (delay convention, classification threshold, constraint sensitivity, two-vs-three-way, ADMEC-full-lagged) | 2 of 5 complete (entries 008, 009) |
+| **WP3** | Ablation: 5 configurations × 3 scenarios × 10 seeds (delay convention, classification threshold, constraint sensitivity, two-vs-three-way, ADMEC-full-lagged) | 3 of 5 complete (entries 008, 009, 010) |
 | **WP4** | Manuscript | Not started |
 
 ## Timeline

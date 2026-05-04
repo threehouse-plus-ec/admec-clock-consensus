@@ -1,6 +1,6 @@
 # Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
-**Status:** WP1 complete. WP2 complete. **DG-2 NOT MET** (negative result, as anticipated). WP3 ablations 1 + 3 complete: switching to stale-reading mode reduces `admec_full` MSE by 38–44 % on S1/S3, and loosening the variance-ratio bound (`var_loose` [0.35, 1.65]) reduces S3 stale MSE by another 33 %, recovering the conventional `admec_full < admec_delay` ordering. Combined the two reach S3 admec_full = 0.307 — still 12× worse than centralised `imm` = 0.025. The remaining gap is structural (centralised-vs-local information-theoretic ceiling). DG-2 NOT MET across all 14 (delay mode × constraint variant) configurations. See [WP2 summary](logbook/wp2-summary.md), [entry 008](logbook/008_2026-05-04_wp3-ablation-delay-convention.md), [entry 009](logbook/009_2026-05-04_wp3-ablation-constraint-sensitivity.md).
+**Status:** WP1 complete. WP2 complete. **DG-2 NOT MET. DG-2b NOT MET. DG-3 NOT MET on the "three-way > two-way" clause** (negative results, as anticipated). WP3 ablations 1, 3, 4 complete: stale-reading mode + `var_loose` constraint variant reduce S3 admec_full MSE 0.741 → 0.307 (still 12× worse than centralised `imm`); three-way and two-way classifiers produce byte-identical consensus (max delta = 0 across 360 cells), confirming the structured/unstructured distinction has no operational effect under the WP2 architecture. See [WP2 summary](logbook/wp2-summary.md), [entry 008](logbook/008_2026-05-04_wp3-ablation-delay-convention.md), [entry 009](logbook/009_2026-05-04_wp3-ablation-constraint-sensitivity.md), [entry 010](logbook/010_2026-05-04_wp3-ablation-two-vs-three-way.md).
 
 ---
 
@@ -39,7 +39,7 @@ The project may produce a positive result (the three-way classification improves
 | `src/constraints.py` | Update-size constraint projection: per-node 3σ box, total Nσ² energy ball (sequential projection), variance-ratio fallback rejection | Implemented (WP2) |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured) with calibrated defaults from entries 004 and 006; scalar, vectorised, single-series, and network APIs | Implemented (WP2) |
 | `src/metrics.py` | WP2 simulation metrics: MSE, collapse index, structure correlation, classification diagnostics (TPR/FPR/F1) | Implemented (WP2) |
-| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators (incl. WP3 delay-mode), metrics | 271 tests (269 passing, 2 known failures) |
+| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier (incl. WP3 two-way), constraints, estimators (incl. WP3 delay-mode), metrics | 276 tests (274 passing, 2 known failures) |
 | `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–007 |
 | `notebooks/` | WP1 tutorial (`wp1_tutorial.ipynb`), WP2 tutorial (`wp2_tutorial.ipynb`); WP3 ablations not yet implemented | WP1 + WP2 done |
 
@@ -52,7 +52,7 @@ The project has explicit stop/go gates. Results are published regardless of outc
 | **DG-1** | IC calibration: AIPP converges to 1.25 bit (±5% relative); thresholds stable within ×1.5 across noise models including correlated noise; σ-sensitivity bounded | Closed — all criteria pass except systematic σ-underestimation (fails pre-registered 15% bound at +19.3%; mitigated by worst-case threshold calibration, not relaxed; see logbook entries 001–003) | Halt project |
 | **DG-2** | ADMEC-full outperforms best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 and S3; outperforms ADMEC-delay | **NOT MET** (entry 007): S1 = 0/3, S3 = 0/3 metrics pass; only S2 wins on MSE. `admec_full` *does* beat `admec_delay` everywhere | Archive as negative result |
 | **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | NOT MET on strict three-way criterion (TPR ≈ 0.7%); overall anomaly TPR 0.46 (entry 007) | Collapse to two-way classification |
-| **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Will be addressed in WP3 ablations | Archive |
+| **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | **NOT MET on three-way > two-way clause** (entry 010): max delta = 0 across all 360 ablation cells. Constraint clause satisfied (entry 009) | Archive |
 
 ## Timeline
 

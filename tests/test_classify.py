@@ -260,6 +260,66 @@ class TestClassifyNetwork:
             f"drifting clock should be most-flagged: {flagged_per_clock}")
 
 
+class TestTwoWayClassifier:
+    """WP3 ablation 4: two_way collapses STRUCTURED into UNSTRUCTURED."""
+
+    def test_below_threshold_unchanged(self):
+        """Stable readings (IC < threshold) classify the same in both modes."""
+        ic = np.array([0.5, 1.0, 2.0])
+        vs = np.full(3, 0.0)
+        ac = np.full(3, 0.0)
+        m_three = classify_array(ic, vs, ac)
+        m_two = classify_array(ic, vs, ac, two_way=True)
+        np.testing.assert_array_equal(m_three, m_two)
+        assert np.all(m_two == int(Mode.STABLE))
+
+    def test_structured_collapses_to_unstructured(self):
+        """In two-way, a flagged reading with strong temporal evidence
+        collapses from STRUCTURED to UNSTRUCTURED."""
+        ic = np.array([5.0])
+        vs = np.array([DELTA_MIN_VAR + 0.1])
+        ac = np.array([0.0])
+        m_three = classify_array(ic, vs, ac)
+        m_two = classify_array(ic, vs, ac, two_way=True)
+        assert m_three[0] == int(Mode.STRUCTURED)
+        assert m_two[0] == int(Mode.UNSTRUCTURED)
+
+    def test_two_way_no_structured(self):
+        """Across a full grid, two-way produces zero STRUCTURED labels."""
+        rng = np.random.default_rng(0)
+        T_grid, N_grid = 200, 10
+        ic = rng.uniform(0, 5, (T_grid, N_grid))
+        vs = rng.uniform(-1, 1, (T_grid, N_grid))
+        ac = rng.uniform(-1, 1, (T_grid, N_grid))
+        m_two = classify_array(ic, vs, ac, two_way=True)
+        assert np.sum(m_two == int(Mode.STRUCTURED)) == 0
+        # And the count of UNSTRUCTURED in two-way should equal the
+        # combined STRUCTURED + UNSTRUCTURED count in three-way
+        m_three = classify_array(ic, vs, ac)
+        assert (np.sum(m_two == int(Mode.UNSTRUCTURED)) ==
+                np.sum((m_three == int(Mode.STRUCTURED)) |
+                       (m_three == int(Mode.UNSTRUCTURED))))
+
+    def test_two_way_ignores_temporal_nan(self):
+        """In three-way, a flagged reading with NaN temporal stats is
+        UNDEFINED; in two-way it is UNSTRUCTURED (anomalous)."""
+        ic = np.array([5.0])
+        vs = np.array([np.nan])
+        ac = np.array([np.nan])
+        m_three = classify_array(ic, vs, ac)
+        m_two = classify_array(ic, vs, ac, two_way=True)
+        assert m_three[0] == int(Mode.UNDEFINED)
+        assert m_two[0] == int(Mode.UNSTRUCTURED)
+
+    def test_two_way_preserves_nan_ic(self):
+        """A NaN IC value stays UNDEFINED regardless of mode."""
+        ic = np.array([np.nan])
+        vs = np.array([0.0])
+        ac = np.array([0.0])
+        m_two = classify_array(ic, vs, ac, two_way=True)
+        assert m_two[0] == int(Mode.UNDEFINED)
+
+
 class TestModeCounts:
 
     def test_counts_sum_to_total(self):
