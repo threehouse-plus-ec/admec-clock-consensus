@@ -37,8 +37,8 @@ The project may produce a positive result (the three-way classification improves
 | `src/network.py` | Ring / random-sparse / fully-connected topologies with symmetric Poisson delays | Implemented (WP2) |
 | `src/estimators.py` | All nine estimators (FREQ-global/local/exclude, Huber, BOCPD, IMM, ADMEC variants) | Not yet implemented |
 | `src/constraints.py` | Update-size constraint projection (variance ratio, step size, energy bound) | Not yet implemented |
-| `src/classify.py` | Three-way node classification (stable / structured / unstructured anomaly) | Not yet implemented |
-| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network | 149 tests (147 passing, 2 known failures) |
+| `src/classify.py` | Three-way node classification (stable / structured / unstructured) with calibrated defaults from entries 004 and 006; scalar, vectorised, single-series, and network APIs | Implemented (WP2) |
+| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier | 172 tests (170 passing, 2 known failures) |
 | `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–006 |
 | `notebooks/` | WP1 calibration, WP2 simulation runs, WP3 ablation | Not yet implemented |
 

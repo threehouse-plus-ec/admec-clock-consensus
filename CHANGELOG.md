@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] — 2026-05-04
+
+### Added
+- `src/classify.py`: Three-way classifier wired with calibrated default thresholds (`THRESHOLD_95 = 2.976`, `DELTA_MIN_VAR = 0.2105`, `DELTA_MIN_ACF = 0.8703`) from entries 004 and 006. `Mode` IntEnum (UNDEFINED/STABLE/STRUCTURED/UNSTRUCTURED), `classify_node` (scalar), `classify_array` (vectorised), `classify_series` (single-clock end-to-end), `classify_network` (T×N matrix), `mode_counts` summary helper.
+- `tests/test_classify.py`: 23 tests covering default values, all branches of the three-way rule, NaN handling, vectorisation parity, end-to-end behaviour on a Gaussian null and on a heavy-tailed clock, network shape and per-clock independence, and the documented blind spot for linear drift.
+
+### Notes
+- Two empirical observations baked into the classifier docstring: (1) linear drift below ~sigma/W classifies as UNSTRUCTURED, since the temporal-structure heuristic is calibrated for critical-slowing-down dynamics; (2) the per-reading IC threshold of 2.976 bit is selective — coherent processes (high-rho AR(1), smooth drifts) broaden the mixture density along with the readings and do not reliably cross it. Crossing typically requires isolated extreme readings. Which scenarios populate STRUCTURED vs UNSTRUCTURED in practice is a WP2 question.
+
+### Status
+- WP2 modules implemented: `clocks.py`, `network.py`, `classify.py`. `estimators.py` and `constraints.py` remain stubs.
+- **172 tests total**, 170 passing (2 known failures: systematic -20% sigma-sensitivity, mitigated by worst-case calibration).
+
 ## [0.4.0] — 2026-05-04
 
 ### Added
