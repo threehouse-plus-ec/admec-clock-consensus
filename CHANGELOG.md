@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] — 2026-05-04
+
+### Added
+- `src/estimators.py`: WP2 batch (a) — seven of nine consensus estimators sharing a common `(Y, Sigmas, adj, delays, **kwargs) -> Estimates(T, N)` interface.
+  - **FREQ-global**: inverse-variance weighted mean over all nodes per step.
+  - **FREQ-local**: per-node weighted mean over delay-accessible neighbours plus self (configurable `freshness` window).
+  - **FREQ-exclude**: centralised mean excluding nodes with cross-sectional per-reading IC ≥ `THRESHOLD_95`.
+  - **Huber**: IRLS M-estimator with default tuning constant `c = 1.345`; the proposal evaluates `c ∈ {1.0, 1.345, 2.0}` on null scenarios and fixes the best.
+  - **ADMEC-unconstrained**: cross-sectional IC + longitudinal temporal stats → three-way classifier; centralised weighted mean over STABLE nodes only (STRUCTURED nodes "tracked and gated", not absorbed; UNSTRUCTURED excluded).
+  - **ADMEC-delay**: per-node weighted mean over delay-accessible STABLE neighbours.
+  - **ADMEC-full**: ADMEC-delay + sequential constraint projection on the per-node update vector via `src/constraints.py:project_update`.
+- Module-level `ESTIMATORS` registry maps method names to callables, ready for the WP2 simulation harness.
+- `tests/test_estimators.py`: 27 tests covering shape, dtype, registry membership, finiteness across all seven methods on a clean ring topology, plus per-method correctness checks (variance reduction, outlier exclusion, Huber robustness, full topology equivalence between ADMEC-delay and ADMEC-unconstrained, constraint smoothing under tight variance bounds).
+
+### Status
+- WP2 modules `clocks.py`, `network.py`, `classify.py`, `constraints.py`, and `estimators.py` (7/9) implemented. BOCPD and IMM are deferred to the next batch.
+- **218 tests total**, 216 passing (2 known failures: systematic -20% sigma-sensitivity, mitigated by worst-case calibration).
+
 ## [0.4.2] — 2026-05-04
 
 ### Added
