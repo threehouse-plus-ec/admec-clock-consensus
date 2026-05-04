@@ -1,6 +1,6 @@
 # Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
-**Status:** WP1 complete. WP2 modules complete; simulation harness ready. DG-1 closed with one recorded failure: systematic σ-underestimation exceeds the pre-registered 15% bound (mitigated by worst-case threshold calibration; see logbook entry 002). Three-way classification rule fully specified.
+**Status:** WP1 complete. WP2 complete. **DG-2 NOT MET** (recorded as a negative result, as anticipated in the proposal): `admec_full` beats the best non-ADMEC baseline on MSE in only one of eight scenarios (S2, fully connected, low delay). The constraint layer beats `admec_delay` everywhere, but the delay-restricted local consensus cannot close the gap to centralised exclusion methods on sparse-with-delay topologies. DG-1 closed with one recorded sub-criterion failure (σ-underestimation, mitigated by worst-case threshold calibration; entries 002, 006). Three-way classification rule fully specified. WP3 ablations are scoped to characterise the WP2 failure mode rather than rescue DG-2 (see [WP2 summary](logbook/wp2-summary.md) and [logbook entry 007](logbook/007_2026-05-04_wp2-simulation-harness.md)).
 
 ---
 
@@ -39,9 +39,9 @@ The project may produce a positive result (the three-way classification improves
 | `src/constraints.py` | Update-size constraint projection: per-node 3σ box, total Nσ² energy ball (sequential projection), variance-ratio fallback rejection | Implemented (WP2) |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured) with calibrated defaults from entries 004 and 006; scalar, vectorised, single-series, and network APIs | Implemented (WP2) |
 | `src/metrics.py` | WP2 simulation metrics: MSE, collapse index, structure correlation, classification diagnostics (TPR/FPR/F1) | Implemented (WP2) |
-| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators, metrics | 259 tests (257 passing, 2 known failures) |
+| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators, metrics | 260 tests (258 passing, 2 known failures) |
 | `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–007 |
-| `notebooks/` | WP1 calibration, WP2 simulation runs, WP3 ablation | Not yet implemented |
+| `notebooks/` | WP1 tutorial (`wp1_tutorial.ipynb`), WP2 tutorial (`wp2_tutorial.ipynb`); WP3 ablations not yet implemented | WP1 + WP2 done |
 
 ## Decision gates
 
@@ -50,9 +50,9 @@ The project has explicit stop/go gates. Results are published regardless of outc
 | Gate | Condition | Status | If fail |
 |------|-----------|--------|---------|
 | **DG-1** | IC calibration: AIPP converges to 1.25 bit (±5% relative); thresholds stable within ×1.5 across noise models including correlated noise; σ-sensitivity bounded | Closed — all criteria pass except systematic σ-underestimation (fails pre-registered 15% bound at +19.3%; mitigated by worst-case threshold calibration, not relaxed; see logbook entries 001–003) | Halt project |
-| **DG-2** | ADMEC-full outperforms best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 and S3; outperforms ADMEC-delay | Not started | Archive as negative result |
-| **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | Not started | Collapse to two-way classification |
-| **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Not started | Archive |
+| **DG-2** | ADMEC-full outperforms best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 and S3; outperforms ADMEC-delay | **NOT MET** (entry 007): S1 = 0/3, S3 = 0/3 metrics pass; only S2 wins on MSE. `admec_full` *does* beat `admec_delay` everywhere | Archive as negative result |
+| **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | NOT MET on strict three-way criterion (TPR ≈ 0.7%); overall anomaly TPR 0.46 (entry 007) | Collapse to two-way classification |
+| **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Will be addressed in WP3 ablations | Archive |
 
 ## Timeline
 

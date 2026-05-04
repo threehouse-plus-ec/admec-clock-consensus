@@ -5,9 +5,9 @@ title: Home
 
 # ADM-EC Clock Consensus
 
-**Current status:** WP1 complete. WP2 not started. DG-1 closed; IC calibrated across ten null models. One sub-criterion failed: systematic σ-underestimation exceeds 15% bound — this is a procedural workaround (worst-case threshold calibration), not an intrinsic fix; IC remains sensitive to the fidelity of declared uncertainties. Three-way classification rule fully specified (δ_min calibrated).
+**Current status:** WP1 complete, WP2 complete. **DG-2 NOT MET (negative result, recorded as anticipated)**: `admec_full` beats the best non-ADMEC baseline on MSE in one of eight scenarios (S2, fully connected, low delay). The delay-restricted local consensus cannot close the gap to centralised exclusion methods on sparse-with-delay topologies; the constraint layer beats `admec_delay` everywhere but cannot rescue DG-2. WP3 ablations are scoped to characterise this failure mode (delay convention, classification threshold, constraint sensitivity).
 
-*IC is stable under tested nulls and finite-N effects. Sensitivity to σ-misestimation indicates dependence on the fidelity of declared uncertainties rather than intrinsic robustness. WP2 will test whether classification-based response compensates for this sensitivity at the system level.*
+*IC is stable under tested nulls and finite-N effects. Sensitivity to σ-misestimation indicates dependence on the fidelity of declared uncertainties rather than intrinsic robustness. WP2 has tested whether classification-based response compensates for this sensitivity at the system level — it does not, on the eight tested scenarios. WP3 ablations characterise which architectural choice drives the failure.*
 
 ---
 
@@ -21,7 +21,8 @@ This project tests that question on simulated clock networks, comparing the prop
 
 1. **[WP1 Tutorial](docs/wp1_tutorial.md)** — walkthrough of IC definition, calibration, and classification with outputs – run it online: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp1_tutorial.ipynb)
 2. **[Project Proposal](docs/projektantrag.md)** — objectives, work packages, decision gates, failure conditions. Start here for the full picture.
-3. **[Latest logbook entry](logbook/007_2026-05-04_wp2-simulation-harness.md)** — WP2 simulation harness ready; critical `admec_full` bug fixed.
+3. **[WP2 Tutorial](docs/wp2_tutorial.md)** — walkthrough of the network pipeline and the recorded DG-2 verdict — run it online: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp2_tutorial.ipynb)
+4. **[Latest logbook entry](logbook/007_2026-05-04_wp2-simulation-harness.md)** — WP2 harness, the two bug fixes, and the DG-2 verdict.
 4. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
 
 ---
@@ -34,6 +35,7 @@ This project tests that question on simulated clock networks, comparing the prop
 | [Rebuttal](docs/rebuttal.md) | Point-by-point response to a hostile internal review of proposal v0.4. Documents what was conceded, what was cut, and why. |
 | [Outreach](docs/outreach.md) | Non-technical overview: when clocks disagree — noise, signal, and the value of anomalies. |
 | [WP1 Summary](logbook/wp1-summary.md) | What was defined, demonstrated, and not solved in WP1. Consolidates entries 001–005. |
+| [WP2 Summary](logbook/wp2-summary.md) | What was implemented, the negative DG-2 verdict, and the WP3 ablation framing. Consolidates entry 007. |
 
 ## Data
 
@@ -74,17 +76,17 @@ Source: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tre
 | Gate | Condition | Status |
 |------|-----------|--------|
 | **DG-1** | IC calibration: AIPP converges to 1.25 bit (±5% relative); thresholds stable within ×1.5; σ-sensitivity bounded | Closed — all criteria pass except systematic σ-underestimation (mitigated; see entry 002) |
-| **DG-2** | ADMEC-full outperforms best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 and S3; outperforms ADMEC-delay | Not started |
-| **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | Not started |
-| **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Not started |
+| **DG-2** | ADMEC-full outperforms best non-ADMEC baseline on ≥ 2 IC-independent metrics in S1 and S3; outperforms ADMEC-delay | **NOT MET** — S1 = 0/3, S3 = 0/3 metrics pass (entry 007); only S2 wins on MSE. `admec_full` does beat `admec_delay` on every scenario |
+| **DG-2b** | Three-way classification TP ≥ 70% (internal consistency check) | NOT MET on strict three-way (TPR ≈ 0.7 %); overall anomaly TPR 0.46 |
+| **DG-3** | Each constraint layer ≥ 10% on ≥ 1 metric; three-way > two-way | Will be addressed in WP3 ablations |
 
 ## Work packages
 
 | WP | Description | Status |
 |----|-------------|--------|
 | **WP1** | IC calibration: convergence, threshold stability, σ-sensitivity, δ_min | Complete (logbook entries 001–005; [summary](logbook/wp1-summary.md)) |
-| **WP2** | Clock network simulation: 8 scenarios × 10 seeds × 9 estimators | Not started |
-| **WP3** | Ablation: 5 configurations × 3 scenarios × 10 seeds | Not started |
+| **WP2** | Clock network simulation: 8 scenarios × 10 seeds × 9 estimators | Complete (entry 007; [summary](logbook/wp2-summary.md)) — DG-2 NOT MET |
+| **WP3** | Ablation: 5 configurations × 3 scenarios × 10 seeds (delay convention, classification threshold, constraint sensitivity, two-vs-three-way, ADMEC-full-lagged) | Not started |
 | **WP4** | Manuscript | Not started |
 
 ## Timeline

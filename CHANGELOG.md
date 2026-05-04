@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] — 2026-05-04
+
+### Added
+- `logbook/wp2-summary.md`: WP2 summary document parallel to `wp1-summary.md`. Records the closure of WP2, the negative DG-2 verdict, the structural failure mode (delay-restricted local consensus on sparse networks), and the WP3 ablation framing scoped to *characterise* the failure rather than rescue DG-2.
+- `notebooks/wp2_tutorial.ipynb`: WP2 tutorial mirroring the WP1 pattern. Builds a 15-clock ring scenario, computes cross-sectional IC and the three-way classifier output, runs eight estimators, computes the three IC-independent metrics, then loads the canonical campaign archive and reproduces the DG-2 verdict (NOT MET, S1 = 0/3, S3 = 0/3).
+- `docs/wp2_tutorial.md`: Rendered markdown twin of the tutorial with figures under `docs/wp2_tutorial_files/`, mirroring `docs/wp1_tutorial.md` so the tutorial is browsable on GitHub Pages without running Python.
+
+### Changed
+- `logbook/007_2026-05-04_wp2-simulation-harness.md`: corrected MSE / collapse-index / structure-correlation tables to match the canonical `data/wp2_campaign_20260504_fix.npz`. The earlier draft had carried over a few values from a pre-fix dry run; in particular the claim that `admec_full` "wins on S2, S7, S8" was wrong — only **S2** beats the best non-ADMEC baseline on MSE. The DG-2 verdict (NOT MET, S1 = 0/3, S3 = 0/3) is unchanged. Mitigating-factors section rewritten accordingly.
+
+### Status
+- WP2 closed. **DG-2 NOT MET** (negative result, recorded as anticipated by the proposal). DG-2b strict-three-way TPR ≈ 0.7 % (also not met). The constraint layer beats `admec_delay` on every scenario but cannot close the gap to centralised exclusion methods on sparse-with-delay topologies.
+- WP3 ablations now scoped to characterise the failure mode (delay convention, classification threshold, constraint sensitivity, two-vs-three-way, ADMEC-full-lagged).
+- 260 tests / 258 passing (unchanged; 2 known WP1 failures from entry-002 σ-underestimation, mitigated by worst-case threshold calibration in entry 006).
+
 ## [0.5.3] — 2026-05-04
 
 ### Added

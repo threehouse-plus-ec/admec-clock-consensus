@@ -85,46 +85,95 @@ The full campaign was re-run after this fix (`data/wp2_campaign_20260504_fix.npz
 
 ## Full campaign results (post-fix, 10 seeds, T=200)
 
-Mean MSE per scenario:
+Re-derived 2026-05-04 directly from `data/wp2_campaign_20260504_fix.npz` after
+the FP-guard fix. The earlier draft of this entry contained MSE values for
+S3/S7/S8 carried over from a pre-fix dry run; those have been replaced below
+and the "Observations" section corrected accordingly.
+
+Mean MSE per scenario, **best non-ADMEC baseline bolded**:
 
 | Scenario | freq_global | freq_local | freq_exclude | huber | bocpd | imm | admec_unc | admec_delay | admec_full |
 |----------|------------:|-----------:|-------------:|------:|------:|----:|----------:|------------:|-----------:|
 | S1 | 0.323 | 3.084 | **0.135** | 0.145 | 0.224 | 0.147 | 0.135 | 1.647 | 0.732 |
-| S2 | 0.323 | 0.316 | 0.135 | 0.145 | 0.224 | 0.147 | 0.135 | 0.136 | **0.093** |
-| S3 | 0.316 | 4.176 | **0.025** | 0.026 | 0.109 | 0.026 | 0.025 | 2.002 | 0.741 |
-| S4 | 0.323 | 1.611 | **0.135** | 0.145 | 0.224 | 0.147 | 0.135 | 0.746 | 0.485 |
-| S5 | 0.316 | 1.426 | **0.025** | 0.026 | 0.109 | 0.026 | 0.025 | 0.851 | 0.528 |
-| S6 | 0.323 | 1.591 | **0.135** | 0.145 | 0.224 | 0.147 | 0.135 | 0.751 | 0.461 |
-| S7 | 0.319 | 1.670 | 0.135 | 0.145 | 0.224 | 0.147 | 0.135 | 0.746 | **0.119** |
-| S8 | 0.323 | 1.645 | 0.135 | 0.145 | 0.224 | 0.147 | 0.135 | 0.752 | **0.115** |
+| S2 | 0.323 | 0.331 | 0.135 | 0.145 | 0.224 | 0.147 | 0.135 | 0.139 | **0.093** ✓ |
+| S3 | 0.041 | 1.642 | **0.025** | 0.026 | 0.033 | 0.025 | 0.025 | 1.027 | 0.741 |
+| S4 | 0.071 | 0.968 | 0.074 | 0.073 | 0.069 | **0.065** | 0.074 | 0.851 | 0.381 |
+| S5 | 0.021 | 0.988 | 0.022 | 0.022 | 0.021 | **0.019** | 0.022 | 0.883 | 0.597 |
+| S6 | 0.092 | 1.134 | 0.094 | 0.090 | 0.091 | **0.087** | 0.094 | 0.981 | 0.427 |
+| S7 | 0.163 | 2.072 | **0.040** | 0.054 | 0.152 | 0.144 | 0.040 | 0.957 | 0.604 |
+| S8 | 0.083 | 1.032 | 0.088 | 0.084 | 0.082 | **0.079** | 0.088 | 0.911 | 0.482 |
 
-Mean collapse index per scenario:
+`✓` marks the only scenario where `admec_full` beats the best non-ADMEC baseline on MSE.
 
-| Scenario | admec_delay | admec_full |
-|----------|------------:|-----------:|
-| S1 | 1.088 | 0.622 |
-| S2 | 0.071 | 0.014 |
-| S3 | 1.264 | 0.820 |
-| S4 | 0.647 | 0.441 |
-| S5 | 0.661 | 0.456 |
-| S6 | 0.648 | 0.431 |
-| S7 | 0.649 | 0.117 |
-| S8 | 0.649 | 0.111 |
+Mean collapse index per scenario (centralised estimators all = 0.000; only the
+spread-preserving methods are shown):
 
-Mean structure correlation per scenario:
+| Scenario | freq_local | admec_delay | admec_full |
+|----------|-----------:|------------:|-----------:|
+| S1 | 1.430 | 1.030 | 0.644 |
+| S2 | 0.072 | 0.046 | 0.022 |
+| S3 | 1.208 | 0.954 | 0.808 |
+| S4 | 0.784 | 0.740 | 0.480 |
+| S5 | 0.935 | 0.885 | 0.723 |
+| S6 | 0.849 | 0.793 | 0.491 |
+| S7 | 1.213 | 0.869 | 0.684 |
+| S8 | 0.809 | 0.763 | 0.539 |
+
+`admec_full` always has lower (better) collapse index than `admec_delay`,
+confirming the constraint layer suppresses spurious per-node disagreement.
+
+Mean structure correlation, signal scenarios only:
 
 | Scenario | freq_global | freq_local | freq_exclude | huber | bocpd | imm | admec_unc | admec_delay | admec_full |
 |----------|------------:|-----------:|-------------:|------:|------:|----:|----------:|------------:|-----------:|
-| S1 | 0.951 | 0.640 | 0.954 | 0.954 | 0.951 | 0.955 | 0.954 | 0.799 | 0.899 |
-| S2 | 0.951 | 0.949 | 0.954 | 0.954 | 0.951 | 0.955 | 0.954 | 0.949 | 0.955 |
-| S3 | 0.946 | 0.432 | 0.950 | 0.951 | 0.948 | 0.952 | 0.950 | 0.574 | 0.795 |
+| S1 | 0.951 | NaN | 0.955 | 0.955 | 0.952 | **0.956** | 0.955 | 0.800 | 0.897 |
+| S2 | 0.951 | 0.951 | 0.955 | 0.955 | 0.952 | 0.956 | 0.955 | 0.954 | **0.958** ✓ |
+| S3 | 0.959 | NaN | 0.960 | 0.960 | 0.960 | **0.960** | 0.960 | 0.866 | 0.887 |
+| S6 | 0.455 | NaN | 0.458 | **0.460** | 0.454 | 0.447 | 0.458 | 0.175 | 0.312 |
+| S7 | 0.901 | 0.093 | **1.002** | 0.967 | 0.910 | 0.914 | 1.002 | 0.713 | 0.835 |
+| S8 | 0.205 | NaN | 0.204 | **0.204** | 0.205 | 0.197 | 0.204 | 0.075 | 0.113 |
+
+`freq_local` is NaN on most scenarios because the per-node residual variance
+collapses to zero when each node retains its own reading (no shrinkage).
+S6 and S8 have low absolute correlation across all methods because the
+injected signals (slow drift; pre-bifurcation creep) sit close to the noise
+floor over T = 200; this is a property of the scenarios, not of the
+estimators.
+
+`admec_full` does not beat the best non-ADMEC baseline on structure
+correlation in any scenario except **S2**.
 
 ### Observations
 
-- `freq_exclude` is the strongest non-ADMEC baseline across all scenarios. It is mathematically identical to `admec_unconstrained` (both compute the inverse-variance weighted mean of all non-degraded clocks), so their metrics are identical.
-- On **S2** (fully connected, negligible delay), `admec_full` achieves the best MSE (0.093), best collapse index (0.014), and best structure correlation (0.955). The constraint layer adds conservatism that improves over the unconstrained consensus.
-- On **S1** and **S3** (sparse topologies with Poisson delays), `admec_full` is better than `admec_delay` but cannot beat `freq_exclude`. The delay-accessible neighbourhood is too small (1–2 nodes on average) to form a stable local consensus; the constraint layer limits step size but cannot compensate for missing neighbours.
-- On **S7** and **S8** (change-point and near-critical), `admec_full` achieves the best MSE (0.119 and 0.115) and collapse index (0.117 and 0.111), beating all baselines. The constraint layer's conservatism prevents overshoot after the step/bifurcation.
+- **S2 (fully connected, low delay) is the only signal scenario where
+  `admec_full` wins.** It achieves the best MSE (0.093 vs `freq_exclude`
+  0.135), the best collapse index (0.022), and the best structure
+  correlation (0.958). The constraint layer adds ~30 % MSE improvement over
+  unconstrained centralised methods when delays do not starve the local
+  consensus.
+- **`freq_exclude` is the strongest non-ADMEC baseline on signal MSE**
+  (S1, S3, S7); `imm` wins the null and slow-drift scenarios (S4, S5, S6,
+  S8). Both are centralised, exclusion-style estimators. `freq_exclude`
+  is mathematically identical to `admec_unconstrained` because, in these
+  scenarios, the IC-based exclusion and the temporal-statistic exclusion
+  rarely differ at the per-reading level (cf. entry 006 docstring on the
+  selectivity of the per-reading 2.976-bit threshold).
+- **On S1 and S3 (sparse with Poisson delays) `admec_full` cannot beat
+  `freq_exclude`.** It improves substantially over `admec_delay`
+  (S1: 0.732 vs 1.647; S3: 0.741 vs 1.027) but the gap to a centralised
+  baseline remains ≈ 5 × on S1 and ≈ 30 × on S3. The delay-accessible
+  neighbourhood is too small (1–2 nodes on average) to form a stable
+  local consensus; the constraint layer limits step size but cannot
+  compensate for missing neighbours.
+- **The constraint layer is internally consistent.** `admec_full` beats
+  `admec_delay` on MSE, collapse index, and structure correlation in
+  every scenario tested. The anomaly is the gap to centralised methods,
+  not the constraint architecture itself.
+- **`admec_full` does not beat baselines on S7 (step) or S8 (fold
+  bifurcation).** An earlier draft of this entry reported wins on these
+  scenarios; that was an artefact of a pre-fix campaign run and has been
+  corrected. The current data shows `freq_exclude` (S7) and `imm` (S8)
+  as the leaders.
 
 ---
 
@@ -154,12 +203,31 @@ Mean structure correlation per scenario:
 
 ### Verdict: **DG-2 NOT MET.**
 
-ADMEC-full does not beat the best non-ADMEC baseline on ≥2 metrics in S1 or S3. The failure mode is structural: on sparse networks with realistic delays, the delay-accessible neighbourhood is too small to support a local consensus that outperforms a centralised inverse-variance weighted mean. The constraint layer improves over `admec_delay` but cannot close the gap to `freq_exclude`.
+`admec_full` does not beat the best non-ADMEC baseline on ≥2 metrics in either S1 or S3. The failure mode is structural: on sparse networks with realistic delays, the delay-accessible neighbourhood is too small to support a local consensus that outperforms a centralised inverse-variance weighted mean. The constraint layer improves over `admec_delay` but cannot close the gap to `freq_exclude`.
 
-**Mitigating factors:**
-- S2 (fully connected) and S7/S8 (change-point / near-critical) show strong wins, demonstrating that the constraint architecture is beneficial when the network topology is favourable.
-- The delay convention (drop neighbours with delay > freshness, do not use stale readings) is a known limitation. WP3 will ablate this choice.
-- The classification layer (STRUCTURED vs UNSTRUCTURED gating) is working as designed — the issue is in the consensus step, not the IC layer.
+**Of the eight scenarios, `admec_full` beats the best non-ADMEC baseline on
+MSE in only one — S2 (fully connected, Poisson(0.3))**, where the
+delay-accessibility constraint is essentially inactive.
+
+**Mitigating context (does not rescue DG-2 but informs WP3 design):**
+- The constraint layer improves on `admec_delay` everywhere — MSE, collapse
+  index, and structure correlation are all reduced by the projection step.
+  The architecture is internally coherent; the deficit is in the
+  delay-restricted local consensus, not the constraint layer.
+- The delay convention (drop neighbours with delay > freshness, do not use
+  stale readings) is a known limitation flagged in the docstrings of
+  `freq_local`, `admec_delay`, and `admec_full`. **WP3 ablation 1**
+  (delay convention) is the principled test of whether stale-reading
+  variants close the gap.
+- The classification layer behaves as designed but is rarely the binding
+  constraint: under the Gaussian-null sigma-perturbation regime that
+  WP1 calibrated for, the per-reading 2.976-bit IC threshold is
+  selective, so on most scenarios `freq_exclude` and `admec_unconstrained`
+  produce nearly identical exclusion masks. **WP3 ablation 2**
+  (classification threshold sweep) is the direct test of this.
+- The proposal anticipated a negative DG-2 outcome ("If it fails, the
+  contribution is a careful negative result showing that established
+  robust methods are sufficient for the tested regime").
 
 ---
 
@@ -188,7 +256,7 @@ Strict STRUCTURED-only TPR = 0.0071. Most detections classify as UNSTRUCTURED, n
 - `test_does_not_freeze_at_initial_reading`: asserts estimates evolve away from `Y[0, :]` and MSE stays below 0.5 on pure noise
 - `test_fully_connected_stays_near_delay_variant`: asserts `admec_full` stays within 2.0 of `admec_delay` on fully-connected zero-delay data
 
-Suite now **259 tests / 257 passing** (the 2 failing tests are the documented entry-002 σ-underestimation cases).
+Suite now **260 tests / 258 passing** (the 2 failing tests are the documented entry-002 σ-underestimation cases).
 
 ---
 
