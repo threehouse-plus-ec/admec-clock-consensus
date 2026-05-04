@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from estimators import (freq_global, freq_local, freq_exclude, huber,
                         admec_unconstrained, admec_delay, admec_full,
                         bocpd, bocpd_run_length_posterior, bocpd_excluded,
+                        imm, imm_per_node, imm_excluded,
                         ESTIMATORS)
 from network import make_network, make_ring, make_fully_connected
 from clocks import (ClockParams, simulate_network_clocks,
@@ -382,12 +383,123 @@ class TestBocpdEstimator:
 # Cross-method sanity: shape and finiteness across the whole batch
 # ---------------------------------------------------------------
 
+class TestImmPerNode:
+    """Two-mode IMM filter (Blom & Bar-Shalom 1988)."""
+
+    def test_shape_and_normalisation(self):
+        rng = np.random.default_rng(0)
+        x = rng.normal(0, 1, 200)
+        s = np.ones(200)
+        modes, est = imm_per_node(x, s)
+        assert modes.shape == (200, 2)
+        assert est.shape == (200,)
+        np.testing.assert_allclose(modes.sum(axis=1), 1.0, atol=1e-9)
+
+    def test_low_anomalous_under_null(self):
+        """Under Gaussian null, anomalous-mode probability stays below
+        the default threshold."""
+        rng = np.random.default_rng(0)
+        x = rng.normal(0, 1, 200)
+        s = np.ones(200)
+        modes, _ = imm_per_node(x, s)
+        # No null cell should cross 0.7
+        assert np.max(modes[:, 1]) < 0.7, (
+            f"null anom max = {np.max(modes[:, 1]):.3f}, expected < 0.7")
+
+    def test_high_anomalous_after_step(self):
+        rng = np.random.default_rng(0)
+        x = rng.normal(0, 1, 200)
+        x[100:] += 5.0
+        s = np.ones(200)
+        modes, _ = imm_per_node(x, s)
+        # Anomalous probability should exceed 0.7 within 5 steps of step
+        assert np.any(modes[100:106, 1] > 0.7), (
+            f"step at t=100 didn't trigger anomalous mode within 5 steps; "
+            f"post-step values: {modes[100:106, 1]}")
+
+    def test_drift_detection(self):
+        """Linear drift should drive anomalous probability above the
+        default threshold partway through."""
+        rng = np.random.default_rng(0)
+        T = 200
+        x = rng.normal(0, 1, T) + 0.05 * np.arange(T)
+        s = np.ones(T)
+        modes, _ = imm_per_node(x, s)
+        # By t=50 the drift is ~ 2.5 sigma; anomalous should win.
+        # Use the default threshold 0.7 here too -- looser than 0.5
+        # in production but allows for drift uncertainty.
+        assert modes[50:, 1].mean() > 0.5, (
+            f"drift didn't sustain anomalous mode; mean post-50: "
+            f"{modes[50:, 1].mean():.3f}")
+
+    def test_invalid_p_switch_raises(self):
+        with pytest.raises(ValueError, match="p_switch"):
+            imm_per_node(np.zeros(10), np.ones(10), p_switch=0.0)
+        with pytest.raises(ValueError, match="p_switch"):
+            imm_per_node(np.zeros(10), np.ones(10), p_switch=1.0)
+
+    def test_negative_sigma_raises(self):
+        with pytest.raises(ValueError, match="sigmas must be positive"):
+            imm_per_node(np.zeros(10), -np.ones(10))
+
+
+class TestImmExclusion:
+
+    def test_excludes_post_step(self):
+        rng = np.random.default_rng(0)
+        x = rng.normal(0, 1, 200)
+        x[100:] += 5.0
+        s = np.ones(200)
+        excl = imm_excluded(x, s)
+        # Should exclude shortly after step
+        assert np.any(excl[100:106]), (
+            f"step at t=100 should trigger exclusion within 5 steps")
+        # Should not exclude long before
+        assert not excl[80], "no exclusion in stable pre-step region"
+
+    def test_no_exclusion_under_null(self):
+        rng = np.random.default_rng(0)
+        x = rng.normal(0, 1, 200)
+        s = np.ones(200)
+        excl = imm_excluded(x, s)
+        # Default threshold 0.7 should give 0 exclusions on null
+        assert excl.sum() == 0, (
+            f"null produced {excl.sum()} false-positive exclusions")
+
+
+class TestImmEstimator:
+
+    def test_shape(self):
+        Y, S = gaussian_network()
+        E = imm(Y, S)
+        assert E.shape == (T, N)
+
+    def test_centralised_consistency(self):
+        """All nodes get the same estimate (centralised method)."""
+        Y, S = gaussian_network(seed=2026)
+        E = imm(Y, S)
+        for t in range(T):
+            assert np.allclose(E[t, :], E[t, 0])
+
+    def test_excludes_node_with_step(self):
+        """A node that takes a step at t=100 should be down-weighted."""
+        Y, S = gaussian_network(seed=2026)
+        Y[100:, 5] += 5.0
+        E_imm = imm(Y, S)
+        E_global = freq_global(Y, S)
+        # IMM excludes the stepped node; consensus should be smaller
+        # than naive FREQ-global which absorbs +5.0
+        assert abs(E_imm[105, 0]) < abs(E_global[105, 0]), (
+            f"imm failed to suppress step: imm={E_imm[105, 0]:.3f}, "
+            f"global={E_global[105, 0]:.3f}")
+
+
 class TestRegistry:
 
-    def test_eight_estimators_registered(self):
-        assert len(ESTIMATORS) == 8
+    def test_nine_estimators_registered(self):
+        assert len(ESTIMATORS) == 9
         for name in ['freq_global', 'freq_local', 'freq_exclude', 'huber',
-                     'bocpd', 'admec_unconstrained', 'admec_delay',
+                     'bocpd', 'imm', 'admec_unconstrained', 'admec_delay',
                      'admec_full']:
             assert name in ESTIMATORS
             assert callable(ESTIMATORS[name])

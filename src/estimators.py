@@ -567,6 +567,201 @@ def bocpd(Y: np.ndarray,
 
 
 # ---------------------------------------------------------------
+# IMM (Blom & Bar-Shalom 1988)
+# ---------------------------------------------------------------
+
+def imm_per_node(values: np.ndarray,
+                 sigmas: np.ndarray,
+                 sigma_walk_nominal: float = 0.01,
+                 sigma_walk_anomalous: float = 0.1,
+                 p_switch: float = 0.05,
+                 prior_mean: float = 0.0,
+                 prior_var_factor: float = 100.0
+                 ) -> tuple:
+    """Two-mode IMM filter per node (Blom & Bar-Shalom 1988).
+
+    Each clock is modelled by a parallel pair of Kalman filters
+    sharing observation y_t = mu_t + N(0, sigma_t^2) but with
+    different process noises:
+
+        nominal   :  mu_t = mu_{t-1} + N(0, Q_nominal)
+        anomalous :  mu_t = mu_{t-1} + N(0, Q_anomalous)
+
+    Q is set in units of the typical declared sigma:
+        Q_nominal   = (sigma_walk_nominal   * mean(sigmas))^2
+        Q_anomalous = (sigma_walk_anomalous * mean(sigmas))^2
+
+    With the defaults above, Q_anomalous / Q_nominal = 100, in
+    the upper end of the 10x-100x range that keeps mode
+    probabilities informative. A larger ratio (sigma_walk_anomalous
+    >= sigma_typ) lets the anomalous filter "explain" any noise
+    excursion as a true mean shift, inflating the null false-
+    positive rate; a smaller ratio collapses both filters onto the
+    same track and the mode posterior becomes uninformative.
+    See user-feedback after the BOCPD commit.
+
+    Markov transition (symmetric two-state):
+        P(j -> j) = 1 - p_switch  for both modes
+        P(j -> k) = p_switch      for j != k
+
+    The proposal evaluates p_switch in {0.01, 0.05, 0.1} on null
+    scenarios (S4/S5) and fixes the best.
+
+    Returns
+    -------
+    mode_probs : array of shape (T, 2)
+        Posterior mode probability at each step. Column 0 = nominal,
+        column 1 = anomalous.
+    estimates : array of shape (T,)
+        Combined posterior mean across modes.
+    """
+    values = np.asarray(values, dtype=np.float64)
+    sigmas = np.asarray(sigmas, dtype=np.float64)
+    T = values.size
+    if T == 0:
+        return np.zeros((0, 2)), np.zeros(0)
+    if not (0.0 < p_switch < 1.0):
+        raise ValueError(
+            f"p_switch must be in (0, 1), got {p_switch}")
+    if np.any(sigmas <= 0):
+        raise ValueError("sigmas must be positive")
+
+    sigma_typ = float(np.mean(sigmas))
+    Q = np.array([
+        (sigma_walk_nominal * sigma_typ) ** 2,
+        (sigma_walk_anomalous * sigma_typ) ** 2,
+    ])
+    prior_var = (prior_var_factor * sigma_typ) ** 2
+
+    # Markov transition matrix Pi[i, j] = P(mode_t = j | mode_{t-1} = i)
+    Pi = np.array([[1.0 - p_switch, p_switch],
+                   [p_switch,        1.0 - p_switch]])
+
+    # Per-mode state (mean) and variance, plus mode probabilities
+    x = np.full(2, prior_mean)
+    P = np.full(2, prior_var)
+    mu = np.array([0.5, 0.5])
+
+    mode_probs = np.zeros((T, 2))
+    estimates = np.zeros(T)
+
+    for t in range(T):
+        y = values[t]
+        s2 = sigmas[t] ** 2
+
+        # --- Mixing step ---
+        # c_bar[j] = sum_i Pi[i, j] * mu[i] = predicted P(mode_t = j)
+        c_bar = Pi.T @ mu
+        c_bar = np.maximum(c_bar, 1e-300)
+        # mix[i, j] = Pi[i, j] * mu[i] / c_bar[j]
+        mix = (Pi * mu[:, None]) / c_bar[None, :]
+        x_mix = mix[:, 0] * x[0] + mix[:, 1] * x[1]
+        # P_mix[j] = sum_i mix[i, j] * (P[i] + (x[i] - x_mix[j])^2)
+        x_mix = np.array([
+            mix[0, 0] * x[0] + mix[1, 0] * x[1],
+            mix[0, 1] * x[0] + mix[1, 1] * x[1],
+        ])
+        P_mix = np.zeros(2)
+        for j in range(2):
+            P_mix[j] = (mix[0, j] * (P[0] + (x[0] - x_mix[j]) ** 2)
+                        + mix[1, j] * (P[1] + (x[1] - x_mix[j]) ** 2))
+
+        # --- Mode-specific Kalman update (random-walk model) ---
+        x_new = np.zeros(2)
+        P_new = np.zeros(2)
+        likelihood = np.zeros(2)
+        for j in range(2):
+            x_pred = x_mix[j]
+            P_pred = P_mix[j] + Q[j]
+            S = P_pred + s2  # innovation variance
+            K = P_pred / S   # Kalman gain
+            innov = y - x_pred
+            x_new[j] = x_pred + K * innov
+            P_new[j] = (1.0 - K) * P_pred
+            likelihood[j] = (np.exp(-0.5 * innov ** 2 / S)
+                              / np.sqrt(2.0 * np.pi * S))
+
+        # --- Mode-probability update ---
+        joint = c_bar * likelihood
+        denom = float(np.sum(joint))
+        if denom > 1e-300:
+            mu = joint / denom
+        # else: keep mu unchanged (both modes ruled out, very unlikely
+        # under reasonable priors)
+
+        mode_probs[t, :] = mu
+        estimates[t] = float(np.sum(mu * x_new))
+
+        x = x_new
+        P = P_new
+
+    return mode_probs, estimates
+
+
+def imm_excluded(values: np.ndarray,
+                 sigmas: np.ndarray,
+                 anomalous_threshold: float = 0.7,
+                 **imm_kwargs) -> np.ndarray:
+    """Per-step exclusion mask for one node based on IMM mode probability.
+
+    Excludes the node at step t if the anomalous-mode posterior
+    probability exceeds anomalous_threshold (default 0.5). Returns a
+    (T,) bool array.
+    """
+    mode_probs, _ = imm_per_node(values, sigmas, **imm_kwargs)
+    return mode_probs[:, 1] > anomalous_threshold
+
+
+def imm(Y: np.ndarray,
+        Sigmas: np.ndarray,
+        adj: Optional[np.ndarray] = None,
+        delays: Optional[np.ndarray] = None,
+        sigma_walk_nominal: float = 0.01,
+        sigma_walk_anomalous: float = 1.0,
+        p_switch: float = 0.05,
+        anomalous_threshold: float = 0.5,
+        prior_mean: float = 0.0,
+        prior_var_factor: float = 100.0) -> np.ndarray:
+    """Centralised consensus via IMM-based per-node exclusion.
+
+    Each node runs a two-mode IMM filter over its own reading
+    sequence. At each step, nodes whose anomalous-mode posterior
+    exceeds anomalous_threshold are excluded from the consensus,
+    which is then an inverse-variance weighted mean over the rest.
+    """
+    Y = np.asarray(Y, dtype=np.float64)
+    Sigmas = np.asarray(Sigmas, dtype=np.float64)
+    T, N = Y.shape
+
+    excluded = np.zeros((T, N), dtype=bool)
+    for j in range(N):
+        excluded[:, j] = imm_excluded(
+            Y[:, j], Sigmas[:, j],
+            anomalous_threshold=anomalous_threshold,
+            sigma_walk_nominal=sigma_walk_nominal,
+            sigma_walk_anomalous=sigma_walk_anomalous,
+            p_switch=p_switch,
+            prior_mean=prior_mean,
+            prior_var_factor=prior_var_factor,
+        )
+
+    estimates = np.zeros((T, N))
+    for t in range(T):
+        keep = ~excluded[t, :]
+        m = (_weighted_mean(Y[t, :], Sigmas[t, :], mask=keep)
+             if keep.any() else np.nan)
+        if np.isnan(m):
+            if t == 0:
+                m_all = _weighted_mean(Y[t, :], Sigmas[t, :])
+                estimates[t, :] = m_all if not np.isnan(m_all) else 0.0
+            else:
+                estimates[t, :] = estimates[t - 1, :]
+        else:
+            estimates[t, :] = m
+    return estimates
+
+
+# ---------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------
 
@@ -576,8 +771,9 @@ ESTIMATORS = {
     'freq_exclude': freq_exclude,
     'huber': huber,
     'bocpd': bocpd,
+    'imm': imm,
     'admec_unconstrained': admec_unconstrained,
     'admec_delay': admec_delay,
     'admec_full': admec_full,
 }
-"""Registry of estimators. IMM will be added in the next commit."""
+"""Registry of all nine WP2 consensus estimators."""

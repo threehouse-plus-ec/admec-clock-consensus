@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] — 2026-05-04
+
+### Added
+- `src/estimators.py:imm_per_node`: Two-mode IMM filter (Blom & Bar-Shalom 1988). Per-node Kalman bank with shared observation model y = mu + N(0, sigma^2) and two process-noise levels — nominal (`sigma_walk_nominal = 0.01 × mean(sigmas)`) and anomalous (`sigma_walk_anomalous = 0.1 × mean(sigmas)`). Q ratio of 100× sits in the upper end of the 10×–100× sweet spot (smaller ratios collapse both filters; larger ratios let the anomalous mode "explain" any null noise as a true mean shift). Symmetric Markov transition `P(j → k ≠ j) = p_switch = 0.05`; the proposal evaluates `p_switch ∈ {0.01, 0.05, 0.1}`. Returns `(mode_probs (T, 2), estimates (T,))`.
+- `src/estimators.py:imm_excluded`: per-step exclusion mask — True when the anomalous-mode posterior exceeds `anomalous_threshold = 0.7`. Empirically chosen: under the Gaussian null with default Q ratio, the anomalous posterior never crosses 0.7 (~0% false-positive rate over 50 random seeds); a clean 5σ step is detected with 1-2 step lag.
+- `src/estimators.py:imm`: centralised consensus via IMM-based per-node exclusion — same overall structure as `bocpd`, with the same `t=0` centralised-mean fallback.
+- `tests/test_estimators.py`: 12 new IMM tests covering shape and normalisation, low anomalous probability under null, step detection within 5 steps, drift detection, exclusion-mask behaviour (post-step and null), centralised consistency across all nodes, step suppression on a network, parameter validation.
+
+### Changed
+- `ESTIMATORS` registry now exposes all 9 of 9 estimators (`imm` added).
+
+### Status
+- **WP2 modules complete**: `clocks.py`, `network.py`, `classify.py`, `constraints.py`, `estimators.py` (9/9). The simulation harness can now begin.
+- **241 tests total**, 239 passing (2 known failures: systematic -20% sigma-sensitivity, mitigated by worst-case calibration).
+
 ## [0.5.1] — 2026-05-04
 
 ### Added
