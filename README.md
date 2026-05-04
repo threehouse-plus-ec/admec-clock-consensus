@@ -38,8 +38,8 @@ The project may produce a positive result (the three-way classification improves
 | `src/estimators.py` | All nine estimators (FREQ-global/local/exclude, Huber, BOCPD, IMM, ADMEC variants) | Not yet implemented |
 | `src/constraints.py` | Update-size constraint projection (variance ratio, step size, energy bound) | Not yet implemented |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured anomaly) | Not yet implemented |
-| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison | 88 tests (86 passing, 2 known failures) |
-| `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–005 |
+| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold | 107 tests (105 passing, 2 known failures) |
+| `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–006 |
 | `notebooks/` | WP1 calibration, WP2 simulation runs, WP3 ablation | Not yet implemented |
 
 ## Decision gates

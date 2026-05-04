@@ -19,6 +19,7 @@ All data files use `np.random.default_rng(2026)` unless stated otherwise in the 
 | `003_powerlaw_thresholds.npz` | [003](../logbook/003_2026-03-31_powerlaw-nulls-and-finite-n-bias.md) | AIPP distributions for all 10 null models (300 realisations); finite-N bias fit coefficients (a, b, AIPP_inf) | 26 KB |
 | `004_delta_min.npz` | [004](../logbook/004_2026-03-31_delta-min-calibration.md) | Null distributions of variance slope and autocorrelation for all 10 models (300 realisations × T = 200); calibrated delta_min values; sanity-check signal arrays | 7.9 MB |
 | `005_comparison_fom.npz` | [005](../logbook/005_2026-04-01_positioning-ic-against-fom.md) | Controlled comparison: 20 clocks × 200 steps; per-clock chi2, Huber, and IC arrays | 121 KB |
+| `006_per_reading_threshold.npz` | [006](../logbook/006_2026-05-04_per-reading-threshold-recalibration.md) | Per-reading I_k pools and 95th/99th percentiles across ten null models, both clean and -20% sigma worst case; operational WP2 threshold 2.976 bit | 2.2 MB |
 
 ## Notes
 
@@ -33,3 +34,4 @@ All data can be regenerated from the scripts in `scripts/`:
 
 - Entries 001–004: `python scripts/save_wp1_data.py`
 - Entry 005: `python scripts/fig07_comparison_fom.py`
+- Entry 006: `python scripts/fig08_per_reading_threshold.py`

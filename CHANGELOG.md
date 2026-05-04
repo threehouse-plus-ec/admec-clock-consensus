@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2] — 2026-05-04
+
+### Added
+- `scripts/fig08_per_reading_threshold.py`: Per-reading I_k threshold calibration across the ten null noise models, with worst-case sigma recalibration (-20%)
+- `data/006_per_reading_threshold.npz`: Per-reading I_k pools and percentiles for all ten null models, both clean and worst-case sigma regimes
+- `tests/test_per_reading_threshold.py`: 19 tests covering the AIPP-vs-per-reading P95 ordering, ×1.5 stability across all ten noise models (clean and worst-case), worst-case inflation under sigma underestimation, and ×1.2 stability across N ∈ {50, 100, 200} for the operational threshold
+- `logbook/`: Entry 006 (per-reading threshold recalibration; closes the WP2-prerequisite open item from `wp1-summary.md`)
+
+### Changed
+- `logbook/wp1-summary.md`: Open item on AIPP-to-per-reading threshold recalibration is closed; the operational WP2 threshold is 2.976 bit (worst case, heteroscedastic Gaussian), 1.62× the AIPP threshold it replaces
+- `src/classify.py`: Stub docstring updated to reference the per-reading 2.976 bit threshold (Entry 006), distinguishing it from the AIPP-derived value of 1.835 bit
+
+### Status
+- WP1 → WP2 bridge. Does not modify DG-1 ruling. Resolves the only open item flagged for WP2 entry
+- **107 tests total**, 105 passing (2 known failures: systematic -20% sigma-sensitivity, mitigated by worst-case calibration)
+
 ## [0.3.1] — 2026-04-01
 
 ### Added

@@ -10,11 +10,17 @@ inference methods. They are sensitive to noise colour and window length.
 The project tests whether this simple heuristic is sufficient to yield
 measurable estimator improvement, not whether it is optimal.
 
-Calibrated thresholds (from WP1, logbook entry 004):
-    δ_min_var = 0.2105  (k=3 × median |var slope| under Student-t(3) null)
-    δ_min_acf = 0.8703  (95th percentile of |acf| under random-walk null)
+Calibrated thresholds:
+    threshold_95 = 2.976  bit  (per-reading I_k P95, worst-case -20% σ;
+                                heteroscedastic Gaussian binding; Entry 006)
+    δ_min_var    = 0.2105     (k=3 × median |var slope| under Student-t(3) null;
+                                Entry 004)
+    δ_min_acf    = 0.8703     (95th percentile of |acf| under random-walk null;
+                                Entry 004)
 
-Robustness tested under W ∈ {10, 15, 20, 30}.
+The earlier AIPP-derived threshold (1.835 bit, Entries 001/002) does not
+apply per-reading: it would inflate the false-positive rate by ≈1.6×.
+Robustness of δ_min tested under W ∈ {10, 15, 20, 30}.
 
 Status: STUB. Full implementation is WP2.
 """

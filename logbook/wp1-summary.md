@@ -81,9 +81,9 @@ STRUCTURED ANOMALY:   IC ≥ threshold_95  AND  (|var_slope| > 0.2105  OR  |auto
 UNSTRUCTURED ANOMALY: IC ≥ threshold_95  AND  |var_slope| ≤ 0.2105  AND  |autocorr| ≤ 0.8703
 ```
 
-where threshold_95 is the 95th-percentile AIPP value from the null calibration (Entry 001), recalibrated under worst-case σ conditions (systematic −20% underestimation, Entry 002). The variance slope and autocorrelation are computed over a trailing window of W = 20 time steps within a single clock's reading sequence.
+where threshold_95 is the 95th-percentile per-reading I_k value from the null calibration, recalibrated under worst-case σ conditions (systematic −20% underestimation, Entry 002). The variance slope and autocorrelation are computed over a trailing window of W = 20 time steps within a single clock's reading sequence.
 
-Note: the threshold_95 used here is derived from the AIPP distribution (average over N readings). When applied to classify individual readings in WP2, this threshold must be replaced by the corresponding percentile of the per-reading I_k distribution, which has higher variance. This recalibration is a WP2 task.
+The operational threshold_95 = **2.976 bit** comes from the worst-case per-reading P95 across the ten null noise models (Entry 006, heteroscedastic Gaussian binding). This value is 1.62× the corresponding worst-case AIPP P95 (1.835 bit), reflecting the heavier upper tail of I_k relative to its average AIPP. The earlier note that AIPP-to-per-reading recalibration was a deferred WP2 task is closed by Entry 006.
 
 ## Decision gate outcome
 
@@ -110,13 +110,13 @@ WP2 will evaluate whether the separation of inconsistency detection (IC) and tem
 
 | Artefact | Location |
 |----------|----------|
-| Logbook Entries 001–005 | `logbook/` |
+| Logbook Entries 001–006 | `logbook/` |
 | IC implementation | `src/ic.py` |
 | Noise generators | `src/noise.py` |
 | Temporal-structure statistics | `src/temporal.py` |
 | Comparison functions | `src/comparison.py` |
-| Test suite (88 tests, 86 passing) | `tests/` |
-| Archived data (entries 001–005) | `data/` |
+| Test suite (107 tests, 105 passing) | `tests/` |
+| Archived data (entries 001–006) | `data/` |
 | Outreach document | `docs/outreach.md` |
 
 ---
