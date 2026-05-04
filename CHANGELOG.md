@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] — 2026-05-04
+
+### Added
+- `src/estimators.py`: `delay_mode` parameter on `freq_local`, `admec_delay`, and `admec_full`. `'drop'` (default) preserves the WP2 baseline; `'stale'` (WP3 ablation 1) pulls the delayed reading `Y[t − delays[i, j], j]` for every adjacency neighbour rather than dropping inaccessible ones.
+- `scripts/wp3_ablation_delay_convention.py`: WP3 ablation 1 harness — runs S1, S2, S3 × 10 seeds × {drop, stale} on the three local estimators plus centralised baselines for direct comparison. Output: `data/wp3_ablation_delay_convention_YYYYMMDD.npz`. RNG ordering matched to `scripts/wp2_campaign.py` so drop-mode reproduces the WP2 canonical archive exactly.
+- `data/wp3_ablation_delay_convention_20260504.npz`: ablation archive.
+- `logbook/008_2026-05-04_wp3-ablation-delay-convention.md`: WP3 ablation-1 entry with finding, interpretation, and the unexpected `admec_delay > admec_full` on S3 stale (suggests WP3 ablation 3 — constraint sensitivity — as the next step).
+- `tests/test_estimators.py`: 10 new tests under `TestDelayMode` (zero-delay equivalence, unknown-mode rejection, hand-constructed delayed-readings example, finiteness sweep).
+
+### Findings
+- Stale convention reduces `admec_full` MSE by **44 %** on S1 (0.732 → 0.413) and **38 %** on S3 (0.741 → 0.461). Structure correlation closes most of the gap to centralised baselines on S3 (0.887 → 0.949 vs `imm` 0.960).
+- **DG-2 stays NOT MET under stale**: S1 admec_full 0.413 vs freq_exclude 0.135 (3.1× gap); S3 admec_full 0.461 vs imm 0.025 (18× gap). The WP2 verdict is robust to the delay convention.
+- On S2, drop slightly beats stale (0.093 vs 0.104) because adjacency neighbours are already accessible at freshness=1 in dense topology.
+- Unexpected: under stale, `admec_delay` beats `admec_full` on S3 MSE (0.340 vs 0.461) — suggests the variance-ratio constraint mis-fires when proposed updates are noisier (multiple stale lags). WP3 ablation 3 will quantify.
+
+### Status
+- WP3 ablation 1 of 5 complete. DG-2 robustly NOT MET across delay conventions. Next ablation: constraint sensitivity (#3) or classification threshold (#2).
+- 271 tests / 269 passing (10 new `TestDelayMode` tests; 2 known WP1 failures from entry-002 σ-underestimation, mitigated).
+
 ## [0.6.1] — 2026-05-04
 
 ### Fixed

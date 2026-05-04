@@ -13,6 +13,7 @@ Entries are Markdown files named `NNN_YYYY-MM-DD_title.md`. Figures are stored i
 | [005](005_2026-04-01_positioning-ic-against-fom.md) | 2026-04-01 | IC positioned against χ², Huber, Allan deviation; property table; data infrastructure created |
 | [006](006_2026-05-04_per-reading-threshold-recalibration.md) | 2026-05-04 | AIPP→per-reading threshold recalibration; operational WP2 threshold 2.976 bit (worst case), 1.62× the AIPP value it replaces; closes WP2-prerequisite open item |
 | [007](007_2026-05-04_wp2-simulation-harness.md) | 2026-05-04 | WP2 simulation harness (8 scenarios × 10 seeds × 9 estimators); metrics module (MSE, collapse index, structure correlation); two bug fixes (`admec_full` t=0 init, FP variance-ratio guard); **DG-2 NOT MET** — only S2 wins on MSE |
+| [008](008_2026-05-04_wp3-ablation-delay-convention.md) | 2026-05-04 | WP3 ablation 1: stale-reading mode reduces `admec_full` MSE by 38–44 % on S1/S3 but does not close the gap to centralised baselines; DG-2 robustly NOT MET across delay conventions |
 
 ## Summary
 

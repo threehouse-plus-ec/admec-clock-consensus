@@ -115,37 +115,72 @@ def freq_local(Y: np.ndarray,
                Sigmas: np.ndarray,
                adj: np.ndarray,
                delays: np.ndarray,
-               freshness: int = 1) -> np.ndarray:
+               freshness: int = 1,
+               delay_mode: str = 'drop') -> np.ndarray:
     """Per-node weighted mean over delay-accessible neighbours and self.
 
-    A neighbour j is accessible to i at step t iff
-        adj[i, j]  AND  delays[i, j] <= freshness.
-    The node itself is always included (delay 0 to itself).
+    Two `delay_mode` options control how communication delays interact
+    with the consensus step:
 
-    NOTE: an inaccessible neighbour (delay > freshness) is dropped
-    from the consensus at step t. This estimator does NOT use stale
-    readings Y[t - delays[i, j], j] from past steps. Storing and
-    correlating delayed readings would be a different estimator (a
-    delayed Kalman variant), to be considered as a WP3 ablation if
-    reviewers raise it. See user-feedback comment after batch (a)
-    review.
+      * 'drop'   (default, WP2 baseline) -- a neighbour j is included
+        in i's average iff `adj[i, j] AND delays[i, j] <= freshness`,
+        using the current-step reading Y[t, j]. Neighbours with delay
+        > freshness are dropped, NOT pulled from history.
+
+      * 'stale'  (WP3 ablation 1) -- every adjacency neighbour
+        contributes its reading from the time it was sent, namely
+        `Y[t - delays[i, j], j]` if that index is non-negative.
+        Neighbours with t - delay < 0 are dropped at the start of the
+        run (warm-up effect on the first few steps). The node itself
+        is always included at lag 0.
+
+    The 'stale' branch tests the WP2 hypothesis that
+    delay-restricted local consensus loses to centralised baselines
+    on S1/S3 because of the convention itself, not because of the
+    constraint architecture; see logbook entry 008.
     """
     Y = np.asarray(Y, dtype=np.float64)
     Sigmas = np.asarray(Sigmas, dtype=np.float64)
     T, N = Y.shape
-    accessible = adj & (delays <= freshness)
-    np.fill_diagonal(accessible, True)
     estimates = np.zeros((T, N))
-    for t in range(T):
-        for i in range(N):
-            mask = accessible[i]
-            m = _weighted_mean(Y[t, :], Sigmas[t, :], mask=mask)
-            if np.isnan(m):
-                estimates[t, i] = (estimates[t - 1, i] if t > 0
-                                    else Y[t, i])
-            else:
-                estimates[t, i] = m
-    return estimates
+
+    if delay_mode == 'drop':
+        accessible = adj & (delays <= freshness)
+        np.fill_diagonal(accessible, True)
+        for t in range(T):
+            for i in range(N):
+                mask = accessible[i]
+                m = _weighted_mean(Y[t, :], Sigmas[t, :], mask=mask)
+                if np.isnan(m):
+                    estimates[t, i] = (estimates[t - 1, i] if t > 0
+                                        else Y[t, i])
+                else:
+                    estimates[t, i] = m
+        return estimates
+
+    if delay_mode == 'stale':
+        for t in range(T):
+            for i in range(N):
+                vals = [Y[t, i]]
+                sigs = [Sigmas[t, i]]
+                for j in range(N):
+                    if j == i or not adj[i, j]:
+                        continue
+                    src = t - int(delays[i, j])
+                    if src < 0:
+                        continue
+                    vals.append(Y[src, j])
+                    sigs.append(Sigmas[src, j])
+                m = _weighted_mean(np.asarray(vals), np.asarray(sigs))
+                if np.isnan(m):
+                    estimates[t, i] = (estimates[t - 1, i] if t > 0
+                                        else Y[t, i])
+                else:
+                    estimates[t, i] = m
+        return estimates
+
+    raise ValueError(
+        f"Unknown delay_mode: {delay_mode!r}. Use 'drop' or 'stale'.")
 
 
 def freq_exclude(Y: np.ndarray,
@@ -292,33 +327,71 @@ def admec_delay(Y: np.ndarray,
                 threshold: float = THRESHOLD_95,
                 delta_min_var: float = DELTA_MIN_VAR,
                 delta_min_acf: float = DELTA_MIN_ACF,
-                window: int = 20) -> np.ndarray:
+                window: int = 20,
+                delay_mode: str = 'drop') -> np.ndarray:
     """Per-node ADMEC: weighted mean over delay-accessible STABLE
     neighbours (including self if STABLE).
 
-    NOTE: same delay convention as freq_local -- a neighbour with
-    delays[i, j] > freshness is dropped, not pulled from history.
-    Stale-reading variants are deferred to WP3 ablations.
+    `delay_mode` selects the communication-delay convention:
+      * 'drop'  (WP2 baseline) -- neighbours with delay > freshness
+        are dropped; current-step reading and current-step
+        classification.
+      * 'stale' (WP3 ablation 1) -- every adjacency neighbour
+        contributes its reading and self-assessed STABLE status from
+        time `t - delays[i, j]`. The neighbour is included only if
+        it self-classified as STABLE at the time the message was
+        sent. See logbook entry 008.
     """
     Y = np.asarray(Y, dtype=np.float64)
     Sigmas = np.asarray(Sigmas, dtype=np.float64)
     T, N = Y.shape
-    accessible = adj & (delays <= freshness)
-    np.fill_diagonal(accessible, True)
     modes = _classify_network_full(Y, Sigmas, window, threshold,
                                     delta_min_var, delta_min_acf)
-    estimates = np.zeros((T, N))
     stable = (modes == int(Mode.STABLE))
-    for t in range(T):
-        for i in range(N):
-            mask = accessible[i] & stable[t, :]
-            m = _weighted_mean(Y[t, :], Sigmas[t, :], mask=mask)
-            if np.isnan(m):
-                estimates[t, i] = (estimates[t - 1, i] if t > 0
-                                    else Y[t, i])
-            else:
-                estimates[t, i] = m
-    return estimates
+    estimates = np.zeros((T, N))
+
+    if delay_mode == 'drop':
+        accessible = adj & (delays <= freshness)
+        np.fill_diagonal(accessible, True)
+        for t in range(T):
+            for i in range(N):
+                mask = accessible[i] & stable[t, :]
+                m = _weighted_mean(Y[t, :], Sigmas[t, :], mask=mask)
+                if np.isnan(m):
+                    estimates[t, i] = (estimates[t - 1, i] if t > 0
+                                        else Y[t, i])
+                else:
+                    estimates[t, i] = m
+        return estimates
+
+    if delay_mode == 'stale':
+        for t in range(T):
+            for i in range(N):
+                vals, sigs = [], []
+                if stable[t, i]:
+                    vals.append(Y[t, i])
+                    sigs.append(Sigmas[t, i])
+                for j in range(N):
+                    if j == i or not adj[i, j]:
+                        continue
+                    src = t - int(delays[i, j])
+                    if src < 0 or not stable[src, j]:
+                        continue
+                    vals.append(Y[src, j])
+                    sigs.append(Sigmas[src, j])
+                if not vals:
+                    estimates[t, i] = (estimates[t - 1, i] if t > 0
+                                        else Y[t, i])
+                else:
+                    m = _weighted_mean(np.asarray(vals),
+                                        np.asarray(sigs))
+                    estimates[t, i] = (
+                        m if not np.isnan(m)
+                        else (estimates[t - 1, i] if t > 0 else Y[t, i]))
+        return estimates
+
+    raise ValueError(
+        f"Unknown delay_mode: {delay_mode!r}. Use 'drop' or 'stale'.")
 
 
 def admec_full(Y: np.ndarray,
@@ -330,7 +403,8 @@ def admec_full(Y: np.ndarray,
                delta_min_var: float = DELTA_MIN_VAR,
                delta_min_acf: float = DELTA_MIN_ACF,
                window: int = 20,
-               constraint_params: Optional[ConstraintParams] = None
+               constraint_params: Optional[ConstraintParams] = None,
+               delay_mode: str = 'drop'
                ) -> np.ndarray:
     """ADMEC-delay + sequential constraint projection on the per-node
     update vector.
@@ -351,21 +425,32 @@ def admec_full(Y: np.ndarray,
     local topology.  See logbook entry 007 for the regression that
     introduced this choice.
 
-    NOTE: same delay convention as freq_local and admec_delay --
-    a neighbour with delays[i, j] > freshness is dropped, not
-    pulled from history. Stale-reading variants are deferred to WP3.
+    `delay_mode` selects the communication-delay convention, mirroring
+    freq_local / admec_delay:
+      * 'drop'  (WP2 baseline) -- neighbours with delay > freshness
+        are dropped; current-step reading and current-step
+        classification.
+      * 'stale' (WP3 ablation 1) -- every adjacency neighbour
+        contributes its STABLE-only reading from time
+        `t - delays[i, j]`; the constraint projection is then applied
+        to the network-wide update vector exactly as in 'drop' mode.
     """
     Y = np.asarray(Y, dtype=np.float64)
     Sigmas = np.asarray(Sigmas, dtype=np.float64)
     T, N = Y.shape
     if constraint_params is None:
         constraint_params = ConstraintParams()
+    if delay_mode not in ('drop', 'stale'):
+        raise ValueError(
+            f"Unknown delay_mode: {delay_mode!r}. Use 'drop' or 'stale'.")
 
-    accessible = adj & (delays <= freshness)
-    np.fill_diagonal(accessible, True)
     modes = _classify_network_full(Y, Sigmas, window, threshold,
                                     delta_min_var, delta_min_acf)
     stable = (modes == int(Mode.STABLE))
+
+    if delay_mode == 'drop':
+        accessible = adj & (delays <= freshness)
+        np.fill_diagonal(accessible, True)
 
     estimates = np.zeros((T, N))
     m0 = _weighted_mean(Y[0, :], Sigmas[0, :])
@@ -373,14 +458,27 @@ def admec_full(Y: np.ndarray,
     for t in range(1, T):
         proposed = np.zeros(N)
         for i in range(N):
-            mask = accessible[i] & stable[t, :]
-            target = _weighted_mean(Y[t, :], Sigmas[t, :], mask=mask)
+            if delay_mode == 'drop':
+                mask = accessible[i] & stable[t, :]
+                target = _weighted_mean(Y[t, :], Sigmas[t, :], mask=mask)
+            else:  # 'stale'
+                vals, sigs = [], []
+                if stable[t, i]:
+                    vals.append(Y[t, i]); sigs.append(Sigmas[t, i])
+                for j in range(N):
+                    if j == i or not adj[i, j]:
+                        continue
+                    src = t - int(delays[i, j])
+                    if src < 0 or not stable[src, j]:
+                        continue
+                    vals.append(Y[src, j])
+                    sigs.append(Sigmas[src, j])
+                target = (_weighted_mean(np.asarray(vals), np.asarray(sigs))
+                          if vals else np.nan)
             if np.isnan(target):
-                # No STABLE neighbour -> propose no update
                 proposed[i] = 0.0
             else:
                 proposed[i] = target - estimates[t - 1, i]
-        # Project the network-wide proposed update
         projected, _ = project_update(estimates[t - 1, :], proposed,
                                        Sigmas[t, :],
                                        params=constraint_params)

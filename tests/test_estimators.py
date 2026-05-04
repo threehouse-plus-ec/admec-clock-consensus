@@ -540,6 +540,80 @@ class TestImmEstimator:
             f"global={E_global[105, 0]:.3f}")
 
 
+class TestDelayMode:
+    """WP3 ablation 1: delay_mode parameter on local estimators.
+
+    'drop' is the WP2 baseline; 'stale' uses Y[t - delays[i, j], j]
+    instead of dropping inaccessible neighbours. The two modes must
+    agree when delays are all zero (no staleness possible) and must
+    differ on a sparse delayed network. Unknown modes must raise.
+    """
+
+    @pytest.mark.parametrize("fn", [freq_local, admec_delay, admec_full])
+    def test_zero_delays_drop_equals_stale(self, fn):
+        Y, S = gaussian_network()
+        adj = np.ones((N, N), dtype=bool)
+        np.fill_diagonal(adj, False)
+        delays = np.zeros((N, N), dtype=int)
+        E_drop = fn(Y, S, adj, delays, delay_mode='drop')
+        E_stale = fn(Y, S, adj, delays, delay_mode='stale')
+        np.testing.assert_allclose(E_drop, E_stale, atol=1e-10)
+
+    @pytest.mark.parametrize("fn", [freq_local, admec_delay, admec_full])
+    def test_unknown_delay_mode_raises(self, fn):
+        Y, S = gaussian_network()
+        adj, delays = make_network(N, 'ring', delay_mean=0.0,
+                                    rng=np.random.default_rng(0))
+        with pytest.raises(ValueError, match="delay_mode"):
+            fn(Y, S, adj, delays, delay_mode='nonsense')
+
+    def test_stale_uses_delayed_readings(self):
+        """Construct a 3-node ring with delay = 2 between nodes 0 and 1.
+        Set node 1 to be a constant 7.0 from t=0 onwards. In stale mode,
+        node 0's freq_local estimate at t=2 should incorporate Y[0, 1]
+        = 7.0; in drop mode it would be excluded entirely (delay=2 >
+        freshness=1)."""
+        T_local, N_local = 5, 3
+        Y = np.zeros((T_local, N_local))
+        Y[:, 1] = 7.0  # node 1 reads 7 at every step
+        Y[:, 0] = 1.0  # node 0 reads 1
+        Y[:, 2] = 1.0  # node 2 reads 1
+        Sigmas = np.ones((T_local, N_local))
+        adj = np.array([[False, True, True],
+                        [True, False, True],
+                        [True, True, False]])
+        delays = np.array([[0, 2, 0],
+                           [2, 0, 0],
+                           [0, 0, 0]])
+        E_drop = freq_local(Y, Sigmas, adj, delays, freshness=1,
+                             delay_mode='drop')
+        E_stale = freq_local(Y, Sigmas, adj, delays, freshness=1,
+                              delay_mode='stale')
+        # In drop mode, node 0 excludes node 1 (delay 2 > freshness 1)
+        # and averages with node 2 only -> mean = 1.0
+        assert E_drop[2, 0] == pytest.approx(1.0)
+        # In stale mode, node 0 sees Y[t-2, 1] = 7.0 -> mean of (1, 7, 1) = 3.0
+        assert E_stale[2, 0] == pytest.approx(3.0)
+        # Before t = 2 the source index is negative; node 0 falls back
+        # to its own reading and node 2's reading -> mean = 1.0
+        assert E_stale[0, 0] == pytest.approx(1.0)
+        assert E_stale[1, 0] == pytest.approx(1.0)
+
+    @pytest.mark.parametrize("fn", [freq_local, admec_delay, admec_full])
+    def test_stale_does_not_diverge(self, fn):
+        """On a typical S1-like simulation, stale mode produces finite
+        estimates with bounded MSE. (We don't assert it beats drop --
+        that is the empirical content of WP3 ablation 1.)"""
+        rng = np.random.default_rng(2026)
+        params = [ClockParams(sigma_white=1.0) for _ in range(N)]
+        Y, S = simulate_network_clocks(params, T, rng=rng)
+        adj, delays = make_network(N, 'ring', delay_mean=2.0,
+                                    rng=np.random.default_rng(0))
+        E = fn(Y, S, adj, delays, delay_mode='stale')
+        assert E.shape == (T, N)
+        assert np.all(np.isfinite(E))
+
+
 class TestRegistry:
 
     def test_nine_estimators_registered(self):

@@ -1,6 +1,6 @@
 # Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
-**Status:** WP1 complete. WP2 complete. **DG-2 NOT MET** (recorded as a negative result, as anticipated in the proposal): `admec_full` beats the best non-ADMEC baseline on MSE in only one of eight scenarios (S2, fully connected, low delay). The constraint layer beats `admec_delay` everywhere, but the delay-restricted local consensus cannot close the gap to centralised exclusion methods on sparse-with-delay topologies. DG-1 closed with one recorded sub-criterion failure (σ-underestimation, mitigated by worst-case threshold calibration; entries 002, 006). Three-way classification rule fully specified. WP3 ablations are scoped to characterise the WP2 failure mode rather than rescue DG-2 (see [WP2 summary](logbook/wp2-summary.md) and [logbook entry 007](logbook/007_2026-05-04_wp2-simulation-harness.md)).
+**Status:** WP1 complete. WP2 complete. **DG-2 NOT MET** (negative result, as anticipated). WP3 ablation 1 (delay convention) complete: switching from drop to stale-reading mode reduces `admec_full` MSE by 38–44 % on S1/S3 but does not close the gap to centralised baselines (still 3.1× on S1, 18× on S3) — DG-2 robustly NOT MET across delay conventions. DG-1 closed with one recorded sub-criterion failure (σ-underestimation, mitigated; entries 002, 006). See [WP2 summary](logbook/wp2-summary.md), [entry 007](logbook/007_2026-05-04_wp2-simulation-harness.md), and [entry 008](logbook/008_2026-05-04_wp3-ablation-delay-convention.md).
 
 ---
 
@@ -39,7 +39,7 @@ The project may produce a positive result (the three-way classification improves
 | `src/constraints.py` | Update-size constraint projection: per-node 3σ box, total Nσ² energy ball (sequential projection), variance-ratio fallback rejection | Implemented (WP2) |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured) with calibrated defaults from entries 004 and 006; scalar, vectorised, single-series, and network APIs | Implemented (WP2) |
 | `src/metrics.py` | WP2 simulation metrics: MSE, collapse index, structure correlation, classification diagnostics (TPR/FPR/F1) | Implemented (WP2) |
-| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators, metrics | 261 tests (259 passing, 2 known failures) |
+| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators (incl. WP3 delay-mode), metrics | 271 tests (269 passing, 2 known failures) |
 | `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–007 |
 | `notebooks/` | WP1 tutorial (`wp1_tutorial.ipynb`), WP2 tutorial (`wp2_tutorial.ipynb`); WP3 ablations not yet implemented | WP1 + WP2 done |
 
