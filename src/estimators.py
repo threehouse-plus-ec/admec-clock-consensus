@@ -1,21 +1,21 @@
 """
-Consensus estimators for the clock-network benchmark (WP2 batch a).
+Consensus estimators for the clock-network benchmark (WP2).
 
-Implemented in this module (seven of nine):
+Nine estimators implemented:
     freq_global         Inverse-variance weighted mean over all nodes
     freq_local          Same, restricted per node to delay-accessible
                         neighbours (and self)
     freq_exclude        Inverse-variance weighted mean excluding nodes
                         with cross-sectional IC >= threshold
     huber               Huber M-estimator via IRLS
+    bocpd               Bayesian online changepoint detection per node
+    imm                 Interacting multiple model filter per node
     admec_unconstrained Three-way classification; consensus over STABLE
                         nodes (centralised, no delay or update bounds)
     admec_delay         Per-node consensus over delay-accessible STABLE
                         neighbours
     admec_full          ADMEC-delay + sequential constraint projection
                         on the per-node update vector
-
-BOCPD and IMM are deferred to subsequent commits.
 
 Common interface
 ----------------
@@ -341,6 +341,16 @@ def admec_full(Y: np.ndarray,
     using Sigmas[t, :] as per-node sigmas. Rejection (variance ratio
     out of [0.5, 1.5]) carries the previous estimate forward.
 
+    t=0 initialization: the global inverse-variance weighted mean is
+    used as a shared prior for all nodes.  This avoids the variance-
+    ratio constraint rejecting every update when state = raw readings
+    (high variance) and target = consensus (low variance).  Using a
+    shared prior is a defensible Bayesian choice; it is documented
+    here so that S1/S3/S5 metrics are interpreted correctly — the
+    estimator receives identical initial information regardless of
+    local topology.  See logbook entry 007 for the regression that
+    introduced this choice.
+
     NOTE: same delay convention as freq_local and admec_delay --
     a neighbour with delays[i, j] > freshness is dropped, not
     pulled from history. Stale-reading variants are deferred to WP3.
@@ -358,7 +368,8 @@ def admec_full(Y: np.ndarray,
     stable = (modes == int(Mode.STABLE))
 
     estimates = np.zeros((T, N))
-    estimates[0, :] = Y[0, :]
+    m0 = _weighted_mean(Y[0, :], Sigmas[0, :])
+    estimates[0, :] = m0 if not np.isnan(m0) else 0.0
     for t in range(1, T):
         proposed = np.zeros(N)
         for i in range(N):

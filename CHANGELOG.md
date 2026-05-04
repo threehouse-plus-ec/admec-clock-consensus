@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.3] — 2026-05-04
+
+### Added
+- `src/metrics.py`: IC-independent performance metrics for WP2 campaign. `mse(estimates, reference=0.0)` — mean squared error vs nominal frequency. `collapse_index(estimates, sigmas)` — time-averaged `std(estimates)/mean(sigma)`; 0 for centralised estimators, >0 for local estimators that preserve per-node diversity. `structure_correlation(Y, estimates, signals, signal_clocks, onset_idx)` — Pearson r between (reading−estimate) and injected signal, averaged over signal clocks post-onset; high = estimator preserved structure rather than absorbing it. `classification_metrics(excluded, true_anomalous)` — TPR/FPR/precision/F1 for DG-2b validation against designer-injected ground truth.
+- `scripts/wp2_campaign.py`: Full WP2 simulation harness. Defines all 8 proposal scenarios (S1–S8) with signal parameters chosen in unit scale (sigma_white=1.0): sinusoidal amplitude 5.0, step magnitude 5.0, linear drift rate 0.01/step, fold bifurcation epsilon=0.005/r0=-1.0 (empirically tuned to avoid Euler blow-up). Runs `(scenario, seed, estimator)` triples, computes the three primary metrics, and writes a compressed `.npz`. `--smoke` flag for quick validation (2 scenarios, 2 seeds, T=50).
+- `tests/test_metrics.py`: 15 tests covering MSE, collapse-index scale invariance, structure-correlation perfect/zero/constant-residual edge cases, and classification-metric contingency tables.
+
+### Fixed
+- `src/estimators.py:admec_full`: t=0 initialization changed from `estimates[0, :] = Y[0, :]` (raw readings) to the centralised inverse-variance weighted mean. The old initialization caused the variance-ratio constraint (`var_after/var_before ∈ [0.5, 1.5]`) to reject *every* update, freezing estimates at the t=0 raw readings. MSE on S2 (fully connected) dropped from **4.85 to 0.13**; on S1 (ring) from **1.50 to 0.64**.
+
+### Status
+- **256 tests total**, 254 passing (2 known failures: entry-002 sigma-sensitivity).
+- WP2 simulation campaign is ready to launch.
+
 ## [0.5.2] — 2026-05-04
 
 ### Added

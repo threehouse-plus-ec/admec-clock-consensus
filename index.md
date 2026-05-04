@@ -21,7 +21,7 @@ This project tests that question on simulated clock networks, comparing the prop
 
 1. **[WP1 Tutorial](docs/wp1_tutorial.md)** — walkthrough of IC definition, calibration, and classification with outputs – run it online: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp1_tutorial.ipynb)
 2. **[Project Proposal](docs/projektantrag.md)** — objectives, work packages, decision gates, failure conditions. Start here for the full picture.
-3. **[Latest logbook entry](logbook/006_2026-05-04_per-reading-threshold-recalibration.md)** — what was done most recently and what it means for the gates.
+3. **[Latest logbook entry](logbook/007_2026-05-04_wp2-simulation-harness.md)** — WP2 simulation harness ready; critical `admec_full` bug fixed.
 4. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
 
 ---
@@ -52,6 +52,7 @@ Chronological record of what was done, what was found, and what it means for the
 | [004 — δ_min Calibration](logbook/004_2026-03-31_delta-min-calibration.md) | 2026-03-31 | Effect-size thresholds calibrated; classification rule complete; WP1 complete |
 | [005 — Positioning IC Against FoM](logbook/005_2026-04-01_positioning-ic-against-fom.md) | 2026-04-01 | IC positioned against χ², Huber loss, Allan deviation; property table; data infrastructure |
 | [006 — Per-Reading Threshold Recalibration](logbook/006_2026-05-04_per-reading-threshold-recalibration.md) | 2026-05-04 | AIPP→per-reading threshold recalibrated; operational WP2 threshold 2.976 bit, 1.62× the AIPP value; closes WP2 prerequisite |
+| [007 — WP2 Simulation Harness](logbook/007_2026-05-04_wp2-simulation-harness.md) | 2026-05-04 | WP2 campaign harness (8 scenarios × 10 seeds × 9 estimators); metrics module; `admec_full` initialization bug fixed |
 
 ## Code
 

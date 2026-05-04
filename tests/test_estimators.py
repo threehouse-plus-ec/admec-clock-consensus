@@ -232,6 +232,52 @@ class TestAdmecFull:
         E = admec_full(Y, S, adj, delays)
         assert E.shape == (T, N)
 
+    def test_does_not_freeze_at_initial_reading(self):
+        """Regression: admec_full must not get stuck at Y[0, :].
+
+        Prior to logbook entry 007, t=0 was initialised to raw readings.
+        The variance-ratio constraint then rejected every update,
+        freezing estimates at Y[0, :] and producing MSE ~4.8 on
+        fully-connected data.  After the fix (global mean prior),
+        estimates must evolve away from the raw readings.
+        """
+        rng = np.random.default_rng(2026)
+        Y = rng.normal(0, 1, (T, N))
+        S = np.ones((T, N))
+        adj = np.ones((N, N), dtype=bool)
+        np.fill_diagonal(adj, False)
+        delays = np.zeros((N, N), dtype=int)
+        E = admec_full(Y, S, adj, delays, freshness=0)
+        # If frozen at Y[0, :], all rows would equal Y[0, :].
+        # Assert that at least one row differs by more than numerical noise.
+        assert not np.allclose(E, Y[0, :], atol=1e-6), (
+            "admec_full appears frozen at Y[0, :] — regression of "
+            "logbook-007 bug"
+        )
+        # Also assert MSE is reasonable (not ~mean(Y[0]^2) ~ 1.0)
+        mse_full = float(np.mean(E ** 2))
+        assert mse_full < 0.5, (
+            f"admec_full MSE {mse_full:.3f} too high; likely frozen"
+        )
+
+    def test_fully_connected_stays_near_delay_variant(self):
+        """On dense, low-delay networks admec_full should track
+        admec_delay closely (constraints are loose, few rejections)."""
+        rng = np.random.default_rng(2026)
+        Y = rng.normal(0, 1, (T, N))
+        S = np.ones((T, N))
+        adj = np.ones((N, N), dtype=bool)
+        np.fill_diagonal(adj, False)
+        delays = np.zeros((N, N), dtype=int)
+        E_delay = admec_delay(Y, S, adj, delays, freshness=0)
+        E_full = admec_full(Y, S, adj, delays, freshness=0)
+        max_diff = float(np.max(np.abs(E_full - E_delay)))
+        assert max_diff < 2.0, (
+            f"admec_full deviates {max_diff:.3f} from admec_delay on "
+            f"fully-connected zero-delay data; constraints should be "
+            f"nearly inactive here"
+        )
+
     def test_constraint_layer_does_not_amplify_jumps(self):
         """Compared to ADMEC-delay, ADMEC-full should not produce larger
         per-step jumps in any node (the constraints can only shrink or

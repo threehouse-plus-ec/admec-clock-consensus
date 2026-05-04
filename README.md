@@ -1,6 +1,6 @@
 # Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
-**Status:** WP1 complete. WP2 not started. DG-1 closed with one recorded failure: systematic σ-underestimation exceeds the pre-registered 15% bound (mitigated by worst-case threshold calibration; see logbook entry 002). Three-way classification rule fully specified.
+**Status:** WP1 complete. WP2 modules complete; simulation harness ready. DG-1 closed with one recorded failure: systematic σ-underestimation exceeds the pre-registered 15% bound (mitigated by worst-case threshold calibration; see logbook entry 002). Three-way classification rule fully specified.
 
 ---
 
@@ -38,8 +38,9 @@ The project may produce a positive result (the three-way classification improves
 | `src/estimators.py` | All nine estimators implemented (FREQ-global/local/exclude, Huber, BOCPD, IMM, ADMEC-unconstrained/-delay/-full) with shared `(Y, Sigmas, adj, delays, **kwargs) → (T, N)` interface and `ESTIMATORS` registry | Implemented (WP2) |
 | `src/constraints.py` | Update-size constraint projection: per-node 3σ box, total Nσ² energy ball (sequential projection), variance-ratio fallback rejection | Implemented (WP2) |
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured) with calibrated defaults from entries 004 and 006; scalar, vectorised, single-series, and network APIs | Implemented (WP2) |
-| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators | 241 tests (239 passing, 2 known failures) |
-| `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–006 |
+| `src/metrics.py` | WP2 simulation metrics: MSE, collapse index, structure correlation, classification diagnostics (TPR/FPR/F1) | Implemented (WP2) |
+| `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier, constraints, estimators, metrics | 259 tests (257 passing, 2 known failures) |
+| `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–007 |
 | `notebooks/` | WP1 calibration, WP2 simulation runs, WP3 ablation | Not yet implemented |
 
 ## Decision gates

@@ -12,6 +12,7 @@ Entries are Markdown files named `NNN_YYYY-MM-DD_title.md`. Figures are stored i
 | [004](004_2026-03-31_delta-min-calibration.md) | 2026-03-31 | δ_min calibrated: var_slope 0.21, autocorr 0.87; classification rule complete; WP1 complete |
 | [005](005_2026-04-01_positioning-ic-against-fom.md) | 2026-04-01 | IC positioned against χ², Huber, Allan deviation; property table; data infrastructure created |
 | [006](006_2026-05-04_per-reading-threshold-recalibration.md) | 2026-05-04 | AIPP→per-reading threshold recalibration; operational WP2 threshold 2.976 bit (worst case), 1.62× the AIPP value it replaces; closes WP2-prerequisite open item |
+| [007](007_2026-05-04_wp2-simulation-harness.md) | 2026-05-04 | WP2 simulation harness (8 scenarios × 10 seeds × 9 estimators); metrics module (MSE, collapse index, structure correlation); critical `admec_full` initialization bug fixed |
 
 ## Summary
 
