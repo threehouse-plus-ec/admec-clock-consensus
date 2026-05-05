@@ -19,12 +19,13 @@ This project tests that question on simulated clock networks, comparing the prop
 
 ### Where to start
 
-1. **[Manuscript draft](docs/manuscript.md)** — the full WP2 + WP3 characterisation as a paper-style document: campaign results, all five ablations, mechanism, recommendations, and follow-up redesign directions. Reads in ~15 min.
-2. **[WP1 Tutorial](docs/wp1_tutorial.md)** — IC definition, calibration, and classification with outputs – run it online: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp1_tutorial.ipynb)
+1. **[Manuscript](docs/manuscript.md)** — the full WP2 + WP3 characterisation as a paper-style document: campaign results, all five ablations, the topology-ceiling figure, mechanism, recommendations, and follow-up redesign directions. Reads in ~15 min.
+2. **[WP1 Tutorial](docs/wp1_tutorial.md)** — IC definition, calibration, and classification — [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp1_tutorial.ipynb)
 3. **[WP2 Tutorial](docs/wp2_tutorial.md)** — network pipeline + the DG-2 verdict — [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp2_tutorial.ipynb)
-4. **[Project Proposal](docs/projektantrag.md)** — pre-registered objectives, work packages, decision gates.
-5. **[Latest logbook entry](logbook/012_2026-05-05_wp3-ablation-lagged-classification.md)** — WP3 ablation 5 (lagged classification, closes the systematic sweep).
-6. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
+4. **[WP3 Tutorial](docs/wp3_tutorial.md)** — five ablations + integrated combined-tuning + the topology-ceiling figure — [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp3_tutorial.ipynb)
+5. **[Project Proposal](docs/projektantrag.md)** — pre-registered objectives, work packages, decision gates.
+6. **[Latest logbook entry](logbook/012_2026-05-05_wp3-ablation-lagged-classification.md)** — WP3 ablation 5 (lagged classification, closes the systematic sweep).
+7. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
 
 ---
 

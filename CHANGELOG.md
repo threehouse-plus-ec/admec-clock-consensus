@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] — 2026-05-05
+
+### Added
+- `notebooks/wp3_tutorial.ipynb` and `docs/wp3_tutorial.md` (+ figure files): WP3 tutorial — 29 cells walking through the five ablation archives, the integrated combined-tuning archive, and an inline reproduction of the manuscript's topology-ceiling figure. Loads canonical archives rather than re-simulating; runs in ~3 min. Mirrors the WP1/WP2 pattern; cited from `index.md`, `docs/manuscript.md`, and `notebooks/README.md`.
+
+### Changed
+- `notebooks/wp1_tutorial.ipynb` (and rendered `docs/wp1_tutorial.md`): added a closing "What happened next" subsection that points to (a) the WP3 finding that the WP1-calibrated 2.976 bit threshold is suboptimal for consensus MSE, and (b) the architectural-impossibility result for three-way > two-way at the consensus stage. No code changes; existing cells re-executed cleanly.
+- `notebooks/wp2_tutorial.ipynb` (and rendered `docs/wp2_tutorial.md`): added a closing "What happened next" subsection summarising the five WP3 ablations as a table, the combined-tuning result (S3 0.741 → 0.196), the matched-threshold S1+S2 wins, and pointers to the WP3 tutorial and manuscript.
+- `notebooks/README.md`: rewritten to reflect the three-tutorial structure with runtime, scope, and mirrored-markdown links per tutorial.
+- `index.md` "Where to start" list now includes all three tutorials.
+- `README.md` notebooks row updated to mention all three tutorials.
+
+### Status
+- Three matched tutorials covering all three completed work packages, plus a manuscript synthesising the project. Project documentation is complete.
+- Suite unchanged at 276 / 274 passing.
+
 ## [0.7.5] — 2026-05-05
 
 ### Added

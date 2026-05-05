@@ -121,7 +121,7 @@ print(f"Points near zero have low IC; points in the tails have high IC.")
 
 
     
-![png](wp1_tutorial_files/fig_4_0.png)
+![png](wp1_tutorial_files/wp1_tutorial_4_0.png)
     
 
 
@@ -182,7 +182,7 @@ print(f"Median IC of normal points:       {np.median(ic_demo[np.array([i for i i
 
 
     
-![png](wp1_tutorial_files/fig_6_0.png)
+![png](wp1_tutorial_files/wp1_tutorial_6_0.png)
     
 
 
@@ -243,7 +243,7 @@ print(f"At N=1000: AIPP = {means[Ns.index(1000)]:.3f} +/- {stds[Ns.index(1000)]:
 
 
     
-![png](wp1_tutorial_files/fig_8_0.png)
+![png](wp1_tutorial_files/wp1_tutorial_8_0.png)
     
 
 
@@ -316,7 +316,7 @@ print(f"Max pairwise ratio: {max_p95/min_p95:.2f}x (DG-1 requires < 1.5x)")
 
 
     
-![png](wp1_tutorial_files/fig_10_0.png)
+![png](wp1_tutorial_files/wp1_tutorial_10_0.png)
     
 
 
@@ -393,7 +393,7 @@ for label in labels:
 
 
     
-![png](wp1_tutorial_files/fig_12_0.png)
+![png](wp1_tutorial_files/wp1_tutorial_12_0.png)
     
 
 
@@ -486,7 +486,7 @@ print(f"\nThe drift exceeds delta_min. The clean series does not.")
 
 
     
-![png](wp1_tutorial_files/fig_14_0.png)
+![png](wp1_tutorial_files/wp1_tutorial_14_0.png)
     
 
 
@@ -646,7 +646,7 @@ for name, data in [('chi2', chi2_all), ('Huber', huber_all), ('IC', ic_all)]:
 
 
     
-![png](wp1_tutorial_files/fig_18_0.png)
+![png](wp1_tutorial_files/wp1_tutorial_18_0.png)
     
 
 
@@ -681,3 +681,18 @@ For the full technical record, see:
 - [Logbook entries 001–005](../logbook/) — chronological record with figures
 - [Data archive](../data/) — all numerical output as `.npz` files
 - [Project proposal](../docs/projektantrag.md) — objectives, work packages, and decision gates
+
+## What happened next
+
+This tutorial reflects WP1 as the work package closed: IC defined and calibrated, the per-reading 95th-percentile threshold set at **2.976 bit** (worst-case-σ regime, [logbook entry 006](../logbook/006_2026-05-04_per-reading-threshold-recalibration.md)).
+
+WP2 then built the network simulation harness and applied that threshold to a 9-estimator × 8-scenario × 10-seed campaign. **DG-2 was not met** at the calibrated threshold (only the dense low-delay control S2 saw `admec_full` beat centralised baselines). See [`docs/wp2_tutorial.md`](../docs/wp2_tutorial.md) for the network walkthrough.
+
+WP3 then ran a five-axis ablation sweep to characterise *why* DG-2 failed. Two of those findings are relevant to the WP1 design choices documented in this tutorial:
+
+1. **The threshold sweep (entry 011) found that the WP1-calibrated 2.976 bit is suboptimal for consensus MSE in delayed scenarios.** Lower thresholds (1.5) halve `admec_full`'s S1 / S3 MSE. The WP1 calibration was correctly optimised for *null false-positive rate* — the right criterion for hypothesis-test interpretation — but the right value for downstream *consensus* depends on the deployment topology and signal regime. The two are different optimisation problems with different optima.
+
+2. **The two-vs-three-way ablation (entry 010) found the structured/unstructured split is invisible to the WP2/WP3 consensus rule.** The classifier defined here emits a three-valued symbol; the consensus update rule reads only the binary STABLE / not-STABLE projection. The temporal-statistic gates (`δ_min_var`, `δ_min_acf`) are operating as designed but are not consumed downstream — a *syntactic gap* that requires an architectural redesign to close, not a tuning fix.
+
+For the full WP3 sweep see [`docs/wp3_tutorial.md`](../docs/wp3_tutorial.md). For the manuscript synthesis (constraint discovery rather than tuning failure) see [`docs/manuscript.md`](../docs/manuscript.md).
+

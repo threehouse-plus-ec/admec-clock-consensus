@@ -397,3 +397,22 @@ The negative DG-2 result was anticipated in the proposal: *"If it fails, the con
 
 For the full picture, see [`logbook/wp2-summary.md`](../logbook/wp2-summary.md). For the harness build and the two bug fixes that produced this canonical archive, see [`logbook/007_2026-05-04_wp2-simulation-harness.md`](../logbook/007_2026-05-04_wp2-simulation-harness.md).
 
+
+## What happened next
+
+This tutorial reflects WP2 as the work package closed: campaign harness built, two methodological bug fixes documented, **DG-2 NOT MET** verdict recorded ([logbook entry 007](../logbook/007_2026-05-04_wp2-simulation-harness.md), [WP2 summary](../logbook/wp2-summary.md)). The single-scenario S2 win was the only positive DG-2 result.
+
+WP3 then ran a five-axis ablation sweep to characterise the failure mode rather than rescue DG-2:
+
+| Ablation | Effect on `admec_full` | DG-2 closure? |
+|----------|------------------------|:-------------:|
+| 1 — delay convention (drop vs stale) | stale: −38–44 % MSE on S1 / S3 | No |
+| 2 — IC threshold sweep | thr 1.5 halves MSE on delayed signal-rich scenarios | No on S3 |
+| 3 — constraint sensitivity (±30 %) | `var_loose` [0.35, 1.65]: −33 % S3 stale | No |
+| 4 — two-vs-three-way classifier | δ = 0 across 360 cells (architectural impossibility) | No |
+| 5 — lagged classification | lag = 1 strictly hurts; same-step is optimal | No (and not needed) |
+
+**Combined design tuning** (stale + threshold 1.5 + `var_loose`) reduces S3 `admec_full` from 0.741 to **0.196** — a 74 % reduction — but the residual ~ 8 × gap to centralised `imm` (0.025) tracks the simple information-pooling ratio *N* / *k*_eff and cannot be closed by parameter tuning. **The constraint is topological, not algorithmic.** See [`docs/wp3_tutorial.md`](../docs/wp3_tutorial.md) for the WP3 walkthrough and [`docs/manuscript.md`](../docs/manuscript.md) for the constraint-discovery synthesis.
+
+A useful side-finding for any deployment that uses ADMEC: **at matched IC threshold 1.5, `admec_full` actually beats `freq_exclude` on S1 and S2** — the constraint layer's variance-absorption mechanism only pays off when exclusion is aggressive enough to need absorbing.
+
