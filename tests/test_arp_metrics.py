@@ -11,7 +11,13 @@ from analysis.metrics.deviation_metrics import (
     total_deviation,
 )
 from analysis.metrics.jensen_gap import jensen_gap, jensen_gap_components
-from analysis.metrics.k_eff import k_bar, mean_accessible_set_size, total_accessible_count
+from analysis.metrics.k_eff import (
+    effective_neighborhood_size,
+    k_bar,
+    k_eff,
+    mean_accessible_set_size,
+    total_accessible_count,
+)
 from analysis.pipelines.compare_to_simulation import (
     compare_export,
     compare_heteroscedastic_export,
@@ -26,6 +32,12 @@ class TestEffectiveNeighborhood:
 
         assert mean_accessible_set_size(counts) == pytest.approx(3.0)
         assert k_bar(counts) == pytest.approx(3.0)
+
+    def test_backward_compatibility_aliases_match_new_names(self):
+        counts = np.array([1, 2, 3])
+
+        assert effective_neighborhood_size(counts) == mean_accessible_set_size(counts)
+        assert k_eff(counts) == k_bar(counts)
 
     def test_total_accessible_count_can_accept_counts_that_include_self(self):
         counts = np.array([1, 3, 5])
@@ -125,6 +137,31 @@ class TestExportPipeline:
         loaded = load_csv_matrix(path)
 
         assert np.allclose(loaded, np.array([[0, 1], [2, 3]]))
+
+    @pytest.mark.skipif(
+        __import__("importlib").util.find_spec("h5py") is None,
+        reason="h5py not installed",
+    )
+    def test_load_hdf5_export_with_heteroscedastic_fields(self, tmp_path):
+        import h5py
+
+        path = tmp_path / "arp_export.h5"
+        with h5py.File(path, "w") as f:
+            f.create_dataset("k_i", data=np.array([0, 3]))
+            f.create_dataset("local_mse", data=1.4)
+            f.create_dataset("central_mse", data=1.0)
+            f.create_dataset("sigmas", data=np.ones(4))
+            f.create_dataset("accessible_mask", data=np.eye(4, dtype=bool))
+            f.attrs["topology_id"] = "S-test"
+            f.attrs["seed"] = 7
+
+        from analysis.pipelines.compare_to_simulation import load_hdf5_export
+
+        export = load_hdf5_export(path)
+        assert export.sigmas is not None
+        assert export.accessible_mask is not None
+        assert np.allclose(export.sigmas, np.ones(4))
+        assert np.allclose(export.accessible_mask, np.eye(4, dtype=bool))
 
     def test_heteroscedastic_comparison_requires_sigmas_and_mask(self, tmp_path):
         path = tmp_path / "arp_export.npz"

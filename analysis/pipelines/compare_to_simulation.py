@@ -194,6 +194,8 @@ def load_hdf5_export(
     seed_key: str = "seed",
     delay_parameters_key: str = "delay_parameters",
     assumption_flags_key: str = "assumption_flags",
+    sigmas_key: str = "sigmas",
+    accessible_mask_key: str = "accessible_mask",
     admec_mse_key: str = "admec_mse",
     ideal_local_mse_key: str = "ideal_local_mse",
 ) -> SimulationExport:
@@ -214,6 +216,8 @@ def load_hdf5_export(
             seed=int(_hdf5_metadata(archive, seed_key, default=-1)),
             delay_parameters=_hdf5_dict_metadata(archive, delay_parameters_key),
             assumption_flags=_hdf5_dict_metadata(archive, assumption_flags_key),
+            sigmas=_hdf5_optional_array(archive, sigmas_key),
+            accessible_mask=_hdf5_optional_array(archive, accessible_mask_key, dtype=bool),
             admec_mse=_hdf5_optional_float(archive, admec_mse_key),
             ideal_local_mse=_hdf5_optional_float(archive, ideal_local_mse_key),
         )
@@ -263,6 +267,14 @@ def _hdf5_optional_float(archive: Any, key: str) -> float | None:
     if key not in archive:
         return None
     return float(np.asarray(archive[key]))
+
+
+def _hdf5_optional_array(archive: Any, key: str, dtype: type | None = None) -> np.ndarray | None:
+    if key not in archive:
+        return None
+    if dtype is not None:
+        return np.asarray(archive[key], dtype=dtype)
+    return np.asarray(archive[key])
 
 
 def _hdf5_metadata(archive: Any, key: str, *, default: Any) -> Any:

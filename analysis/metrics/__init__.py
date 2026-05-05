@@ -9,7 +9,13 @@ from .deviation_metrics import (
     total_deviation,
 )
 from .jensen_gap import JensenGapResult, jensen_gap, jensen_gap_components
-from .k_eff import k_bar, mean_accessible_set_size, total_accessible_count
+from .k_eff import (
+    effective_neighborhood_size,
+    k_bar,
+    k_eff,
+    mean_accessible_set_size,
+    total_accessible_count,
+)
 
 __all__ = [
     "AdmecDelta",
@@ -17,7 +23,9 @@ __all__ = [
     "JensenGapResult",
     "admec_vs_ideal_local",
     "deviation_decomposition",
+    "effective_neighborhood_size",
     "k_bar",
+    "k_eff",
     "jensen_gap",
     "jensen_gap_components",
     "mean_accessible_set_size",

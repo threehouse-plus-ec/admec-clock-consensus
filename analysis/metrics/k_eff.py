@@ -53,6 +53,35 @@ def k_bar(
     return mean_accessible_set_size(neighbor_count, include_self=include_self)
 
 
+# Backward-compatibility aliases (deprecated external API)
+def effective_neighborhood_size(
+    neighbor_count: np.ndarray | float,
+    *,
+    include_self: bool = True,
+) -> float:
+    """Compatibility alias for :func:`mean_accessible_set_size`.
+
+    .. deprecated::
+        Use :func:`mean_accessible_set_size` or :func:`k_bar` instead.
+        This alias exists only for callers importing the old ``k_eff`` API.
+    """
+    return mean_accessible_set_size(neighbor_count, include_self=include_self)
+
+
+def k_eff(
+    neighbor_count: np.ndarray | float,
+    *,
+    include_self: bool = True,
+) -> float:
+    """Compatibility alias for :func:`k_bar`.
+
+    .. deprecated::
+        Use :func:`k_bar` or :func:`mean_accessible_set_size` instead.
+        This alias exists only for callers importing the old ``k_eff`` API.
+    """
+    return k_bar(neighbor_count, include_self=include_self)
+
+
 def _as_nonnegative_array(values: np.ndarray | float, *, name: str) -> np.ndarray:
     array = np.asarray(values, dtype=float)
     if array.size == 0:
