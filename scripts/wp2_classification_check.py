@@ -106,6 +106,9 @@ def run():
         'signal': dict(tp=0, fp=0, fn=0, tn=0,
                        tp_struct=0, fn_struct=0),
     }
+    per_scn = {scn['name']: dict(tp=0, fp=0, fn=0, tn=0,
+                                  tp_struct=0, fn_struct=0)
+               for scn in SCENARIOS if scn['has_signal']}
     for scn in SCENARIOS:
         for seed in SEEDS:
             rng = np.random.default_rng(seed)
@@ -133,7 +136,8 @@ def run():
                        (modes == int(Mode.UNSTRUCTURED))
             structured = modes == int(Mode.STRUCTURED)
 
-            for tag in ('all',) + (('signal',) if scn['has_signal'] else ()):
+            tags = ('all',) + (('signal',) if scn['has_signal'] else ())
+            for tag in tags:
                 a = aggregates[tag]
                 a['tp'] += int(np.sum(excluded & true_anom))
                 a['fp'] += int(np.sum(excluded & ~true_anom))
@@ -141,8 +145,16 @@ def run():
                 a['tn'] += int(np.sum(~excluded & ~true_anom))
                 a['tp_struct'] += int(np.sum(structured & true_anom))
                 a['fn_struct'] += int(np.sum(~structured & true_anom))
+            if scn['has_signal']:
+                a = per_scn[scn['name']]
+                a['tp'] += int(np.sum(excluded & true_anom))
+                a['fp'] += int(np.sum(excluded & ~true_anom))
+                a['fn'] += int(np.sum(~excluded & true_anom))
+                a['tn'] += int(np.sum(~excluded & ~true_anom))
+                a['tp_struct'] += int(np.sum(structured & true_anom))
+                a['fn_struct'] += int(np.sum(~structured & true_anom))
 
-    for tag, a in aggregates.items():
+    def _summarise(label, a):
         tp, fp, fn, tn = a['tp'], a['fp'], a['fn'], a['tn']
         tpr = tp / (tp + fn) if tp + fn else 0.0
         fpr = fp / (fp + tn) if fp + tn else 0.0
@@ -150,11 +162,17 @@ def run():
         f1 = 2 * tp / (2 * tp + fp + fn) if (2 * tp + fp + fn) else 0.0
         struct_tpr = (a['tp_struct'] / (a['tp_struct'] + a['fn_struct'])
                       if (a['tp_struct'] + a['fn_struct']) else 0.0)
-        print(f'\n[{tag} scenarios] '
-              f'TPR={tpr:.4f}  FPR={fpr:.4f}  '
-              f'precision={prec:.4f}  F1={f1:.4f}')
-        print(f'  strict STRUCTURED-only TPR = {struct_tpr:.4f}')
-        print(f'  counts: tp={tp:>6d}  fp={fp:>5d}  fn={fn:>5d}  tn={tn:>6d}')
+        print(f'  [{label:>22s}] TPR={tpr:.4f}  FPR={fpr:.4f}  '
+              f'precision={prec:.4f}  F1={f1:.4f}  '
+              f'struct-TPR={struct_tpr:.4f}')
+
+    print('\n=== Aggregate ===')
+    for tag, a in aggregates.items():
+        _summarise(f'{tag} scenarios', a)
+
+    print('\n=== Per-scenario (signal scenarios only) ===')
+    for name, a in per_scn.items():
+        _summarise(name, a)
 
 
 if __name__ == '__main__':

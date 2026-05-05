@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.2] — 2026-05-05
+
+### Changed
+- `docs/manuscript.md`: addresses Guardian-stance review (twelve concerns clustered into terminological drift, methodological opacity, and pre-registration hygiene). All HIGH-priority items resolved; MEDIUM and most LOW items also resolved.
+  - **Title** "Bound" → "Reference"; subtitle prepended with "An empirical". Title now matches body and §5.1's heuristic framing.
+  - **Epistemic-status note** added directly under the title declaring the manuscript a pre-registered characterisation study and the *N* / *k*_eff observable as a heuristic with empirical support, *not* a proven lower bound.
+  - **Abstract** scope-restricted: the universal claim "no local-consensus algorithm" is now bounded to the ADMEC family characterised here, with explicit acknowledgement that hierarchical / gossip-with-epoch / asynchronous-clustering schemes are not in our menu.
+  - **§ 1 introduction** got a "Pre-registered claims vs post-hoc characterisation" subsection that visually separates the two categories — the pre-registered DG verdicts (§§ 3, 4.3) from the post-hoc characterisation in § 4 ablations and §§ 5.2–5.4 constructive findings.
+  - **§ 3.3 DG-2b** now reports per-scenario strict-STRUCTURED TPR. Critical finding now visible: **S8 (fold bifurcation, the scenario the δ_min temporal-statistic gates were calibrated for) has strict-STRUCTURED TPR = 0.0000** across every cell — a result that the prior 0.7 % aggregate masked. Two candidate readings (insufficient horizon vs threshold-mismatch) are listed explicitly.
+  - **§ 5.1 expanded** with a new § 5.1.1 "Operational definition of *k*_eff" (one paragraph specifying mean-over-(seed, node) of accessible-neighbour count + 1, with the convention dependence made explicit) and a § 5.1.2 "What the heuristic does and does not claim" that demotes the violated-assumption cancellation to "hypothesised, untested" and notes that a hostile correlation structure could in principle make the heuristic underestimate the gap.
+  - **Fig. 1 caption** clarified: the two horizontal positions per scenario reflect the convention change (drop / stale), not measurement noise; combined-tuned points sit modestly *below* their reference (a within-cluster claim) while every cluster sits at or below its reference (an across-cluster claim) — reconciling the previously-ambiguous "at / along / below" language.
+  - **§ 5.3.1 substantially rewritten.** Title now "Why tracking STRUCTURED separately *might* still be architecturally important — and why this study cannot tell". The regime-detection reframe is now explicitly a *motivating hypothesis* for § 5.6 redesigns, not a finding — because the only scenario where regime detection should produce a positive signal (S8) produces a zero one. Two pre-conditions for a follow-up STRUCTURED-as-regime-detection criterion are listed.
+  - **§ 5.7** opening line softened ("These results admit a reading within the author's broader causal-graph framework (Warring 2026b — currently a self-cited unrefereed preprint)") and "ceiling" → "reference" terminology made consistent with the rest of § 5.
+  - **§ 6 conclusion** scope-restricted matching the abstract: claims now apply to the ADMEC family, not all local-consensus algorithm classes.
+  - **§ 7 reproducibility** got a "Manuscript-canonical commit" subsection with `git rev-parse HEAD` instructions for pinning the SHA and a Zenodo-DOI to-do.
+  - **Statements section added at end**: author contributions, funding, competing interests, data availability, code availability, and an expanded AI-assistance disclosure ("Claude assisted with manuscript scaffolding, prose drafting, and code-template refinement. All simulations, calibrations, numerical results, code commits, scientific decisions, and claims are author-generated and author-verified.").
+
+- `scripts/wp2_classification_check.py`: added per-signal-scenario aggregation so the strict-STRUCTURED TPR can be inspected at S1–S8 granularity. Output adds a "Per-scenario (signal scenarios only)" section after the existing aggregate report. The aggregate numbers are unchanged.
+
+### Status
+- Manuscript ready for external submission as a methods/characterisation paper after the listed journal-submission TODOs (Zenodo DOI mint, commit SHA pinning at submission tag).
+- Suite unchanged at 276 / 274 passing.
+
 ## [0.8.1] — 2026-05-05
 
 ### Changed
