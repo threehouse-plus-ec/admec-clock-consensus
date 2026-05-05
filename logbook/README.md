@@ -17,6 +17,7 @@ Entries are Markdown files named `NNN_YYYY-MM-DD_title.md`. Figures are stored i
 | [009](009_2026-05-04_wp3-ablation-constraint-sensitivity.md) | 2026-05-04 | WP3 ablation 3: `var_loose` [0.35, 1.65] recovers `admec_full < admec_delay` on S3 stale (−33 % MSE); no variant closes the 12× gap to centralised baselines; DG-2 NOT MET across all 14 (mode × variant) configurations |
 | [010](010_2026-05-04_wp3-ablation-two-vs-three-way.md) | 2026-05-04 | WP3 ablation 4: three-way and two-way classifiers produce byte-identical consensus (max delta = 0 across 360 cells). DG-3 "three-way > two-way" NOT MET |
 | [011](011_2026-05-05_wp3-ablation-threshold-sweep.md) | 2026-05-05 | WP3 ablation 2: IC threshold sensitivity larger than predicted; lower thresholds halve admec_full MSE on delayed scenarios; admec_full beats freq_exclude at matched thr 1.5 on S1+S2 but DG-2 still NOT MET on S3 |
+| [012](012_2026-05-05_wp3-ablation-lagged-classification.md) | 2026-05-05 | WP3 ablation 5: no simultaneity bias detected; `lag=1` hurts admec_full MSE by +28-66 % on drop-mode signal-rich scenarios. WP3 systematic sweep complete (5/5) |
 
 ## Summary
 

@@ -418,7 +418,8 @@ def admec_full(Y: np.ndarray,
                window: int = 20,
                constraint_params: Optional[ConstraintParams] = None,
                delay_mode: str = 'drop',
-               two_way: bool = False
+               two_way: bool = False,
+               classification_lag: int = 0
                ) -> np.ndarray:
     """ADMEC-delay + sequential constraint projection on the per-node
     update vector.
@@ -448,6 +449,16 @@ def admec_full(Y: np.ndarray,
         contributes its STABLE-only reading from time
         `t - delays[i, j]`; the constraint projection is then applied
         to the network-wide update vector exactly as in 'drop' mode.
+
+    `classification_lag` (WP3 ablation 5: ADMEC-full-lagged) shifts
+    the cross-sectional IC by `lag` timesteps before classification.
+    With `lag = 1`, reading[t, i] is classified using IC[t-1, i] (the
+    IC computed at the previous step's ensemble) instead of the
+    self-referential IC[t, i]. The first `lag` rows fall back to
+    IC[0, :] so the classifier is well-defined from t = 0. Tests
+    whether the WP2 architecture has a simultaneity bias from
+    computing each node's IC against the same-step ensemble that
+    contains its own reading.
     """
     Y = np.asarray(Y, dtype=np.float64)
     Sigmas = np.asarray(Sigmas, dtype=np.float64)
@@ -457,10 +468,25 @@ def admec_full(Y: np.ndarray,
     if delay_mode not in ('drop', 'stale'):
         raise ValueError(
             f"Unknown delay_mode: {delay_mode!r}. Use 'drop' or 'stale'.")
+    if classification_lag < 0:
+        raise ValueError(
+            f"classification_lag must be >= 0, got {classification_lag}")
 
     modes = _classify_network_full(Y, Sigmas, window, threshold,
                                     delta_min_var, delta_min_acf,
                                     two_way=two_way)
+    if classification_lag > 0:
+        # Shift IC-derived classification by `lag` timesteps so that
+        # reading[t, i] is classified using the previous ensemble's
+        # IC. Implementation: re-run the IC + classifier with a
+        # time-shifted readings buffer where the first `lag` rows
+        # are duplicated, so the classifier sees IC[t-lag, :] when it
+        # would otherwise see IC[t, :]. We achieve the same effect by
+        # post-shifting the modes array directly.
+        shifted = np.empty_like(modes)
+        shifted[:classification_lag, :] = modes[0, :]
+        shifted[classification_lag:, :] = modes[:T - classification_lag, :]
+        modes = shifted
     stable = (modes == int(Mode.STABLE))
 
     if delay_mode == 'drop':

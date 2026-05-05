@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.4] — 2026-05-05
+
+### Added
+- `src/estimators.py:admec_full`: `classification_lag: int = 0` parameter (WP3 ablation 5 — ADMEC-full-lagged). Shifts the classification mode array by `lag` timesteps so reading[t, i] is classified using IC[t − lag, i]. Default `lag = 0` preserves the WP2 baseline.
+- `scripts/wp3_ablation_lagged_classification.py`: WP3 ablation 5 harness — 3 scenarios × 10 seeds × 2 delay modes × 2 lag values = 120 runs.
+- `data/wp3_ablation_lagged_classification_20260505.npz`: ablation archive.
+- `logbook/012_2026-05-05_wp3-ablation-lagged-classification.md`: WP3 ablation 5 entry; closes the systematic sweep.
+
+### Findings
+- **No simultaneity bias.** If the same-step IC were artificially inflated by self-reference, lagging the classifier would help. It does not — `lag = 1` hurts admec_full MSE by **+66 %** on S1 drop, **+43 %** on S3 drop, **+28 %** on S1 stale, and is essentially null on S2 and S3 stale.
+- Drop-mode S1 / S3 lose structure correlation by **−0.119 / −0.223** under lag = 1 (consensus absorbs more of the signal because anomalous readings flow in for one extra step before exclusion).
+- The asymmetry mirrors ablation 1: lag matters when the consensus has few accessible neighbours and no other temporal averaging. Stale mode and dense S2 absorb the lag harmlessly.
+- The lagged variant is **strictly dominated** by the default; no scenario × mode where it helps.
+
+### Status
+- **WP3 systematic sweep complete (5 of 5 ablations done).** Combined design tuning (stale + var_loose + thr 1.5) takes S3 admec_full from 0.741 to ~0.19 — still 8 × worse than centralised `imm` 0.025. The information-theoretic ceiling on sparse delayed networks holds.
+- DG-1 closed (mitigated). DG-2 NOT MET. DG-2b NOT MET. DG-3 NOT MET on three-way > two-way (architecturally impossible). DG-3 constraint clause satisfied.
+- 276 / 274 passing (no new tests in this commit; lagged variant validated empirically through the ablation harness).
+- Remaining choice: write up as characterisation study, or pursue architectural redesigns (STRUCTURED-with-reduced-weight; decayed-staleness weighting).
+
 ## [0.7.3] — 2026-05-05
 
 ### Added

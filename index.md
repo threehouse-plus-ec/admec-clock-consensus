@@ -59,6 +59,7 @@ Chronological record of what was done, what was found, and what it means for the
 | [009 — WP3 Ablation 3: Constraint Sensitivity](logbook/009_2026-05-04_wp3-ablation-constraint-sensitivity.md) | 2026-05-04 | `var_loose` [0.35, 1.65] recovers `admec_full < admec_delay` on S3 stale (−33 % MSE); no variant closes the 12× gap to centralised baselines; DG-2 NOT MET across all 14 (mode × variant) configurations |
 | [010 — WP3 Ablation 4: Two-vs-Three-Way](logbook/010_2026-05-04_wp3-ablation-two-vs-three-way.md) | 2026-05-04 | Three-way and two-way classifiers produce byte-identical consensus (max delta = 0 across 360 cells). DG-3 "three-way > two-way" NOT MET — the structured/unstructured split has no operational effect under the WP2 architecture |
 | [011 — WP3 Ablation 2: Threshold Sweep](logbook/011_2026-05-05_wp3-ablation-threshold-sweep.md) | 2026-05-05 | IC threshold sensitivity is much larger than predicted; lower thresholds (1.5) halve admec_full MSE on S1/S3. At matched threshold 1.5, admec_full beats freq_exclude on S1 and S2; DG-2 still NOT MET on S3 (8× gap remains) |
+| [012 — WP3 Ablation 5: Lagged Classification](logbook/012_2026-05-05_wp3-ablation-lagged-classification.md) | 2026-05-05 | No simultaneity bias detected — `classification_lag=1` HURTS by +28 % to +66 % on drop-mode signal-rich scenarios. WP3 systematic sweep complete (5/5) |
 
 ## Code
 
@@ -90,7 +91,7 @@ Source: [`src/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tre
 |----|-------------|--------|
 | **WP1** | IC calibration: convergence, threshold stability, σ-sensitivity, δ_min | Complete (logbook entries 001–005; [summary](logbook/wp1-summary.md)) |
 | **WP2** | Clock network simulation: 8 scenarios × 10 seeds × 9 estimators | Complete (entry 007; [summary](logbook/wp2-summary.md)) — DG-2 NOT MET |
-| **WP3** | Ablation: 5 configurations × 3 scenarios × 10 seeds (delay convention, classification threshold, constraint sensitivity, two-vs-three-way, ADMEC-full-lagged) | 4 of 5 complete (entries 008, 009, 010, 011) |
+| **WP3** | Ablation: 5 configurations × 3 scenarios × 10 seeds (delay convention, classification threshold, constraint sensitivity, two-vs-three-way, ADMEC-full-lagged) | **Complete** (entries 008–012) |
 | **WP4** | Manuscript | Not started |
 
 ## Timeline
