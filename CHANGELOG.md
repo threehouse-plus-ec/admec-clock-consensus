@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.5] — 2026-05-05
+
+### Added
+- `scripts/wp3_combined_tuning_check.py`: integrated harness running `admec_full` with all three WP3 design recommendations applied simultaneously (`stale` + threshold 1.5 + `var_loose`) on the same RNG-matched seeds as the WP2 campaign. Plus comparator runs of `freq_exclude` at three thresholds and `imm` at default for the matched-threshold and best-of-best comparison framings.
+- `data/wp3_combined_tuning_20260505.npz`: integrated-tuning archive.
+
+### Changed
+- `docs/manuscript.md`: substantive review fixes addressing all five tier-1 / tier-2 issues raised in two-pass review.
+  - Abstract reformatted into paragraphs (so the file is robust to Read truncation) and **gate framing corrected**: the manuscript reports against four pre-registered gates (DG-1 prerequisite, plus DG-2/DG-2b/DG-3 as simulation gates), not two.
+  - § 2.1 signal sentence corrected: amplitudes are 5 σ for sinusoidal/step, drift is 0.01 σ/step, fold parameters are ε = 0.005 and r₀ = −1.0; one-line summary replaced with an itemised list that distinguishes signal types.
+  - § 3.2 S2 row: bolded `freq_exclude 0.135` (the actual best non-ADMEC baseline on S2) — the prior bolding of `imm 0.147` understated the gap and would have misled readers.
+  - § 3.3 DG-2b numbers updated to the corrected `wp2_classification_check.py` output (post-RNG-fix): TPR 0.430 / FPR 0.010 / precision 0.763 (all-scenarios) or 0.831 (signal-only) / F1 0.550 / 0.567 / strict-STRUCTURED TPR 0.007. Prior values shifted by < 0.005 on every metric.
+  - § 4.3 "byte-identical" → "numerically identical (max abs delta = 0 to double precision)".
+  - § 4.4 low-threshold claim qualified: the preference for low thresholds is real on signal-rich delayed scenarios (S1, S3) but not on the dense low-delay control (S2 drop's optimum is the WP1 calibrated 2.976 bit).
+  - § 4.6 reframed and re-measured: the prior "~ 0.24" / "~ 0.19" estimates were composed off individual ablations; replaced with an integrated-harness run (S1 0.252, S2 0.091, S3 0.196). Three comparison framings (DG-2 pre-registered, matched-threshold, best-of-best) tabulated separately so the matched-threshold S1 + S2 wins are not blurred by the best-of-best gap on S3.
+- `scripts/wp2_classification_check.py`: RNG order fix — simulate clocks **before** sampling network, matching `wp2_campaign.py`. Without this, the script's seeds produce different (Y, adj, delays) realisations from the canonical archive.
+- `logbook/007_2026-05-04_wp2-simulation-harness.md` and `logbook/wp2-summary.md`: updated DG-2b TPR / precision / F1 values to the post-RNG-fix output and added a brief note on the reproducibility-script provenance.
+- `index.md`: duplicate ordered-list numbering in "Where to start" fixed (was `1, 2, 3, 4, 5, 4`).
+- `README.md`: data row updated to mention the four WP3 ablation archives + integrated combined-tuning archive.
+
+### Status
+- WP3 systematic sweep + integrated combined-tuning verification complete. All manuscript numbers reproducible from a checked-in script + canonical .npz pair.
+- Suite unchanged at 276 / 274 passing.
+
 ## [0.7.4] — 2026-05-05
 
 ### Added

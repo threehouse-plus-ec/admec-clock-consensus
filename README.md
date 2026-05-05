@@ -41,7 +41,7 @@ The project may produce a positive result (the three-way classification improves
 | `src/classify.py` | Three-way node classification (stable / structured / unstructured) with calibrated defaults from entries 004 and 006; scalar, vectorised, single-series, and network APIs | Implemented (WP2) |
 | `src/metrics.py` | WP2 simulation metrics: MSE, collapse index, structure correlation, classification diagnostics (TPR/FPR/F1) | Implemented (WP2) |
 | `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier (incl. WP3 two-way), constraints, estimators (incl. WP3 delay-mode), metrics | 276 tests (274 passing, 2 known failures) |
-| `data/` | Numerical output from each logbook entry (.npz archives) | Entries 001–007 |
+| `data/` | Numerical output from each logbook entry (.npz archives) — WP1 entries 001–006, WP2 campaign, four WP3 ablation archives, integrated combined-tuning archive | WP1 + WP2 + WP3 |
 | `notebooks/` | WP1 tutorial (`wp1_tutorial.ipynb`), WP2 tutorial (`wp2_tutorial.ipynb`); WP3 ablations not yet implemented | WP1 + WP2 done |
 
 ## Decision gates

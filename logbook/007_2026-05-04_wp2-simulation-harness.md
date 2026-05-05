@@ -258,8 +258,8 @@ to settings where ground-truth anomalies actually exist.
 
 | Scope | TPR | FPR | precision | F1 |
 |-------|----:|----:|----------:|---:|
-| All 8 scenarios | 0.432 | 0.010 | 0.767 | 0.553 |
-| Signal scenarios only (6) | 0.432 | 0.010 | 0.834 | 0.569 |
+| All 8 scenarios | 0.430 | 0.010 | 0.763 | 0.550 |
+| Signal scenarios only (6) | 0.430 | 0.010 | 0.831 | 0.567 |
 
 Strict STRUCTURED-only TPR = **0.007** (signal scenarios). Almost all
 detections classify as UNSTRUCTURED. Both classes produce the same
@@ -274,7 +274,10 @@ adds anything.
 An earlier draft of this entry quoted TPR = 0.465 / precision = 0.808 /
 F1 = 0.590 from a different aggregation pass; those values have been
 replaced by the `wp2_classification_check.py` output above so the
-numbers are reproducible from a script in the repository.
+numbers are reproducible from a script in the repository. A subsequent
+fix to that script (RNG-order alignment with `wp2_campaign.py`)
+shifted the numbers by < 0.005 on every metric — the post-fix values
+are the canonical ones reported above.
 
 ---
 

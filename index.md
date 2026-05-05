@@ -24,7 +24,7 @@ This project tests that question on simulated clock networks, comparing the prop
 3. **[WP2 Tutorial](docs/wp2_tutorial.md)** — network pipeline + the DG-2 verdict — [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp2_tutorial.ipynb)
 4. **[Project Proposal](docs/projektantrag.md)** — pre-registered objectives, work packages, decision gates.
 5. **[Latest logbook entry](logbook/012_2026-05-05_wp3-ablation-lagged-classification.md)** — WP3 ablation 5 (lagged classification, closes the systematic sweep).
-4. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
+6. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
 
 ---
 

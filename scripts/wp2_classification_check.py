@@ -114,10 +114,14 @@ def run():
                 signal_factory=scn['factory'],
                 n_degraded=1, degradation_factor=3.0,
                 base=ClockParams(sigma_white=1.0))
-            adj, delays = make_network(scn['n'], scn['topology'],
-                                        scn['delay_mean'], rng=rng)
+            # RNG ORDER: simulate clocks BEFORE sampling network to
+            # match scripts/wp2_campaign.py byte-for-byte. Reverse
+            # order produces different (Y, adj, delays) realisations
+            # for the same seed and so different classification stats.
             Y, Sigmas = simulate_network_clocks(params, scn['T'],
                                                  dt=1.0, rng=rng)
+            adj, delays = make_network(scn['n'], scn['topology'],
+                                        scn['delay_mean'], rng=rng)
             modes = _classify(Y, Sigmas, window=20)
 
             T, N = Y.shape

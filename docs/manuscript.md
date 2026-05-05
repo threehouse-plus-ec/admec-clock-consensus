@@ -8,7 +8,19 @@
 
 ## Abstract
 
-We present a complete characterisation of ADMEC, a candidate decentralised consensus scheme for heterogeneous clock networks that combines an information-content (IC) anomaly observable with a three-way STABLE / STRUCTURED / UNSTRUCTURED classification, delay-constrained updates, and projected update-size limits. Two pre-registered decision gates govern the result: DG-2 requires that ADMEC-full beat the best non-ADMEC baseline on at least two IC-independent metrics in a sparse-with-delay scenario (S1 ring, S3 random-sparse), and DG-3 requires that the three-way classifier improve over a binary STABLE / ANOMALOUS split. The study includes an 8-scenario × 10-seed × 9-estimator simulation campaign and five orthogonal ablations (delay convention, classification threshold, constraint sensitivity, classifier cardinality, detection lag). **DG-2 is not met** at the pre-registered operating point; ADMEC-full beats centralised baselines on only one of eight scenarios (S2, fully connected, low delay). **DG-3 is not met** on the three-way > two-way clause: under the pre-registered architecture, the structured / unstructured distinction is invisible to the consensus output (max delta = 0 across 360 ablation cells). Combined design tuning (stale-reading delay convention, loosened variance-ratio bound, lower IC threshold) reduces ADMEC-full's S3 mean squared error by 74 % relative to the WP2 baseline (0.741 → 0.19), but the residual ~8× gap to centralised exclusion methods is consistent with a centralised-vs-local information-theoretic ceiling that no design tuning closes. We additionally show: the same-step IC computation is well-formed (no simultaneity bias); ADMEC's constraint layer functions as a noise-absorption mechanism that pays off only when paired with aggressive exclusion; and the WP1-calibrated IC threshold (optimised for null false-positive rate) is suboptimal for consensus mean squared error in signal-rich scenarios. We conclude with two architectural redesigns (STRUCTURED-with-reduced-weight; decayed-staleness weighting) that could plausibly rescue the gates and would be appropriate for a follow-up project.
+We present a complete characterisation of ADMEC, a candidate decentralised consensus scheme for heterogeneous clock networks that combines an information-content (IC) anomaly observable with a three-way STABLE / STRUCTURED / UNSTRUCTURED classification, delay-constrained updates, and projected update-size limits.
+
+Four pre-registered decision gates govern the result. **DG-1** (IC calibration) is a prerequisite for the simulation work and was closed prior to this manuscript with one mitigated sub-criterion failure. The simulation gates reported here are **DG-2** (ADMEC-full beats the best non-ADMEC baseline on ≥ 2 IC-independent metrics in *both* a 15-node ring and a 50-node random-sparse network, and additionally beats the unconstrained-delay variant), **DG-2b** (strict three-way classification true-positive rate ≥ 70 % against designer-injected ground truth), and **DG-3** (each constraint layer adds ≥ 10 % on at least one metric, and three-way classification outperforms two-way).
+
+The study includes an 8-scenario × 10-seed × 9-estimator simulation campaign and five orthogonal ablations (delay convention, classification threshold, constraint sensitivity, classifier cardinality, detection lag).
+
+**DG-2 is not met** at the pre-registered operating point; ADMEC-full beats centralised baselines on only one of eight scenarios (S2, fully connected, low delay). **DG-2b is not met** on the strict three-way criterion (TPR ≈ 0.7 %). **DG-3 is not met** on the three-way > two-way clause: under the pre-registered architecture, the structured / unstructured distinction is invisible to the consensus output (max delta = 0 across 360 ablation cells, an architectural-impossibility result rather than a statistical near-null).
+
+Combined design tuning (stale-reading delay convention, loosened variance-ratio bound, lower IC threshold), measured directly by an integrated harness on the same RNG-matched seeds as the WP2 campaign, reduces ADMEC-full's S3 mean squared error from 0.741 to 0.196 (−74 %) and S1 from 0.732 to 0.252 (−66 %). The residual gap to centralised exclusion methods (S3: 7.8 ×, S1: 1.7 ×) is consistent with a centralised-vs-local information-theoretic ceiling that no design tuning closes. On S2 the combined-tuned ADMEC-full beats every centralised baseline tested.
+
+We additionally show three constructive findings: the same-step IC computation is well-formed (no simultaneity bias; lagged classification strictly hurts); ADMEC's constraint layer functions as a noise-absorption mechanism that pays off only when paired with aggressive exclusion; and the WP1-calibrated IC threshold (optimised for null false-positive rate) is suboptimal for consensus mean squared error in signal-rich scenarios — at a matched lower threshold, ADMEC-full beats centralised exclusion on S1 and S2.
+
+We conclude with two architectural redesigns (STRUCTURED-with-reduced-weight; decayed-staleness weighting) that could plausibly rescue the gates and would be appropriate for a follow-up project.
 
 ---
 
@@ -53,7 +65,14 @@ The eight scenarios verbatim from the proposal:
 | S7 | 30 | ring | Poisson(2.0) | step at T/2, 3 clocks | change-point detection |
 | S8 | 15 | ring | Poisson(2.0) | fold bifurcation, 2 clocks | near-critical dynamics |
 
-Each scenario runs 10 seeds at T = 200 timesteps. All signals are 5 σ-amplitude; the linear drift is 0.01 σ/step (≈ 2 σ over T); the fold bifurcation uses ε = 0.005, r₀ = −1.0 (chosen empirically to reach the bifurcation within T without explicit-Euler blow-up). One clock per scenario is degraded (3× noise, per the proposal).
+Each scenario runs 10 seeds at T = 200 timesteps. Signal amplitudes are set in unit scale (σ_white = 1.0):
+
+- **Sinusoidal** (S1, S2, S3): amplitude 5 σ, period 50 steps, per-clock phase offset i × π/3.
+- **Linear drift** (S6): rate 0.01 σ / step (≈ 2 σ total over T = 200).
+- **Step** (S7): magnitude 5 σ at t = T/2.
+- **Fold bifurcation** (S8): ε = 0.005, r₀ = −1.0, x₀ = 0.0 (chosen empirically to reach the bifurcation within T without explicit-Euler blow-up).
+
+One clock per scenario is degraded (3× noise, per the proposal). Random-number generation uses `numpy.random.default_rng(seed)` with seeds 2026–2035; per-seed RNG order is `simulate_network_clocks` then `make_network`, so all WP3 ablation harnesses can reproduce the WP2 archive byte-for-byte by matching this order.
 
 ### 2.2 Estimators
 
@@ -121,7 +140,7 @@ Mean MSE per (scenario, estimator) across 10 seeds at T = 200. The best non-ADME
 | Scenario | freq_global | freq_local | freq_exclude | huber | bocpd | imm | admec_unc | admec_delay | admec_full |
 |----------|------------:|-----------:|-------------:|------:|------:|----:|----------:|------------:|-----------:|
 | S1 | 0.323 | 3.084 | **0.135** | 0.145 | 0.224 | 0.147 | 0.135 | 1.647 | 0.732 |
-| S2 | 0.323 | 0.331 | 0.135 | 0.145 | 0.224 | 0.147 | 0.135 | 0.139 | **0.093** ✓ |
+| S2 | 0.323 | 0.331 | **0.135** | 0.145 | 0.224 | 0.147 | 0.135 | 0.139 | **0.093** ✓ |
 | S3 | 0.041 | 1.642 | **0.025** | 0.026 | 0.033 | 0.025 | 0.025 | 1.027 | 0.741 |
 | S4 | 0.071 | 0.968 | 0.074 | 0.073 | 0.069 | **0.065** | 0.074 | 0.851 | 0.381 |
 | S5 | 0.021 | 0.988 | 0.022 | 0.022 | 0.021 | **0.019** | 0.022 | 0.883 | 0.597 |
@@ -150,8 +169,8 @@ Recomputed reproducibly with [`scripts/wp2_classification_check.py`](https://git
 
 | scope | TPR | FPR | precision | F1 |
 |-------|----:|----:|----------:|---:|
-| All 8 scenarios | 0.432 | 0.010 | 0.767 | 0.553 |
-| Signal scenarios only (6) | 0.432 | 0.010 | 0.834 | 0.569 |
+| All 8 scenarios | 0.430 | 0.010 | 0.763 | 0.550 |
+| Signal scenarios only (6) | 0.430 | 0.010 | 0.831 | 0.567 |
 
 Strict STRUCTURED-only TPR = **0.007**. Almost all anomaly detections classify as UNSTRUCTURED. The DG-2b 70 % threshold is not met on the strict three-way criterion.
 
@@ -204,7 +223,7 @@ Across 360 (scenario × seed × estimator × delay-mode × classifier) configura
 > **max abs MSE delta = 0.0000e+00**
 > **max abs structure-correlation delta = 0.0000e+00**
 
-Three-way and two-way produce *byte-identical* consensus output. The classification *counts* differ (5–6 STRUCTURED in three-way vs 0 in two-way), but the *STABLE* count is identical between modes, and the consensus reads only the STABLE mask.
+Three-way and two-way produce numerically identical consensus output (max absolute element-wise delta on the (T, N) estimate arrays = 0 to double-precision). The classification *counts* differ (5–6 STRUCTURED in three-way vs 0 in two-way), but the *STABLE* count is identical between modes, and the consensus reads only the STABLE mask.
 
 This is an architectural-impossibility result, not a statistical near-null. As long as STRUCTURED and UNSTRUCTURED are excluded equally from the STABLE-only weighted mean, no choice of input data, signal type, threshold, or seed can produce a non-zero delta. **DG-3's "three-way > two-way" sub-criterion is formally unreachable under the present architecture.**
 
@@ -223,9 +242,11 @@ The pre-registered prediction was a flat sensitivity curve in a "narrow active r
 | S3 | drop | **0.443** | 0.617 | 0.741 | 0.802 | 0.926 |
 | S3 | stale | **0.191** | 0.307 | 0.461 | 0.473 | 0.429 |
 
-`admec_full` prefers low thresholds (1.5–2.0); `freq_exclude` prefers moderate ones (2.5–3.5). At the matched threshold 1.5, `admec_full` (in stale mode) **beats `freq_exclude` on S1 (0.238 vs 0.276) and S2 (0.111 vs 0.276)** — the first signal-rich scenarios outside S2 where the architecture beats centralised exclusion at a matched setting. The mechanism: aggressive exclusion strips signal-bearing readings from the pool, and `admec_full`'s constraint layer absorbs the resulting per-step variance increase via projection; `freq_exclude` has no such buffer.
+On the **delayed signal-rich scenarios (S1 and S3)**, `admec_full` prefers low thresholds (1.5–2.0); on the dense low-delay control **S2 the optimum is at the WP1 calibrated value 2.976** (drop) or 2.0 (stale), and `var_tight`-style aggressive exclusion below 1.5 is mildly counterproductive. `freq_exclude` prefers moderate thresholds (2.5–3.5) on every scenario.
 
-The WP1-calibrated threshold (2.976, optimised for null false-positive rate) is **suboptimal for consensus MSE** in the WP2 problem regime. The two are different optimisation criteria.
+At the matched threshold 1.5, `admec_full` (in stale mode) **beats `freq_exclude` on S1 (0.238 vs 0.276) and S2 (0.111 vs 0.276)** — the first signal-rich scenarios where the architecture beats centralised exclusion at a matched setting other than S2's WP2 win. The mechanism: aggressive exclusion strips signal-bearing readings from the local pool, and `admec_full`'s constraint layer absorbs the resulting per-step variance increase via projection; `freq_exclude` has no such buffer.
+
+The WP1-calibrated threshold (2.976, optimised for null false-positive rate) is therefore **suboptimal for consensus MSE on signal-rich delayed scenarios**, while remaining optimal on the dense control. The null-FPR and consensus-MSE optima coincide only when the network is dense enough that exclusion does not need absorption.
 
 ### 4.5 Lagged classification (simultaneity bias test)
 
@@ -248,18 +269,53 @@ There is no simultaneity bias to remove. The same-step IC is the right operating
 
 The four parametric ablations identify a recommended tuning combination:
 
-- delay convention = **stale**;
-- classification threshold = **1.5** (lower than the WP1 calibration of 2.976);
-- variance-ratio bounds = **[0.35, 1.65]** (`var_loose`, scenario-conditional — best for delayed sparse networks).
-- classification lag = **0** (same-step; no simultaneity bias to remove).
+- delay convention = **stale** (entry 008);
+- classification threshold = **1.5** (lower than the WP1 calibration of 2.976; entry 011);
+- variance-ratio bounds = **[0.35, 1.65]** (`var_loose`; entry 009, scenario-conditional);
+- classification lag = **0** (same-step; entry 012 — no simultaneity bias to remove).
 
-| Scenario | WP2 baseline `admec_full` MSE | Combined-tuned `admec_full` MSE | reduction | best non-ADMEC | residual gap |
-|----------|------------------------------:|-------------------------------:|----------:|----------------|-------------:|
-| S1 | 0.732 | ~ 0.24 | −67 % | freq_exclude 0.122 (thr 2.5) | 1.96 × |
-| S2 | 0.093 | 0.088 (thr 2.0 stale, baseline constraints) | −5 % | imm 0.147 | wins (best of best) |
-| S3 | 0.741 | ~ 0.19 | −74 % | imm 0.025 | 7.6 × |
+The first three are simultaneously varied; lag stays at the WP2 default. To verify these design choices interact additively rather than antagonistically, the integrated harness `scripts/wp3_combined_tuning_check.py` (archive [`data/wp3_combined_tuning_20260505.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_combined_tuning_20260505.npz)) runs `admec_full` with all three applied at once on the same RNG-matched seeds as the WP2 campaign. Measured results:
 
-Full combined-best-of-best comparison would require a single integrated harness; the values above are read off the individual ablations. For the present manuscript the qualitative conclusion is what matters: combined tuning is *consequential* (74 % MSE reduction on S3) but *insufficient* (residual ~ 8 × gap). DG-2 was pre-registered at the calibrated threshold and therefore stays NOT MET regardless of post-hoc tuning.
+| Scenario | WP2 baseline `admec_full` MSE | Combined-tuned `admec_full` MSE | reduction |
+|----------|------------------------------:|--------------------------------:|----------:|
+| S1 | 0.732 | **0.252** | −66 % |
+| S2 | 0.093 | **0.091** | −2 % |
+| S3 | 0.741 | **0.196** | −74 % |
+
+The interaction is *not strictly additive*. On S1, the best individual-ablation result was `stale + thr 1.5` = 0.238 (entry 011); adding `var_loose` raises it to 0.252 (the entry-009 finding that `var_loose` mildly hurts S1 already at the WP2 baseline carries through). On S2, the best individual-ablation result was `stale + thr 2.0 + baseline constraints` = 0.088 (entry 011); the combined-tuning value 0.091 is slightly worse for the same reason. On S3, the combined value 0.196 essentially matches the best individual `stale + thr 1.5` = 0.191 — the dominant gain comes from threshold + delay, with `var_loose` adding only ~ 0.005 of further reduction on top.
+
+#### 4.6.1 Comparison framings
+
+The DG-2 verdict, the matched-threshold comparison, and the best-of-best comparison are three different questions, and the answer differs between them.
+
+**(a) DG-2 (pre-registered, fixed threshold 2.976):**
+
+| Scenario | admec_full | best non-ADMEC | DG-2 pass? |
+|----------|-----------:|---------------:|:----------:|
+| S1 | 0.732 (drop) | freq_exclude 0.135 | ✗ (5.4 ×) |
+| S3 | 0.741 (drop) | imm 0.025 | ✗ (30 ×) |
+
+**(b) Matched-threshold (both estimators use the *same* IC threshold, varying together):**
+
+| Scenario | thr | admec_full (stale) | freq_exclude | matched winner |
+|----------|----:|-------------------:|-------------:|:--------------:|
+| S1 | 1.5 | 0.238 | 0.276 | admec_full |
+| S2 | 1.5 | 0.111 | 0.276 | admec_full |
+| S3 | 1.5 | 0.191 | 0.038 | freq_exclude |
+
+This is the cleanest fairness comparison for the architectural claim "the constraint layer adds value over plain centralised exclusion at a matched IC operating point". On S1 and S2 it does; on S3 the centralised information advantage dominates regardless.
+
+**(c) Best-of-best (each estimator at its own optimum):**
+
+| Scenario | best admec_full | best freq_exclude | best non-ADMEC | residual gap |
+|----------|----------------:|------------------:|---------------:|-------------:|
+| S1 | 0.252 (combined-tuned) | 0.122 (thr 2.5) | imm 0.147 (default) | 1.72 × vs imm |
+| S2 | 0.091 (combined-tuned) | 0.122 (thr 2.5) | imm 0.147 (default) | wins (0.62 × imm) |
+| S3 | 0.196 (combined-tuned) | 0.025 (thr 2.5–3.0) | imm 0.025 (default) | 7.8 × |
+
+Under independent per-estimator threshold tuning, admec_full **adds S2 to its win column** (combined-tuning 0.091 < imm 0.147) and **closes the S1 gap to 1.7 ×** (vs imm 0.147). The S3 information-theoretic ceiling remains: 7.8 × is consistent with the centralised-vs-local pooling argument in §5.1.
+
+DG-2 was pre-registered at the calibrated threshold and stays NOT MET (frame (a)). The matched-threshold and best-of-best comparisons are post-hoc and informational; they do not formally rescue DG-2, but they are operationally meaningful for a deployment that can choose its own threshold.
 
 ## 5. Discussion
 
@@ -334,6 +390,7 @@ Every table in this manuscript is reproducible from a checked-in script in [`scr
 | § 4.3 | [`wp3_ablation_two_vs_three_way.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/wp3_ablation_two_vs_three_way.py) | [`wp3_ablation_two_vs_three_way_20260504.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_ablation_two_vs_three_way_20260504.npz) |
 | § 4.4 | [`wp3_ablation_threshold_sweep.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/wp3_ablation_threshold_sweep.py) | [`wp3_ablation_threshold_sweep_20260505.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_ablation_threshold_sweep_20260505.npz) |
 | § 4.5 | [`wp3_ablation_lagged_classification.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/wp3_ablation_lagged_classification.py) | [`wp3_ablation_lagged_classification_20260505.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_ablation_lagged_classification_20260505.npz) |
+| § 4.6 (combined tuning) | [`wp3_combined_tuning_check.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/wp3_combined_tuning_check.py) | [`wp3_combined_tuning_20260505.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_combined_tuning_20260505.npz) |
 
 Test suite: 276 tests, 274 passing on the canonical commit. The two known failures are documented entry-002 σ-underestimation cases that are mitigated downstream by the worst-case threshold calibration in entry 006.
 

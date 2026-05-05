@@ -96,8 +96,8 @@ DG-2b required the three-way classifier to report TPR ≥ 70 % against designer-
 
 | Scope | TPR | FPR | precision | F1 |
 |-------|----:|----:|----------:|---:|
-| All 8 scenarios | 0.432 | 0.010 | 0.767 | 0.553 |
-| Signal scenarios only (S1, S2, S3, S6, S7, S8) | 0.432 | 0.010 | 0.834 | 0.569 |
+| All 8 scenarios | 0.430 | 0.010 | 0.763 | 0.550 |
+| Signal scenarios only (S1, S2, S3, S6, S7, S8) | 0.430 | 0.010 | 0.831 | 0.567 |
 
 Strict STRUCTURED-only TPR is **0.007** — almost all detections classify as UNSTRUCTURED.
 
