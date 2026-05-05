@@ -8,19 +8,17 @@
 
 ## Abstract
 
-We present a complete characterisation of ADMEC, a candidate decentralised consensus scheme for heterogeneous clock networks that combines an information-content (IC) anomaly observable with a three-way STABLE / STRUCTURED / UNSTRUCTURED classification, delay-constrained updates, and projected update-size limits.
+When a clock network's topology restricts each node to a delay-constrained local neighbourhood, no consensus algorithm — however sophisticated — can match a centralised aggregator that pools all readings. **This paper measures that limit empirically and diagnoses it as topological, not algorithmic.**
 
-Four pre-registered decision gates govern the result. **DG-1** (IC calibration) is a prerequisite for the simulation work and was closed prior to this manuscript with one mitigated sub-criterion failure. The simulation gates reported here are **DG-2** (ADMEC-full beats the best non-ADMEC baseline on ≥ 2 IC-independent metrics in *both* a 15-node ring and a 50-node random-sparse network, and additionally beats the unconstrained-delay variant), **DG-2b** (strict three-way classification true-positive rate ≥ 70 % against designer-injected ground truth), and **DG-3** (each constraint layer adds ≥ 10 % on at least one metric, and three-way classification outperforms two-way).
+The vehicle is ADMEC, a candidate decentralised consensus scheme that combines an information-content (IC) anomaly observable with a three-way STABLE / STRUCTURED / UNSTRUCTURED classification, delay-constrained updates, and projected update-size limits. Four pre-registered decision gates govern the result. DG-1 (IC calibration) is a prerequisite, closed prior to this manuscript with one mitigated sub-criterion failure. The simulation gates are DG-2 (ADMEC-full beats the best non-ADMEC baseline on ≥ 2 IC-independent metrics in *both* a 15-node ring and a 50-node random-sparse network, and additionally beats the unconstrained-delay variant), DG-2b (strict three-way classification true-positive rate ≥ 70 % against designer-injected ground truth), and DG-3 (each constraint layer adds ≥ 10 % on at least one metric, and three-way classification outperforms two-way).
 
-The study includes an 8-scenario × 10-seed × 9-estimator simulation campaign and five orthogonal ablations (delay convention, classification threshold, constraint sensitivity, classifier cardinality, detection lag).
+We run an 8-scenario × 10-seed × 9-estimator campaign plus five orthogonal ablations (delay convention, classification threshold, constraint sensitivity, classifier cardinality, detection lag). **DG-2 is not met** at the pre-registered operating point — ADMEC-full beats centralised baselines on only S2, the fully-connected control. **DG-2b is not met** on the strict three-way criterion (TPR ≈ 0.7 %). **DG-3 is not met** on the three-way > two-way clause: under the pre-registered architecture, the structured / unstructured distinction is invisible to the consensus output (max delta = 0 across 360 ablation cells). The latter is a *syntactic* gap — the consensus update rule reads only the STABLE mask, so the classifier's STRUCTURED symbol has no production rule that consumes it — not a statistical near-null.
 
-**DG-2 is not met** at the pre-registered operating point; ADMEC-full beats centralised baselines on only one of eight scenarios (S2, fully connected, low delay). **DG-2b is not met** on the strict three-way criterion (TPR ≈ 0.7 %). **DG-3 is not met** on the three-way > two-way clause: under the pre-registered architecture, the structured / unstructured distinction is invisible to the consensus output (max delta = 0 across 360 ablation cells, an architectural-impossibility result rather than a statistical near-null).
-
-Combined design tuning (stale-reading delay convention, loosened variance-ratio bound, lower IC threshold), measured directly by an integrated harness on the same RNG-matched seeds as the WP2 campaign, reduces ADMEC-full's S3 mean squared error from 0.741 to 0.196 (−74 %) and S1 from 0.732 to 0.252 (−66 %). The residual gap to centralised exclusion methods (S3: 7.8 ×, S1: 1.7 ×) is consistent with a centralised-vs-local information-theoretic ceiling that no design tuning closes. On S2 the combined-tuned ADMEC-full beats every centralised baseline tested.
+Combined design tuning (stale-reading delay convention, loosened variance-ratio bound, lower IC threshold), measured directly by an integrated harness on the same RNG-matched seeds as the campaign, reduces ADMEC-full's S3 mean squared error from 0.741 to 0.196 (−74 %) and S1 from 0.732 to 0.252 (−66 %). The residual gap to centralised exclusion methods (S3: 7.8 ×, S1: 1.7 ×) tracks the simple information-pooling ratio *N* / *k*_eff, where *k*_eff is the effective neighbourhood under each scenario's delay distribution. The picture is summarised graphically by Fig. 1 in § 5.1.
 
 We additionally show three constructive findings: the same-step IC computation is well-formed (no simultaneity bias; lagged classification strictly hurts); ADMEC's constraint layer functions as a noise-absorption mechanism that pays off only when paired with aggressive exclusion; and the WP1-calibrated IC threshold (optimised for null false-positive rate) is suboptimal for consensus mean squared error in signal-rich scenarios — at a matched lower threshold, ADMEC-full beats centralised exclusion on S1 and S2.
 
-We conclude with two architectural redesigns (STRUCTURED-with-reduced-weight; decayed-staleness weighting) that could plausibly rescue the gates and would be appropriate for a follow-up project.
+We conclude with two architectural redesigns (STRUCTURED-with-reduced-weight; decayed-staleness weighting) that could plausibly rescue the gates and would be appropriate for a follow-up project. The boundary the present study identifies is a property of the network geometry; the architectural redesigns are attempts to use the data inside that boundary more efficiently, not to escape it.
 
 ---
 
@@ -214,7 +212,7 @@ Seven configurations: baseline plus ±30 % on each of `max_step_factor`, `energy
 
 The cross-scenario picture (S1 drop + 13.4 %, S2/S3 drop ≈ neutral) flags `var_loose` as a **scenario-conditional** recommendation, not a blanket fix: it pays off when the proposed update is noisy across multi-step lags and is otherwise mildly counterproductive on noisy ring topologies.
 
-### 4.3 Two-way vs three-way classifier
+### 4.3 Two-way vs three-way classifier — a syntactic gap
 
 [Entry 010](../logbook/010_2026-05-04_wp3-ablation-two-vs-three-way.md), archive [`data/wp3_ablation_two_vs_three_way_20260504.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_ablation_two_vs_three_way_20260504.npz).
 
@@ -223,9 +221,18 @@ Across 360 (scenario × seed × estimator × delay-mode × classifier) configura
 > **max abs MSE delta = 0.0000e+00**
 > **max abs structure-correlation delta = 0.0000e+00**
 
-Three-way and two-way produce numerically identical consensus output (max absolute element-wise delta on the (T, N) estimate arrays = 0 to double-precision). The classification *counts* differ (5–6 STRUCTURED in three-way vs 0 in two-way), but the *STABLE* count is identical between modes, and the consensus reads only the STABLE mask.
+Three-way and two-way produce numerically identical consensus output (max absolute element-wise delta on the (T, N) estimate arrays = 0 to double precision). The result is *algebraic*, not statistical: the ADMEC consensus update rule reads only one symbol from the classifier output:
 
-This is an architectural-impossibility result, not a statistical near-null. As long as STRUCTURED and UNSTRUCTURED are excluded equally from the STABLE-only weighted mean, no choice of input data, signal type, threshold, or seed can produce a non-zero delta. **DG-3's "three-way > two-way" sub-criterion is formally unreachable under the present architecture.**
+```
+target_i(t) = ( Σ_{j ∈ N(i, t)}  w_j(t) · y_j(t) ) / Σ_{j ∈ N(i, t)} w_j(t)
+              ──────────────────────────────────
+              N(i, t) = { j : adj[i, j] ∧ delay-accessible(i, j, t) ∧
+                              mode[t, j] == STABLE }
+```
+
+The mask `mode[t, j] == STABLE` is binary. Whether a flagged reading carries the label STRUCTURED or UNSTRUCTURED never enters the right-hand side. The classifier emits a three-valued symbol; the consensus production rule consumes only the two-valued projection (STABLE / not-STABLE). The classification *counts* differ (5–6 STRUCTURED in three-way vs 0 in two-way), but the *STABLE* count is identical between modes, so the right-hand side is identical.
+
+This is the syntactic gap. **DG-3's "three-way > two-way" sub-criterion is formally unreachable under the present architecture, not just empirically NOT MET.** The 360 zero-delta cells confirm what the algebra already implies. To make three-way operationally visible, the consensus rule would need an additional production that reads STRUCTURED — for example a reduced-weight inclusion `w_j(t) ← α · w_j(t)` when `mode[t, j] == STRUCTURED` for some `α ∈ (0, 1]`. None of these productions is in the WP2 architecture. They are redesign candidates, not tuning ablations; § 5.3.1 and § 5.6 return to them.
 
 ### 4.4 Classification threshold sweep
 
@@ -319,11 +326,25 @@ DG-2 was pre-registered at the calibrated threshold and stays NOT MET (frame (a)
 
 ## 5. Discussion
 
-### 5.1 The information-theoretic ceiling
+### 5.1 The topological ceiling
 
-The residual ~ 8 × gap to centralised baselines on S3 (50-node random-sparse with target degree 3, Poisson(4.0) delays) is consistent with a simple information-pooling argument. A centralised inverse-variance weighted mean over 50 i.i.d. readings has variance 1/50 of a single reading. A local consensus over a 3 ± 1 adjacency neighbourhood has variance ≈ 1/4 of a single reading. The ratio is 12.5 × — close to the 7.6 × residual MSE gap observed under the best WP3 tuning. The difference reflects modest gains from temporal averaging under stale and the constraint layer's variance absorption; the order-of-magnitude floor is set by neighbourhood size relative to network size.
+The residual ~ 8 × gap to centralised baselines on S3 (50-node random-sparse with target degree 3, Poisson(4.0) delays) is consistent with a simple information-pooling argument. A centralised inverse-variance weighted mean over *N* i.i.d. readings has variance σ² / *N*. A local consensus over an effective *k*_eff-element neighbourhood has variance σ² / *k*_eff. The ratio of the local-to-centralised MSE is then bounded below by *N* / *k*_eff in the independent-reading limit; temporal averaging from stale-reading lags can pull it below this ceiling, but design tuning cannot pull it below 1.
 
-This is not a hyperparameter problem. No constraint setting, threshold value, or delay convention can bridge a 50:3 information ratio. To close it the architecture would need to pool over more readings — either by relaxing the locality (which defeats the point) or by integrating temporal information differently (the "decayed staleness" redesign in §5.6).
+Effective neighbourhood per scenario, computed directly from the canonical archives ([`scripts/figure_topology_ceiling.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/figure_topology_ceiling.py)):
+
+| Scenario | *N* | *k*_eff (drop, freshness 1) | *k*_eff (stale) | *k*_eff/*N* (drop) | *k*_eff/*N* (stale) | ceiling *N*/*k*_eff (stale) |
+|----------|---:|----------------------------:|----------------:|-------------------:|--------------------:|----------------------------:|
+| S1 | 15 | 1.72 | 3.00 | 0.115 | 0.200 | 5.0 |
+| S2 | 15 | 14.55 | 15.00 | 0.970 | 1.000 | 1.0 |
+| S3 | 50 | 1.30 | 4.00 | 0.026 | 0.080 | 12.5 |
+
+S2's ceiling is essentially 1 — every node sees the whole network, so the local-vs-centralised distinction barely exists. S1 and S3 sit in the topology-restricted regime where the ceiling is non-trivial.
+
+![Figure 1. Topological ceiling on local consensus across the WP2 / WP3 ablation set. Each marker is a single (scenario, seed) measurement of admec_full MSE divided by the best non-ADMEC baseline (freq_exclude at threshold 2.5). The dashed line is the theoretical ceiling N / k_eff predicted by independent-reading pooling; the gray horizontal line marks parity with the centralised baseline. WP2 baseline points (drop convention, threshold 2.976) are translucent; WP3 combined-tuned points (stale + threshold 1.5 + var_loose) are solid with black borders. The combined-tuned points sit below the theoretical ceiling because stale-reading mode adds temporal pooling that the independent-reading argument does not capture; design tuning shifts every scenario to a more favourable point but does not cross the ceiling.](manuscript_files/fig_topology_ceiling.png)
+
+The figure makes the constraint visible: every measured ratio sits at or below the *N* / *k*_eff line, and design tuning moves points along the ceiling rather than under it. The 7.8 × residual on S3 under combined tuning is well below S3's stale-mode ceiling of 12.5 — temporal pooling across multi-step lags adds back roughly 0.4× of the missing information — but it is not zero, and the *direction* of the residual is set by topology, not by anything ADMEC controls.
+
+**This is not a hyperparameter problem.** No constraint setting, threshold value, or delay convention can bridge a 50 : 4 information ratio. To close it, the architecture would need to either pool over more readings (which defeats the locality assumption) or integrate temporal information differently (the "decayed staleness" redesign in § 5.6).
 
 ### 5.2 Threshold mismatch: null FPR vs consensus MSE
 
@@ -333,9 +354,23 @@ A signal-aware re-calibration (pick the threshold that minimises consensus MSE u
 
 ### 5.3 Architectural invisibility of three-way at the consensus stage
 
-The two-way / three-way ablation produces a delta of *exactly zero* across 360 cells because the ADMEC consensus rule reads only the STABLE mask. Both anomaly classes are excluded equally; the partition of "not-STABLE" into STRUCTURED vs UNSTRUCTURED is a bookkeeping detail invisible to the estimator. To make the three-way distinction operationally meaningful, the architecture must either (a) include STRUCTURED readings with reduced weight (a continuous-treatment variant), (b) use the STRUCTURED count as a regulariser on downstream parameters, or (c) maintain STRUCTURED as a separate output channel that is scored by a metric the consensus does not see (e.g. "anomalies-tracked-not-suppressed correlation"). None of these is present in the WP2 architecture.
+The two-way / three-way ablation produces a delta of *exactly zero* across 360 cells because the ADMEC consensus rule reads only the STABLE mask (§ 4.3). Both anomaly classes are excluded equally; the partition of "not-STABLE" into STRUCTURED vs UNSTRUCTURED is a bookkeeping detail invisible to the estimator. To make the three-way distinction operationally meaningful, the architecture must either (a) include STRUCTURED readings with reduced weight (a continuous-treatment variant), (b) use the STRUCTURED count as a regulariser on downstream parameters, or (c) maintain STRUCTURED as a separate output channel that is scored by a metric the consensus does not see (e.g. "anomalies-tracked-not-suppressed correlation"). None of these is present in the WP2 architecture.
 
 The DG-3 "three-way > two-way" sub-criterion is therefore not just empirically NOT MET; it is *structurally unreachable* without a redesign that lets STRUCTURED status enter the update rule.
+
+#### 5.3.1 Why tracking STRUCTURED separately is still architecturally important
+
+A reading flagged STRUCTURED carries different information from one flagged UNSTRUCTURED, even when both are excluded from the consensus. The temporal-statistic gates (variance slope, lag-1 autocorrelation) calibrated in entry 004 are precisely the early-warning indicators studied in the critical-transition literature (Scheffer 2009; Dakos 2012). A natural mapping into a regime-detection vocabulary:
+
+| Classifier label | Regime in early-warning vocabulary |
+|------------------|-------------------------------------|
+| STABLE | Deep interior of the operating regime; no detectable anomaly. |
+| STRUCTURED ANOMALY | Approaching a regime boundary — variance and / or autocorrelation rising on a trailing window, the canonical critical-slowing-down signature. |
+| UNSTRUCTURED ANOMALY | Extrinsic shock — IC flags an outlier, but no persistent internal structure (memoryless burst). |
+
+Under this reading, the three-way classifier is doing *regime detection*, not just outlier exclusion. The consensus rule discards both anomaly types equally because at the consensus level only the STABLE / not-STABLE distinction matters for the inverse-variance weighted mean; but the STRUCTURED stream is, at least in principle, the input a downstream early-warning monitor would consume. The DG-3 sub-criterion measures the consensus output, so the absence of an effect at that layer says nothing about whether STRUCTURED is useful for a different downstream task. WP2 simply did not build that downstream task; the STRUCTURED channel sits unused.
+
+This reframing motivates the redesign options in § 5.6 from a different direction: a continuous-treatment STRUCTURED rule (option (a)) is the simplest way to let the regime-detection signal modulate the consensus, but a dedicated STRUCTURED-channel output (option (c)) would let the regime detection be evaluated on its own terms.
 
 ### 5.4 The constraint layer's actual role
 
@@ -360,11 +395,17 @@ For deployments where centralised aggregation is feasible: use `freq_exclude` or
 
 Two architectural changes could plausibly rescue the gates and would be appropriate for a follow-up project:
 
-1. **STRUCTURED with reduced weight.** Currently the consensus excludes STRUCTURED nodes outright; a continuous-treatment variant (include STRUCTURED with weight α < 1) would make the three-way distinction operationally visible. The natural starting point is α = 1 / (1 + IC_excess), where IC_excess is the per-reading IC above threshold. This would make DG-3's "three-way > two-way" measurable rather than algebraically zero.
+1. **STRUCTURED with reduced weight.** Currently the consensus excludes STRUCTURED nodes outright; a continuous-treatment variant (include STRUCTURED with weight α < 1) would make the three-way distinction operationally visible. The natural starting point is α = 1 / (1 + IC_excess), where IC_excess is the per-reading IC above threshold. This would make DG-3's "three-way > two-way" measurable rather than algebraically zero, and would let the regime-detection mapping in § 5.3.1 modulate the consensus directly.
 
-2. **Decayed-staleness weighting.** Currently neighbours are either dropped (delay > freshness) or used at full weight (stale-reading mode). A decayed weighting `w_j = exp(−λ τ_ij)` interpolates between these. The natural choice is λ ≈ 1/τ_correlation, where τ_correlation is the readings' autocorrelation time. This could push the local consensus closer to the centralised Cramér–Rao bound on S3 by using more information from each neighbour.
+2. **Decayed-staleness weighting.** Currently neighbours are either dropped (delay > freshness) or used at full weight (stale-reading mode). A decayed weighting `w_j = exp(−λ τ_ij)` interpolates between these. The natural choice is λ ≈ 1/τ_correlation, where τ_correlation is the readings' autocorrelation time. This could push the local consensus closer to the centralised Cramér–Rao bound on S3 by using more information from each neighbour. Quantifying the staleness-vs-variance trade-off explicitly — the variance penalty from using stale data, vs the variance penalty from dropping the reading entirely — is the natural mini-ablation that would set the operating point for λ.
 
-Both are non-trivial code changes that deserve their own pre-registered decision gates; neither is a parameter sweep on the present architecture.
+Both are non-trivial code changes that deserve their own pre-registered decision gates; neither is a parameter sweep on the present architecture. They aim to use the data *inside* the topological boundary identified in § 5.1 more efficiently, not to escape it: even an ideal architecture cannot exceed the *k*_eff / *N* information-pooling ceiling.
+
+### 5.7 Connection to a broader causal-graph framework
+
+These results can be read within a broader causal-graph framework for agreement architectures (Warring 2026b, Causal Clock Unification Framework). In that framework, a system's feasible operating regime is partitioned by η = (path latency) / (required agreement interval): when η ≪ 1 a centralised aggregator is feasible and locality is irrelevant; as η rises through the order of unity, locality becomes binding and the agreement architecture must use the data inside its causal cone efficiently. The three scenarios tested here span the relevant range — S2 sits at η ≪ 0.01 (a control point where locality does not bind), and S1 and S3 sit at η ≳ 0.1 in the regime where the *k*_eff / *N* ceiling becomes the dominant constraint on consensus performance.
+
+The performance ceiling we observe (Fig. 1) is the η-graph constraint made empirical for one scenario family. A follow-up study using the redesigns in § 5.6 would sit *inside* that ceiling — relevant only when the topology already imposes a non-trivial η — and the natural pre-registration is in those terms: redesigns are evaluated by how close they push the local consensus to the *N* / *k*_eff floor, not by whether they cross it.
 
 ## 6. Conclusion
 
@@ -391,6 +432,7 @@ Every table in this manuscript is reproducible from a checked-in script in [`scr
 | § 4.4 | [`wp3_ablation_threshold_sweep.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/wp3_ablation_threshold_sweep.py) | [`wp3_ablation_threshold_sweep_20260505.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_ablation_threshold_sweep_20260505.npz) |
 | § 4.5 | [`wp3_ablation_lagged_classification.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/wp3_ablation_lagged_classification.py) | [`wp3_ablation_lagged_classification_20260505.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_ablation_lagged_classification_20260505.npz) |
 | § 4.6 (combined tuning) | [`wp3_combined_tuning_check.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/wp3_combined_tuning_check.py) | [`wp3_combined_tuning_20260505.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_combined_tuning_20260505.npz) |
+| § 5.1 Fig. 1 (topology ceiling) | [`figure_topology_ceiling.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/figure_topology_ceiling.py) | (consumes the WP2 + combined-tuning archives above) |
 
 Test suite: 276 tests, 274 passing on the canonical commit. The two known failures are documented entry-002 σ-underestimation cases that are mitigated downstream by the worst-case threshold calibration in entry 006.
 
@@ -408,6 +450,7 @@ A WP1 walkthrough lives at [docs/wp1_tutorial.md](wp1_tutorial.md); a WP2 walkth
 8. Lisdat, C. et al. A clock network for geodesy and fundamental science. *Nat. Commun.* **7**, 12443 (2016).
 9. Panfilo, G. & Arias, F. The Coordinated Universal Time (UTC). *Metrologia* **56**, 042001 (2019).
 10. Scheffer, M. et al. Early-warning signals for critical transitions. *Nature* **461**, 53–59 (2009).
+11. Warring, U. Causal Clock Unification Framework. Zenodo DOI: 10.5281/zenodo.17948436 (2026b).
 
 ---
 
