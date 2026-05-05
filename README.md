@@ -22,6 +22,7 @@ The project may produce a positive result (the three-way classification improves
 
 | Document | Description | Status |
 |----------|-------------|--------|
+| [`docs/manuscript.md`](docs/manuscript.md) | WP2 + WP3 characterisation manuscript: campaign results, five ablations, mechanism, operational recommendations, follow-up redesign directions. ~15 min read; tables reproducible from canonical archives. | Draft scaffold (2026-05-05) |
 | [`docs/projektantrag.md`](docs/projektantrag.md) | Project proposal (DFG Sachbeihilfe structure). Defines objectives, work packages, decision gates, and failure conditions. | v0.5.3 (frozen) |
 | [`docs/rebuttal.md`](docs/rebuttal.md) | Point-by-point rebuttal to a hostile internal review. Documents how the project scope was contracted. | v1.0 |
 

@@ -19,10 +19,11 @@ This project tests that question on simulated clock networks, comparing the prop
 
 ### Where to start
 
-1. **[WP1 Tutorial](docs/wp1_tutorial.md)** — walkthrough of IC definition, calibration, and classification with outputs – run it online: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp1_tutorial.ipynb)
-2. **[Project Proposal](docs/projektantrag.md)** — objectives, work packages, decision gates, failure conditions. Start here for the full picture.
-3. **[WP2 Tutorial](docs/wp2_tutorial.md)** — walkthrough of the network pipeline and the recorded DG-2 verdict — run it online: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp2_tutorial.ipynb)
-4. **[Latest logbook entry](logbook/007_2026-05-04_wp2-simulation-harness.md)** — WP2 harness, the two bug fixes, and the DG-2 verdict.
+1. **[Manuscript draft](docs/manuscript.md)** — the full WP2 + WP3 characterisation as a paper-style document: campaign results, all five ablations, mechanism, recommendations, and follow-up redesign directions. Reads in ~15 min.
+2. **[WP1 Tutorial](docs/wp1_tutorial.md)** — IC definition, calibration, and classification with outputs – run it online: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp1_tutorial.ipynb)
+3. **[WP2 Tutorial](docs/wp2_tutorial.md)** — network pipeline + the DG-2 verdict — [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp2_tutorial.ipynb)
+4. **[Project Proposal](docs/projektantrag.md)** — pre-registered objectives, work packages, decision gates.
+5. **[Latest logbook entry](logbook/012_2026-05-05_wp3-ablation-lagged-classification.md)** — WP3 ablation 5 (lagged classification, closes the systematic sweep).
 4. **[Source code](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/src)** — the implementation.
 
 ---
@@ -31,6 +32,7 @@ This project tests that question on simulated clock networks, comparing the prop
 
 | Document | Description |
 |----------|-------------|
+| [Manuscript draft](docs/manuscript.md) | The full WP2 + WP3 characterisation as a paper-style document. Self-contained ~15 min read; tables reproducible from the canonical archives. |
 | [Project Proposal](docs/projektantrag.md) | Internal project proposal (DFG Sachbeihilfe structure, v0.5.3 frozen). Defines objectives, work packages, scenarios, estimators, decision gates, and failure conditions. |
 | [Rebuttal](docs/rebuttal.md) | Point-by-point response to a hostile internal review of proposal v0.4. Documents what was conceded, what was cut, and why. |
 | [Outreach](docs/outreach.md) | Non-technical overview: when clocks disagree — noise, signal, and the value of anomalies. |
