@@ -93,3 +93,41 @@ Add: clock-model propagation; outlier logbook (STRUCTURED stream for operator di
 | 2.2 Kalman-style baseline / 3.2 baseline-tuning sensitivity / 5.2 S8 replacement / 6.1 Allan deviation / 6.2 structure-correlation interpretation | Reserved for follow-up project (the redesigns of § 5.6 are the natural home; pre-registration against a tuned random-walk-FM Kalman baseline is part of that follow-up's scope) | § 5.6 |
 
 The deferred items are explicitly listed in § 5.6 as part of the follow-up's pre-registration scope; they are not silently dropped.
+
+---
+
+## Second pass — code-vs-claim alignment review
+
+A second domain-expert reading focused specifically on whether the manuscript's claims match what the code actually computes. The reader read [`docs/manuscript.md`](manuscript.md), [`analysis/docs/analytic_reference.md`](../analysis/docs/analytic_reference.md), the classifier and topology code, and made no edits.
+
+### Findings (reader's wording, abridged)
+
+**High — the "local" ADMEC classifier is not actually local/causal.** [`src/estimators.py:_classify_network_full`](../src/estimators.py) computes IC from the full same-time `Y[t, :]`, then local estimators consume those *global* labels. For real distributed clock networks this is an omniscient classifier unless every node already has the full same-epoch ensemble. The negative result still holds, but claims about same-step deployment / local causality should be caveated, or rerun with local / delayed IC.
+
+**High — the *N* / *k*_eff language is internally inconsistent.** Some passages call it a lower bound / floor that cannot be crossed; Fig. 1 and § 5.1 treat it as an upper / reference line with points below it. Rewrite everywhere as a "static independent-pooling reference," not a bound, unless a bound is proved.
+
+**High — clock-noise taxonomy in § 2.6 is wrong in Allan-deviation terms.** Flicker FM is *flat* in σ_y(τ); random-walk FM rises as τ^(+1/2); τ^(−1) is white PM; τ^(−1/2) is white FM. Also: temporal coloured noise within a clock does *not* by itself reduce spatial ensemble sample size — only spatial / common-mode correlation does.
+
+**Medium — maser ensembles vs optical-clock comparison networks.** The manuscript still blurs two operationally different problems. Optical-clock networks bring dead time, maser flywheels, systematic uncertainty, relativistic / geopotential corrections, cycle slips, phase-stabilised link noise. Different from AT1-style ensemble steering.
+
+**Medium — operational FPR redline.** Plausible engineering intuition but too absolute without citation. Make it a stated operational assumption or cite an ensemble-time source.
+
+**Medium — lag ablation scope.** Rules out the specific self-reference lag test only. Does not prove "same-step IC is the right operating point" for a real delayed network because the same-step IC currently uses *global* same-time data.
+
+**Low — consensus equation in § 4.3 omits self.** Static `adj` has False diagonal in [`src/network.py`](../src/network.py); estimator code adds self separately. Equation should use `{i} ∪ {j: adj[i, j] ...}`.
+
+> Overall: "the negative ADMEC characterisation is credible, and the manuscript has become appropriately cautious. The remaining risk is overclaiming physical-clock relevance from a simplified, globally classified, point-MSE simulation."
+
+### Disposition (second-pass)
+
+| Reader item | Manuscript response | Where in manuscript |
+|-------------|---------------------|---------------------|
+| Global classifier vs local consensus | New first row in § 2.6 table making the hybrid status explicit; abstract scope-restricted with a paragraph flagging the partial-decentralisation; § 5.6 redesign list extended to three items, with item (iii) being "truly decentralised IC"; § 6 conclusion acknowledges the hybrid status; § 4.5 lag-ablation caveat acknowledges this is global-IC, not local-IC | abstract, §§ 2.6, 4.5, 5.6, 6 |
+| Bound vs reference inconsistency | Introductory paragraph reworded to "places the local-to-centralised ratio approximately at *N* / *k*_eff under static, memoryless aggregation"; § 5.1.2 calls it "approximate-value argument under the independent-reading null, not a one-sided bound"; § 5.1.5 removed "floor" and "cannot exceed"; § 5.6 close-out says the reference captures the static-memoryless prediction, not a derived limit | §§ 1, 5.1, 5.6, 6 |
+| Allan-deviation noise-taxonomy errors | § 2.6 row 2 rewritten with the correct σ_y(τ) hierarchy (white PM ∝ τ^{−1}, white FM ∝ τ^{−1/2}, flicker FM flat in τ, random-walk FM ∝ τ^{+1/2}). Implication revised: it is *common-mode* (cross-clock) correlation that strengthens the pooling argument, not within-clock temporal colour | § 2.6 |
+| Maser vs optical-clock distinction | New paragraph after § 2.6 table clarifying that the manuscript's findings are closer to the maser-ensemble problem and *not directly applicable* to optical-clock comparison networks, which involve dead time / flywheels / geopotential corrections / cycle slips / phase-stabilised links | § 2.6 |
+| FPR redline citation | New paragraph after § 2.6 table marking the "FPR > 1 % borderline / > 5 % unacceptable" figures explicitly as engineering rules of thumb, *not* derived bounds; deployment-specific tolerable FPR depends on steering-loop bandwidth, ensemble size, false-exclusion cost | § 2.6 |
+| Lag ablation scope | Forward-reference at § 4.5 head adds a caveat that this tests global-IC vs global-IC-shifted; truly local IC's lag dependence is not characterised here | § 4.5 |
+| Consensus-equation self-inclusion | Equation in § 4.3 corrected to `({i} ∪ {j : adj[i, j] ∧ delay-accessible}) ∩ {j : mode == STABLE}` with a parenthetical explaining the convention | § 4.3 |
+
+This second pass surfaces no items that require new simulations; all eight findings are addressed by edits to the manuscript prose and the equation. The negative ADMEC characterisation (DG-2 / DG-2b / DG-3 NOT MET) is unchanged, but the manuscript no longer overclaims architectural locality, terminological consistency, or noise-taxonomy correctness.

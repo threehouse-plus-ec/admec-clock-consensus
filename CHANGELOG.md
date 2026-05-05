@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.6] — 2026-05-05
+
+### Atlas-integrity reader pass — second round (code-vs-claim alignment)
+
+A second domain-expert reading focused on whether the manuscript's claims match what the code actually computes. Eight findings, all resolved via prose / equation edits (no new simulations needed). Reader pass recorded as an addendum in [`docs/atlas_integrity_reader_pass.md`](docs/atlas_integrity_reader_pass.md).
+
+### Changed
+- **`docs/manuscript.md` § 2.6**: new first row in the scope-and-limitations table: "The classifier is computed from the full same-time ensemble." This is operationally consequential — the local consensus rule consumes globally-computed STABLE / STRUCTURED / UNSTRUCTURED labels, so ADMEC as implemented here is *partially* decentralised, not fully so. A truly local IC redesign (each node computes its own IC over its delay-accessible readings only) is a follow-up redesign — see § 5.6 (iii).
+- **`docs/manuscript.md` § 2.6 row on noise taxonomy**: corrected the σ_y(τ) hierarchy. White PM ∝ τ^{−1}; white FM ∝ τ^{−1/2}; flicker FM is **flat** in τ; random-walk FM ∝ τ^{+1/2}. Previous text had τ^{−1} for flicker FM (wrong) and τ^{−1/2} for random-walk FM (wrong sign). Implication updated: it is *common-mode* (cross-clock) correlation that would tighten the pooling argument, not within-clock temporal colour.
+- **`docs/manuscript.md` § 2.6 closing paragraph**: now explicitly distinguishes maser-ensemble timescales (NIST AT1 etc.) from optical-clock comparison networks (Lisdat 2016, etc.); flags that the manuscript's findings are closer to the former and not directly applicable to the latter (dead time / flywheels / geopotential corrections / cycle slips / phase-stabilised links).
+- **`docs/manuscript.md` § 2.6 closing paragraph**: marks the "FPR > 1 % borderline / > 5 % unacceptable" figures explicitly as engineering rules of thumb rather than derived bounds; deployment-specific tolerable FPR depends on steering-loop bandwidth, ensemble size, and false-exclusion cost.
+- **`docs/manuscript.md` § 1 introduction**: reworded "no amount of classifier or constraint tuning crosses that bound" to "no static-memoryless tuning of the ADMEC family crosses this reference line in our scenarios"; explicitly identifies the reference as a heuristic, not a one-sided bound.
+- **`docs/manuscript.md` § 4.3 consensus equation**: corrected to `({i} ∪ {j : adj[i, j] ∧ delay-accessible}) ∩ {j : mode == STABLE}` with parenthetical explaining that `adj` has a False diagonal in `src/network.py` and the estimator code adds self separately.
+- **`docs/manuscript.md` § 4.5 head**: forward-reference now caveats that the lag ablation tests global-IC vs global-IC-shifted; the lag dependence of *truly local* IC is not characterised here.
+- **`docs/manuscript.md` § 5.1.2 / § 5.1.5 / § 5.6 close-out / § 6 conclusion**: bound-vs-reference language homogenised. The *N* / *k*_eff observable is described consistently as a heuristic reference, not a bound; "floor" and "cannot exceed" language replaced with "approximate value under the independent-reading null" / "static-memoryless prediction"; one-sided-bound claim removed.
+- **`docs/manuscript.md` abstract**: scope tightened to "*under static-memoryless aggregation*"; explicit acknowledgement that ADMEC's classifier is global while the consensus rule is local; redesign list extended.
+- **`docs/manuscript.md` § 5.6 "Reserved follow-up"** extended from two redesigns to three: (i) STRUCTURED with reduced weight + drift estimation; (ii) decayed-staleness weighting with state propagation; (iii) **truly decentralised IC** (each node computes its own IC over its delay-accessible readings). The third item makes the prerequisite for any deployment claim about ADMEC-as-decentralised explicit.
+
+### Status
+- Second-pass items did not change any data; all edits are prose / equation. The negative DG verdicts are unchanged; the manuscript no longer overclaims architectural locality, terminological consistency, or noise-taxonomy correctness.
+- Suite at 303 / 301 passing.
+
 ## [0.8.5] — 2026-05-05
 
 ### Atlas-integrity reader pass
