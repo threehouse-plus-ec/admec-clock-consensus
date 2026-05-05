@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] — 2026-05-05
+
+### Changed
+- `docs/manuscript.md`: substantive reframing pass addressing two external reviews. The manuscript is now framed explicitly as a *pre-registered characterisation study* of the topological boundary on local anomaly-aware consensus, not as a record of a failed gate-rescue attempt.
+  - **Title** changed to "A Topological Information-Pooling Bound on Local Clock Consensus" with subtitle "A characterisation study using the ADMEC anomaly-aware scheme". Foregrounds the central claim instead of the project-internal scope.
+  - **Abstract** rewritten to lead with the core finding: *delay-constrained local clock consensus is limited primarily by causal-topological access to information, not by estimator sophistication*. The pre-registered decision-gate notation (DG-2/2b/3) is now described in words first; project labels stay in the main text but no longer dominate the abstract.
+  - **§ 1 Introduction** now opens with the central claim and treats ADMEC as a vehicle for measuring the boundary, not as the result. A new "Reader's map" subsection tells skim readers which sections to read or skip; the pre-registered design (gates, classifier rule) is now a labelled subsection rather than the main throughline.
+  - **§ 5.1 retitled "The topological pooling-limit heuristic"** (was "topological ceiling"). Added an explicit caveat that the *N* / *k*_eff line is a heuristic upper-bound argument, not a proven theorem; identifies the two assumptions (independent readings, no temporal pooling) that the data violates in opposite directions and partially cancel. Figure 1 caption and surrounding prose updated to "reference" rather than "ceiling" in the heuristic-bound context (the figure file itself unchanged).
+  - **§ 5.5 Operational recommendations** got a bolded "For deployments where centralised aggregation is feasible" clause head (mirroring the existing bolded recommendation entries) so the deployment-regime guidance is legible on a skim.
+  - **§ 5.6 retitled "Reserved follow-up: two architectural redesigns"** (was "Future redesigns"). Adds explicit framing that the redesigns are intentionally reserved for a follow-up study with its own pre-registration rather than added as opportunistic extra sweeps to this manuscript.
+  - **§ 6 Conclusion** rewritten to match the characterisation framing: the contribution is a *characterisation of the boundary condition* under which local anomaly-aware consensus competes with centralised pooling, not a claim that ADMEC failed.
+  - § 7 reproducibility note slightly softened on "known failures" wording to avoid implying a regression.
+
+### Status
+- Manuscript ready for external readers as a characterisation/methods paper. Project documentation and ablation archive are unchanged from v0.8.0; this is a writing-only revision.
+- Suite unchanged at 276 / 274 passing.
+
 ## [0.8.0] — 2026-05-05
 
 ### Added

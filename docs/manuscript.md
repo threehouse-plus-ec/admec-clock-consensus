@@ -1,32 +1,42 @@
-# Delay-Constrained Anomaly-Aware Consensus on Heterogeneous Clock Networks: A Characterisation Study
+# A Topological Information-Pooling Bound on Local Clock Consensus
+## A characterisation study using the ADMEC anomaly-aware scheme
 
 **Author:** Ulrich Warring (Physikalisches Institut, Albert-Ludwigs-Universität Freiburg).
-**Status:** Draft manuscript scaffolded 2026-05-05. Maps directly onto the project's pre-registered decision gates (DG-1, DG-2, DG-2b, DG-3) and the five-ablation WP3 menu defined in [docs/projektantrag.md](projektantrag.md). Full numerical detail and supporting code live in the [logbook](../logbook/) and [scripts](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/scripts).
-**Reproducibility:** every table in this manuscript is derivable from one of the canonical archives in [`data/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/data); each section cites the archive it draws from.
+**Type:** Pre-registered characterisation study. Decision gates and ablation menu are defined verbatim in [docs/projektantrag.md](projektantrag.md); the project-internal labels DG-1, DG-2, DG-2b, DG-3, WP1–WP3, S1–S8 are the gates, work packages, and scenarios named there.
+**Status:** Draft manuscript scaffolded 2026-05-05.
+**Reproducibility:** every table in this manuscript is derivable from one of the canonical archives in [`data/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/data); each section cites the archive it draws from. Full numerical detail and supporting code live in the [logbook](../logbook/) and [scripts](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/scripts).
 
 ---
 
 ## Abstract
 
-When a clock network's topology restricts each node to a delay-constrained local neighbourhood, no consensus algorithm — however sophisticated — can match a centralised aggregator that pools all readings. **This paper measures that limit empirically and diagnoses it as topological, not algorithmic.**
+**Delay-constrained local clock consensus is limited primarily by causal-topological access to information, not by estimator sophistication.** When a network's topology and delay distribution restrict each node to a small effective neighbourhood, no local-consensus algorithm — however carefully its anomaly classification, exclusion rules, or update constraints are tuned — can match a centralised aggregator that pools all readings. The performance gap tracks a simple pooling-limit heuristic *N* / *k*_eff, where *N* is the network size and *k*_eff the effective neighbourhood under the scenario's delay distribution.
 
-The vehicle is ADMEC, a candidate decentralised consensus scheme that combines an information-content (IC) anomaly observable with a three-way STABLE / STRUCTURED / UNSTRUCTURED classification, delay-constrained updates, and projected update-size limits. Four pre-registered decision gates govern the result. DG-1 (IC calibration) is a prerequisite, closed prior to this manuscript with one mitigated sub-criterion failure. The simulation gates are DG-2 (ADMEC-full beats the best non-ADMEC baseline on ≥ 2 IC-independent metrics in *both* a 15-node ring and a 50-node random-sparse network, and additionally beats the unconstrained-delay variant), DG-2b (strict three-way classification true-positive rate ≥ 70 % against designer-injected ground truth), and DG-3 (each constraint layer adds ≥ 10 % on at least one metric, and three-way classification outperforms two-way).
+This paper is a pre-registered characterisation study that *measures* that boundary using a candidate scheme — ADMEC — as the vehicle. ADMEC combines an information-content (IC) anomaly observable with a three-way STABLE / STRUCTURED / UNSTRUCTURED classification, delay-restricted updates, and projected update-size limits. We run an 8-scenario × 10-seed × 9-estimator campaign with three baseline-architecture variants (FREQ family, Huber, BOCPD/IMM filter banks) plus five orthogonal ablations of ADMEC (delay convention, classification threshold, constraint sensitivity, classifier cardinality, detection lag).
 
-We run an 8-scenario × 10-seed × 9-estimator campaign plus five orthogonal ablations (delay convention, classification threshold, constraint sensitivity, classifier cardinality, detection lag). **DG-2 is not met** at the pre-registered operating point — ADMEC-full beats centralised baselines on only S2, the fully-connected control. **DG-2b is not met** on the strict three-way criterion (TPR ≈ 0.7 %). **DG-3 is not met** on the three-way > two-way clause: under the pre-registered architecture, the structured / unstructured distinction is invisible to the consensus output (max delta = 0 across 360 ablation cells). The latter is a *syntactic* gap — the consensus update rule reads only the STABLE mask, so the classifier's STRUCTURED symbol has no production rule that consumes it — not a statistical near-null.
+The pre-registered decision gates are not met at the pre-registered operating points: ADMEC outperforms centralised baselines on only the fully-connected control scenario; its three-way classifier achieves a strict structured-anomaly true-positive rate of ≈ 0.7 %; and the three-way distinction is *algebraically invisible* to the consensus output (max delta = 0 across 360 ablation cells, because the consensus update rule reads only the STABLE mask). Combined design tuning, measured directly by an integrated harness, reduces the largest-scenario mean squared error from 0.741 to 0.196 (−74 %), but the residual ~ 8 × gap to centralised methods sits at the *N* / *k*_eff pooling-limit line.
 
-Combined design tuning (stale-reading delay convention, loosened variance-ratio bound, lower IC threshold), measured directly by an integrated harness on the same RNG-matched seeds as the campaign, reduces ADMEC-full's S3 mean squared error from 0.741 to 0.196 (−74 %) and S1 from 0.732 to 0.252 (−66 %). The residual gap to centralised exclusion methods (S3: 7.8 ×, S1: 1.7 ×) tracks the simple information-pooling ratio *N* / *k*_eff, where *k*_eff is the effective neighbourhood under each scenario's delay distribution. The picture is summarised graphically by Fig. 1 in § 5.1.
+We additionally identify three constructive findings: the same-step IC computation is well-formed (no simultaneity bias detectable — lagged classification strictly hurts); ADMEC's constraint layer functions as a noise-absorption mechanism that pays off only when paired with aggressive exclusion; and the original IC threshold (optimised for null false-positive rate) is suboptimal for consensus mean squared error in signal-rich scenarios — at a matched lower threshold, ADMEC outperforms centralised exclusion on two of the three signal scenarios.
 
-We additionally show three constructive findings: the same-step IC computation is well-formed (no simultaneity bias; lagged classification strictly hurts); ADMEC's constraint layer functions as a noise-absorption mechanism that pays off only when paired with aggressive exclusion; and the WP1-calibrated IC threshold (optimised for null false-positive rate) is suboptimal for consensus mean squared error in signal-rich scenarios — at a matched lower threshold, ADMEC-full beats centralised exclusion on S1 and S2.
-
-We conclude with two architectural redesigns (STRUCTURED-with-reduced-weight; decayed-staleness weighting) that could plausibly rescue the gates and would be appropriate for a follow-up project. The boundary the present study identifies is a property of the network geometry; the architectural redesigns are attempts to use the data inside that boundary more efficiently, not to escape it.
+The contribution of this study is therefore not a working algorithm but a *characterisation of the regime in which any local anomaly-aware scheme can be expected to compete*: dense, low-delay topologies where *k*_eff approaches *N*. We close with two architectural redesigns (STRUCTURED-with-reduced-weight; decayed-staleness weighting) that aim to use the data inside the topological boundary more efficiently, but reserve them for a follow-up study with its own pre-registration.
 
 ---
 
 ## 1. Introduction
 
-The standard response to disagreeing clocks in a network is robust averaging: suppress outliers so the consensus stays stable. This works when deviations are random noise. But when some deviations carry information — a slow drift, a rising variance, a near-bifurcation indicator — robust suppression discards signal alongside noise.
+The standard response to disagreeing clocks in a network is robust averaging: suppress outliers so the consensus stays stable. This works when deviations are random noise. But when some deviations carry information — a slow drift, a rising variance, a near-bifurcation indicator — robust suppression discards signal alongside noise. A natural alternative is to classify deviations and respond to each class differently: keep stable readings in the consensus, exclude memoryless noise bursts, and *track* persistent structured departures separately for downstream analysis. This is the design intuition the ADMEC scheme tests on a simulated heterogeneous clock network.
 
-The ADMEC scheme proposed in [docs/projektantrag.md](projektantrag.md) tests whether a finer distinction is operationally useful. ADMEC classifies each clock reading into one of three categories using a per-reading information-content (IC) observable plus two trailing-window temporal-structure statistics (variance slope, lag-1 autocorrelation):
+The central question this paper addresses, however, is not whether that intuition is *correct* but whether it can *compete* with the alternatives — and the answer is shaped less by the classifier and constraint design than by the geometry of the network. Decentralised consensus on a delay-constrained network sees only a small effective neighbourhood per node. A centralised aggregator that pools all readings has access to *N* readings; a local consensus over a *k*_eff-element neighbourhood has access to *k*_eff. The independent-reading pooling argument bounds the local-to-centralised mean-squared-error ratio below by approximately *N* / *k*_eff. **No amount of classifier or constraint tuning crosses that bound.** Tuning can only move performance closer to it (by using temporal or correlated information that the pooling argument does not capture); it cannot use information that does not arrive. The contribution of this paper is to measure that bound empirically across three topological regimes and four design axes, and to identify the regime where the architecture is competitive.
+
+### Reader's map
+
+The manuscript is structured as a pre-registered characterisation study. § 2 specifies the eight scenarios, nine estimators, three metrics, and the five-ablation menu. § 3 reports the campaign baseline at the pre-registered operating point and shows that the architecture's pre-registered decision gates are not met. § 4 reports the five ablations one axis at a time, identifying the design choices that each axis is sensitive to. § 5 interprets the results — § 5.1 makes the topological-pooling bound visible (Fig. 1), § 5.3 explains the three-way / two-way zero-delta result as a *syntactic* gap in the consensus update rule, § 5.4 reframes the constraint stack as a noise-absorption mechanism, and § 5.6 sketches two follow-up redesigns. § 7 maps every numerical claim to a checked-in script and `.npz` archive.
+
+A reader interested only in the bound and the operational picture can skim § 1, read § 5.1 + § 5.5, and skip the per-ablation detail in § 4. A reader interested in the architecture's specific failure mechanisms should read § 4 and § 5.3 in full.
+
+### Pre-registered design
+
+The vehicle architecture, ADMEC, classifies each clock reading into one of three categories using a per-reading information-content (IC) observable plus two trailing-window temporal-structure statistics (variance slope, lag-1 autocorrelation):
 
 ```
 STABLE                : I_k <  threshold
@@ -34,17 +44,15 @@ STRUCTURED ANOMALY    : I_k >= threshold AND (|var_slope| > delta_min_var OR |ac
 UNSTRUCTURED ANOMALY  : I_k >= threshold AND |var_slope| <= delta_min_var AND |acf| <= delta_min_acf
 ```
 
-The proposal is that *structured* anomalies should be **tracked and gated** rather than excluded — preserved as a separate channel for downstream analysis — while *unstructured* anomalies should be excluded outright as memoryless noise bursts. This three-way response, together with delay-constrained updates and projected update-size limits, defines the `admec_full` estimator.
+The proposal is that *structured* anomalies should be **tracked and gated** rather than excluded — preserved as a separate channel for downstream analysis — while *unstructured* anomalies should be excluded outright as memoryless noise bursts. This three-way response, together with delay-constrained updates and projected update-size limits, defines the `admec_full` estimator. The IC observable, its calibration, and the per-reading threshold (2.976 bit, the worst-case-σ 95th percentile across ten null noise models) are documented in [logbook entries 001–006](../logbook/) and the [WP1 summary](../logbook/wp1-summary.md). The IC-calibration gate (DG-1) was closed with one mitigated sub-criterion failure (entries 002 and 006). The present manuscript starts from a calibrated IC.
 
-The pre-registered decision gates are:
+The simulation gates are pre-registered as follows:
 
-- **DG-2** — `admec_full` outperforms the best non-ADMEC baseline (FREQ-global / FREQ-local / FREQ-exclude / Huber / BOCPD / IMM) on ≥ 2 of {MSE, collapse index, structure correlation} in *both* S1 and S3, and additionally beats `admec_delay` (i.e. the constraint layer adds value).
+- **DG-2** — `admec_full` outperforms the best non-ADMEC baseline (FREQ-global / FREQ-local / FREQ-exclude / Huber / BOCPD / IMM) on ≥ 2 of {MSE, collapse index, structure correlation} in *both* the 15-node ring (S1) and the 50-node random-sparse network (S3), and additionally beats the unconstrained-delay variant `admec_delay`.
 - **DG-2b** — strict-STRUCTURED true-positive rate ≥ 70 % against designer-injected ground truth.
 - **DG-3** — each constraint layer adds ≥ 10 % on at least one metric, *and* three-way classification outperforms two-way.
 
-The proposal explicitly anticipated either outcome: "If [O2] fails, the contribution is a careful negative result showing that established robust methods are sufficient for the tested regime." This manuscript reports that careful negative result, plus a five-ablation characterisation of *why* the gates fail.
-
-The IC observable, its calibration, and the per-reading threshold (2.976 bit, the worst-case-σ 95th percentile across ten null noise models) are documented in [logbook entries 001–006](../logbook/) and the [WP1 summary](../logbook/wp1-summary.md). DG-1 — IC calibration — was closed with one mitigated sub-criterion failure ([entry 002](../logbook/002_2026-03-31_sigma-sensitivity-analysis.md), [entry 006](../logbook/006_2026-05-04_per-reading-threshold-recalibration.md)). The present manuscript starts from a calibrated IC.
+The proposal explicitly anticipated either outcome: *"If [the central objective] fails, the contribution is a careful negative result showing that established robust methods are sufficient for the tested regime."* This manuscript reports the empirical regime — the topological boundary between competitive and non-competitive operating points — that the careful negative result reveals.
 
 ## 2. Methods
 
@@ -326,25 +334,27 @@ DG-2 was pre-registered at the calibrated threshold and stays NOT MET (frame (a)
 
 ## 5. Discussion
 
-### 5.1 The topological ceiling
+### 5.1 The topological pooling-limit heuristic
 
-The residual ~ 8 × gap to centralised baselines on S3 (50-node random-sparse with target degree 3, Poisson(4.0) delays) is consistent with a simple information-pooling argument. A centralised inverse-variance weighted mean over *N* i.i.d. readings has variance σ² / *N*. A local consensus over an effective *k*_eff-element neighbourhood has variance σ² / *k*_eff. The ratio of the local-to-centralised MSE is then bounded below by *N* / *k*_eff in the independent-reading limit; temporal averaging from stale-reading lags can pull it below this ceiling, but design tuning cannot pull it below 1.
+The residual ~ 8 × gap to centralised baselines on S3 (50-node random-sparse with target degree 3, Poisson(4.0) delays) is consistent with a simple information-pooling heuristic. A centralised inverse-variance weighted mean over *N* readings drawn i.i.d. from a unit-variance distribution has variance σ² / *N*. A local consensus over an effective *k*_eff-element neighbourhood has variance σ² / *k*_eff. The local-to-centralised MSE ratio is therefore approximately *N* / *k*_eff under the independent-reading assumption.
+
+This is a *heuristic* upper-bound argument, not a formal theorem. The independent-reading assumption is violated in two directions that work against each other and partially cancel: (a) signal-bearing readings are correlated (so pooling them gives *less* than 1/*N* variance reduction), and (b) temporal pooling from stale-reading lags lets a local consensus draw on more than *k*_eff readings (so the realised ratio can be *better* than *N* / *k*_eff). What the empirical data shows is that, after both effects are at work, every measured local-to-centralised ratio sits at or below *N* / *k*_eff in our scenarios, and design tuning moves points along the line rather than under it. We therefore use *N* / *k*_eff as a regime-locating reference, not as a proven floor; a proper bound would require a Cramér–Rao analysis on the specific noise model and is left for follow-up work.
 
 Effective neighbourhood per scenario, computed directly from the canonical archives ([`scripts/figure_topology_ceiling.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/figure_topology_ceiling.py)):
 
-| Scenario | *N* | *k*_eff (drop, freshness 1) | *k*_eff (stale) | *k*_eff/*N* (drop) | *k*_eff/*N* (stale) | ceiling *N*/*k*_eff (stale) |
-|----------|---:|----------------------------:|----------------:|-------------------:|--------------------:|----------------------------:|
+| Scenario | *N* | *k*_eff (drop, freshness 1) | *k*_eff (stale) | *k*_eff/*N* (drop) | *k*_eff/*N* (stale) | reference *N*/*k*_eff (stale) |
+|----------|---:|----------------------------:|----------------:|-------------------:|--------------------:|------------------------------:|
 | S1 | 15 | 1.72 | 3.00 | 0.115 | 0.200 | 5.0 |
 | S2 | 15 | 14.55 | 15.00 | 0.970 | 1.000 | 1.0 |
 | S3 | 50 | 1.30 | 4.00 | 0.026 | 0.080 | 12.5 |
 
-S2's ceiling is essentially 1 — every node sees the whole network, so the local-vs-centralised distinction barely exists. S1 and S3 sit in the topology-restricted regime where the ceiling is non-trivial.
+S2's reference ratio is essentially 1 — every node sees the whole network, so the local-vs-centralised distinction barely exists. S1 and S3 sit in the topology-restricted regime where the reference is non-trivial.
 
-![Figure 1. Topological ceiling on local consensus across the WP2 / WP3 ablation set. Each marker is a single (scenario, seed) measurement of admec_full MSE divided by the best non-ADMEC baseline (freq_exclude at threshold 2.5). The dashed line is the theoretical ceiling N / k_eff predicted by independent-reading pooling; the gray horizontal line marks parity with the centralised baseline. WP2 baseline points (drop convention, threshold 2.976) are translucent; WP3 combined-tuned points (stale + threshold 1.5 + var_loose) are solid with black borders. The combined-tuned points sit below the theoretical ceiling because stale-reading mode adds temporal pooling that the independent-reading argument does not capture; design tuning shifts every scenario to a more favourable point but does not cross the ceiling.](manuscript_files/fig_topology_ceiling.png)
+![Figure 1. Topological pooling-limit heuristic across the campaign and ablation set. Each marker is a single (scenario, seed) measurement of admec_full MSE divided by the best non-ADMEC baseline (freq_exclude at threshold 2.5). The dashed line is the heuristic reference N / k_eff under independent-reading pooling; the gray horizontal line marks parity with the centralised baseline. Baseline-architecture points (drop convention, calibrated IC threshold 2.976) are translucent; combined-tuned points (stale + threshold 1.5 + var_loose) are solid with black borders. Combined-tuned points sit below the reference because stale-reading mode adds temporal pooling that the independent-reading argument does not capture; design tuning shifts every scenario to a more favourable point but does not cross the reference line.](manuscript_files/fig_topology_ceiling.png)
 
-The figure makes the constraint visible: every measured ratio sits at or below the *N* / *k*_eff line, and design tuning moves points along the ceiling rather than under it. The 7.8 × residual on S3 under combined tuning is well below S3's stale-mode ceiling of 12.5 — temporal pooling across multi-step lags adds back roughly 0.4× of the missing information — but it is not zero, and the *direction* of the residual is set by topology, not by anything ADMEC controls.
+The figure makes the constraint visible: every measured ratio sits at or below the *N* / *k*_eff reference line, and design tuning moves points along the line rather than under it. The 7.8 × residual on S3 under combined tuning is below S3's stale-mode reference of 12.5 — temporal pooling across multi-step lags adds back roughly 0.4× of the missing information — but it is not zero, and the *direction* of the residual is set by topology, not by anything ADMEC controls.
 
-**This is not a hyperparameter problem.** No constraint setting, threshold value, or delay convention can bridge a 50 : 4 information ratio. To close it, the architecture would need to either pool over more readings (which defeats the locality assumption) or integrate temporal information differently (the "decayed staleness" redesign in § 5.6).
+**This is not a hyperparameter problem.** No constraint setting, threshold value, or delay convention bridges a 50 : 4 information ratio. To approach it, the architecture would need to either pool over more readings (which defeats the locality assumption) or integrate temporal information differently (the "decayed staleness" redesign in § 5.6).
 
 ### 5.2 Threshold mismatch: null FPR vs consensus MSE
 
@@ -384,22 +394,22 @@ This is a useful design insight independent of the DG-2 verdict: ADMEC's constra
 
 For deployments where ADMEC is the chosen architecture (e.g. decentralised networks without a global aggregator):
 
-- **Pair the IC threshold with the deployment topology**, not with the WP1 null calibration. Lower thresholds (1.5–2.0) are operationally better when delays are non-trivial.
+- **Pair the IC threshold with the deployment topology**, not with the null calibration. Lower thresholds (1.5–2.0) are operationally better when delays are non-trivial.
 - **Use stale-reading mode** rather than drop-and-truncate. The drop convention starves the consensus on sparse delayed networks for no operational benefit.
 - **Loosen the variance-ratio bound** (e.g. [0.35, 1.65]) when proposed updates inherit lag-induced variance; otherwise the bound rejects beneficial updates.
 - **Keep classification at the same step.** There is no simultaneity bias, and any lag introduces a detection-latency MSE penalty.
 
-For deployments where centralised aggregation is feasible: use `freq_exclude` or `imm`. They are cheaper, simpler, and outperform `admec_full` on every scenario where centralisation is feasible.
+**For deployments where centralised aggregation is feasible:** use `freq_exclude` or `imm`. They are cheaper, simpler, and outperform `admec_full` on every scenario where centralisation is feasible. The ADMEC architecture's competitive regime is bounded by *k*_eff/*N* close to 1 — the regime where the network is approximately fully connected at the operative latency.
 
-### 5.6 Future redesigns
+### 5.6 Reserved follow-up: two architectural redesigns
 
-Two architectural changes could plausibly rescue the gates and would be appropriate for a follow-up project:
+Two architectural redesigns plausibly use data inside the topological boundary identified in § 5.1 more efficiently than the present ADMEC family. They are reserved for a follow-up study with its own pre-registration rather than added as opportunistic extra sweeps to this manuscript: each is a redesign of the consensus production rule itself, not a hyperparameter on the present rule, and pre-registering their decision gates against the new rule (rather than retrofitting the gates of this study) is the methodologically sound approach.
 
-1. **STRUCTURED with reduced weight.** Currently the consensus excludes STRUCTURED nodes outright; a continuous-treatment variant (include STRUCTURED with weight α < 1) would make the three-way distinction operationally visible. The natural starting point is α = 1 / (1 + IC_excess), where IC_excess is the per-reading IC above threshold. This would make DG-3's "three-way > two-way" measurable rather than algebraically zero, and would let the regime-detection mapping in § 5.3.1 modulate the consensus directly.
+1. **STRUCTURED with reduced weight.** Currently the consensus excludes STRUCTURED nodes outright; a continuous-treatment variant (include STRUCTURED with weight α < 1) would make the three-way distinction operationally visible. The natural starting point is α = 1 / (1 + IC_excess), where IC_excess is the per-reading IC above threshold. This would make the three-way > two-way comparison measurable rather than algebraically zero, and would let the regime-detection mapping in § 5.3.1 modulate the consensus directly.
 
-2. **Decayed-staleness weighting.** Currently neighbours are either dropped (delay > freshness) or used at full weight (stale-reading mode). A decayed weighting `w_j = exp(−λ τ_ij)` interpolates between these. The natural choice is λ ≈ 1/τ_correlation, where τ_correlation is the readings' autocorrelation time. This could push the local consensus closer to the centralised Cramér–Rao bound on S3 by using more information from each neighbour. Quantifying the staleness-vs-variance trade-off explicitly — the variance penalty from using stale data, vs the variance penalty from dropping the reading entirely — is the natural mini-ablation that would set the operating point for λ.
+2. **Decayed-staleness weighting.** Currently neighbours are either dropped (delay > freshness) or used at full weight (stale-reading mode). A decayed weighting *w_j = exp(−λ τ_ij)* interpolates between these. The natural choice is λ ≈ 1/τ_correlation, where τ_correlation is the readings' autocorrelation time. This could push the local consensus closer to the centralised Cramér–Rao bound by using more information from each neighbour. Quantifying the staleness-vs-variance trade-off explicitly — the variance penalty from using stale data, vs the variance penalty from dropping the reading entirely — is the natural mini-ablation that would set the operating point for λ.
 
-Both are non-trivial code changes that deserve their own pre-registered decision gates; neither is a parameter sweep on the present architecture. They aim to use the data *inside* the topological boundary identified in § 5.1 more efficiently, not to escape it: even an ideal architecture cannot exceed the *k*_eff / *N* information-pooling ceiling.
+Both are non-trivial code changes. They aim to use data *inside* the topological boundary more efficiently, not to escape it: even an ideal local-consensus architecture cannot exceed the *k*_eff / *N* pooling-limit reference identified in § 5.1.
 
 ### 5.7 Connection to a broader causal-graph framework
 
@@ -409,15 +419,15 @@ The performance ceiling we observe (Fig. 1) is the η-graph constraint made empi
 
 ## 6. Conclusion
 
-We characterised ADMEC across an 8-scenario simulation campaign and five orthogonal ablations. **DG-2 is not met**: ADMEC-full beats centralised baselines on only S2, the fully-connected control. **DG-3 is not met** on the three-way > two-way clause: under the present architecture the structured / unstructured distinction is *algebraically* invisible to the consensus output. Combined design tuning reduces MSE by 74 % on S3 but cannot close the residual ~ 8 × gap to centralised exclusion methods, which is consistent with a centralised-vs-local information-theoretic ceiling.
+This study characterises ADMEC across an 8-scenario simulation campaign and five orthogonal ablations and locates the regime in which any local anomaly-aware consensus scheme can be expected to compete with a centralised aggregator. The pre-registered decision gates are not met at the pre-registered operating points: ADMEC outperforms centralised baselines only on the fully-connected control scenario, and the three-way / two-way distinction is invisible to the consensus output (max delta = 0 across 360 ablation cells, an algebraic consequence of the consensus update rule reading only the binary STABLE mask). Combined design tuning reduces the largest-scenario MSE by 74 % but does not cross the *N* / *k*_eff pooling-limit reference line: the binding constraint on local consensus performance is *topological access to information*, not *estimator sophistication*.
 
-Three findings make the negative result useful rather than empty:
+Three constructive findings emerge from the characterisation:
 
-1. **The WP1 IC calibration is suboptimal for the consensus problem.** Per-reading thresholds optimised for null FPR are not the right operating point for consensus MSE. At a lower matched threshold, ADMEC's constraint architecture beats centralised exclusion on two of the three signal-rich scenarios.
-2. **The constraint layer's actual role is variance absorption.** It adds value only when paired with aggressive exclusion that creates the variance to absorb. This reframes ADMEC's architectural contribution and identifies its natural deployment regime.
-3. **The same-step IC computation is well-formed.** No simultaneity bias is detectable; lagging the classifier strictly hurts. The Gaussian-mixture self-reference is part of the IC definition, not a statistical artefact.
+1. **Per-reading IC calibration tuned for null false-positive rate is suboptimal for consensus MSE.** At a lower matched threshold, ADMEC's constraint architecture beats centralised exclusion on two of the three signal-rich scenarios. The two are different optimisation problems with different optima.
+2. **The constraint layer's actual role is variance absorption.** It adds value only when paired with aggressive exclusion that creates the variance to absorb. This identifies the architecture's natural deployment regime — networks where centralisation is infeasible *and* the exclusion rule is aggressive — and reframes the constraint stack as a noise-management add-on rather than a rescue mechanism for delay-restricted consensus.
+3. **The same-step IC computation is well-formed.** No simultaneity bias is detectable; lagging the classifier strictly hurts on signal-rich scenarios. The Gaussian-mixture self-reference is part of the IC definition, not a statistical artefact.
 
-The proposal anticipated either a positive or negative DG-2 outcome; the negative outcome with a five-axis mechanistic characterisation is the contribution. Two redesign directions (STRUCTURED-with-reduced-weight; decayed-staleness weighting) are appropriate for a follow-up project where the gates can be re-pre-registered against the new architecture.
+The contribution of this study is a *characterisation of the boundary condition* under which local anomaly-aware consensus competes with centralised pooling, with the topological *N* / *k*_eff reference as the regime-locating heuristic. Two architectural redesigns (STRUCTURED-with-reduced-weight; decayed-staleness weighting) are reserved for a follow-up study with its own pre-registration; both aim to use data inside the topological boundary more efficiently rather than to escape it.
 
 ## 7. Reproducibility
 
@@ -434,7 +444,7 @@ Every table in this manuscript is reproducible from a checked-in script in [`scr
 | § 4.6 (combined tuning) | [`wp3_combined_tuning_check.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/wp3_combined_tuning_check.py) | [`wp3_combined_tuning_20260505.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_combined_tuning_20260505.npz) |
 | § 5.1 Fig. 1 (topology ceiling) | [`figure_topology_ceiling.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/figure_topology_ceiling.py) | (consumes the WP2 + combined-tuning archives above) |
 
-Test suite: 276 tests, 274 passing on the canonical commit. The two known failures are documented entry-002 σ-underestimation cases that are mitigated downstream by the worst-case threshold calibration in entry 006.
+Test suite: 276 tests, 274 passing on the canonical commit. The two known failures are documented σ-underestimation cases (logbook entry 002) that are mitigated downstream by the worst-case threshold calibration in entry 006; they exercise a pre-registered failure mode rather than indicating a regression.
 
 A WP1 walkthrough lives at [docs/wp1_tutorial.md](wp1_tutorial.md); a WP2 walkthrough at [docs/wp2_tutorial.md](wp2_tutorial.md). Both are runnable on Binder.
 
