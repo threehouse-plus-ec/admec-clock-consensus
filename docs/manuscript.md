@@ -151,6 +151,20 @@ Five ablations, each varying one design axis around the WP2 baseline:
 4. **Classifier cardinality.** Three-way (STABLE / STRUCTURED / UNSTRUCTURED) vs two-way (STABLE / ANOMALOUS). [Entry 010](../logbook/010_2026-05-04_wp3-ablation-two-vs-three-way.md).
 5. **Detection lag.** Same-step classification (lag = 0) vs one-step lag (`lag = 1`, classifier sees IC at t − 1). [Entry 012](../logbook/012_2026-05-05_wp3-ablation-lagged-classification.md).
 
+### 2.6 Scope and limitations vis-à-vis real clock networks
+
+This study uses a deliberately simplified clock and network model so the topological-pooling claim can be measured cleanly. A pre-release domain-expert reading flagged that the simulation differs from real clock networks in five specific ways, and the manuscript's claims should be understood within that scope.
+
+| Simulation choice | Real-network reality | Implication for the present claims |
+|------------------|----------------------|------------------------------------|
+| Unit-scale white frequency noise (`σ_white = 1.0`) as the dominant noise term | Hydrogen masers and optical clocks exhibit flicker-FM (τ⁻¹ Allan deviation) and random-walk-FM (τ⁻¹/²) at long times, plus environmentally driven coloured noise | The independent-reading pooling argument in § 5.1 *strengthens* under flicker / random-walk noise (correlated readings reduce effective sample size); the *N* / *k*_eff reference is an upper bound on the local-vs-centralised gap, and a real-clock deployment would see a *tighter* gap |
+| "Degraded clock" = uniform 3× σ inflation on one node | Real failure modes are phase steps, frequency offsets, intermittent outliers, structured drift | The simulation under-rewards the three-way classifier: in a Gaussian failure regime, simple variance-based exclusion (`freq_exclude`) is near-optimal and ADMEC's temporal-statistic gates have nothing distinctive to detect |
+| Symmetric, time-invariant Poisson(λ) link delays | Real comparison links have asymmetric, sometimes-correlated, sometimes-bursty delays (TWSTFT scheduling, fibre-link drop-outs, GNSS multipath) | The drop-vs-stale ablation should be read as a stand-in for "local-area network with irregular packet delivery", not for intercontinental optical-clock comparison |
+| `freq_global` is the centralised baseline | Even BIPM's UTC computation is post-processing on data collected over weeks; no real timekeeping system has zero-delay access to all readings | The "centralised" baselines in § 3 are *omniscient* baselines; a delayed-centralised baseline (which we do not run) would close part of the apparent gap, particularly under stale convention. The *N* / *k*_eff reference is therefore the gap to an idealisation; against a delayed-centralised aggregator the real gap is smaller |
+| MSE against the nominal-zero reference is the figure of merit | Real timekeeping cares about *ensemble stability* (Allan deviation, TDEV) at operating timescales, not point-MSE against an unobservable absolute | An estimator with low MSE may have poor stability at long τ if it introduces high-frequency jitter (e.g. from carry-forward fallbacks under aggressive exclusion). § 5.4's "constraint layer as variance absorber" finding plausibly improves stability *and* MSE; the present manuscript reports only MSE |
+
+These simplifications are appropriate for a topological-information characterisation but inappropriate for a deployment recommendation. The present manuscript characterises the *family* and the *regime*; mapping any specific recommendation onto a real network would require re-running the relevant ablation under the deployment's actual noise and failure model.
+
 ## 3. Results: WP2 baseline
 
 Canonical archive: [`data/wp2_campaign_20260504_fix.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp2_campaign_20260504_fix.npz). Full setup and verdict in [entry 007](../logbook/007_2026-05-04_wp2-simulation-harness.md) and the [WP2 summary](../logbook/wp2-summary.md).
@@ -313,6 +327,21 @@ At the matched threshold 1.5, `admec_full` (in stale mode) **beats `freq_exclude
 
 The WP1-calibrated threshold (2.976, optimised for null false-positive rate) is therefore **suboptimal for consensus MSE on signal-rich delayed scenarios**, while remaining optimal on the dense control. The null-FPR and consensus-MSE optima coincide only when the network is dense enough that exclusion does not need absorption.
 
+#### 4.4.1 Operational cost of the low-threshold "wins"
+
+The matched-threshold and best-of-best comparisons in § 4.6.1 show ADMEC-full beating `freq_exclude` at threshold 1.5. The reader who comes to those numbers from operational timekeeping will immediately ask: at threshold 1.5, what is the *empirical* false-positive rate? In real ensemble clocks (NIST AT1 and similar), an FPR > 1 % per reading is generally considered borderline; > 5 % is typically unacceptable for routine deployment because every false exclusion degrades the long-τ stability of the steered ensemble.
+
+We measured the per-reading FPR at each swept threshold on the two pre-registered null scenarios (S4 ring 15-node Poisson(2.0) no signal; S5 random-sparse 50-node Poisson(4.0) no signal), 10 seeds each, by counting cells with `IC_k ≥ threshold` and treating every flag as a false positive (no signal exists in S4/S5 by construction). Reproducible from [`scripts/wp3_threshold_fpr_check.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/wp3_threshold_fpr_check.py); archive [`data/wp3_threshold_null_fpr_20260505.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_threshold_null_fpr_20260505.npz).
+
+| Scenario | thr 1.5 | thr 2.0 | thr 2.5 | **thr 2.976 (WP1)** | thr 3.5 | thr 4.5 | thr 6.0 |
+|----------|--------:|--------:|--------:|--------------------:|--------:|--------:|--------:|
+| S4 (null ring) | 18.5 % | 6.5 % | 2.6 % | **1.2 %** | 0.6 % | 0.0 % | 0.0 % |
+| S5 (null sparse) | 17.9 % | 6.3 % | 2.5 % | **1.1 %** | 0.5 % | 0.2 % | 0.1 % |
+
+The WP1 calibrated value 2.976 delivers ≈ 1.1–1.2 % null FPR on these scenarios — already at the borderline for routine deployment. Threshold 1.5 (the consensus-MSE optimum on S1 / S3 delayed) sits at **18 % null FPR**, more than an order of magnitude above the operational redline.
+
+**The matched-threshold and best-of-best wins in § 4.6.1 are therefore wins at an operationally untenable threshold.** They identify a *characterisation* result — the constraint layer's variance-absorption mechanism is real and pays off when exclusion is aggressive — but a deployment that operated at 18 % FPR would degrade an ensemble's long-τ stability beyond what the MSE win recovers. A practitioner-facing recommendation needs to either (i) hold the threshold at ≈ 2.5–3.0 (where FPR ≈ 1–3 %) and accept that ADMEC's constraint layer adds little visible value at consensus-output level, or (ii) develop a redesign in which aggressive exclusion does not blow up FPR (one of the § 5.6 follow-up directions). The threshold-sweep "wins" in this manuscript are not yet that recommendation.
+
 ### 4.5 Lagged classification (simultaneity bias test)
 *Forward reference: § 5.4 (detection latency as the dual of variance absorption) and § 6 conclusion (no simultaneity bias finding).*
 
@@ -396,7 +425,7 @@ This is the cleanest fairness comparison for the architectural claim "the constr
 
 Under independent per-estimator threshold tuning, admec_full **adds S2 to its win column** (combined-tuning 0.091 < imm 0.147) and **closes the S1 gap to 1.7 ×** (vs imm 0.147). The S3 information-theoretic ceiling remains: 7.8 × is consistent with the centralised-vs-local pooling argument in §5.1.
 
-DG-2 was pre-registered at the calibrated threshold and stays NOT MET (frame (a)). The matched-threshold and best-of-best comparisons are post-hoc and informational; they do not formally rescue DG-2, but they are operationally meaningful for a deployment that can choose its own threshold.
+DG-2 was pre-registered at the calibrated threshold and stays NOT MET (frame (a)). The matched-threshold and best-of-best comparisons are post-hoc and informational; they do not formally rescue DG-2. **They are also not directly operational**: as § 4.4.1 documents, the matched threshold 1.5 corresponds to ≈ 18 % null FPR, well above the routine-deployment redline (~1 %) for ensemble timekeeping. The architecture wins at operational thresholds (≈ 2.5–3.0) only on S2; the wins at threshold 1.5 are a *characterisation* of the constraint layer's variance-absorption mechanism, not a deployment recommendation.
 
 ## 5. Discussion
 
@@ -445,6 +474,8 @@ The figure makes the constraint visible: across both conventions and at every se
 
 **Why combined-tuned points sit *below* their cluster's reference (speculative).** A naïve reading attributes the within-cluster gap to "temporal pooling of multi-step stale readings beyond the independent-reading argument." This is plausible but not derived: stale mode reads exactly *one* sample per neighbour, just an older one. The more precise candidate mechanism is *bias reduction at the cost of staleness variance* — the consensus target moves toward a smoother estimate because each contributor is a delayed-lag-averaged proxy for the network state — and this is a different story from pooling. We label this mechanism speculative in the present manuscript; a clean derivation would require an explicit bias-variance decomposition on the specific clock-noise model and is left to follow-up work alongside the formal Cramér–Rao analysis flagged in § 5.1.2.
 
+**Caveat: the heuristic counts spatial pooling only.** The *N* / *k*_eff reference treats *k*_eff as a count of accessible *spatial* neighbours. Real clock networks (and the literature's standard practice) use estimators with explicit *temporal* memory — Kalman filters with random-walk-FM clock models, exponentially-weighted aggregates such as NIST's AT1 — that effectively pool information over time as well as over neighbours. A node with *k*_eff = 4 spatial neighbours that integrates with an exponential forgetting factor λ effectively pools over *k*_eff / (1 − λ) historical readings. The reference line in Fig. 1 is therefore the floor for *static, memoryless* estimators on the ADMEC-family update rule; estimators with well-tuned temporal memory (Kalman, AT1-style) may approach the line from below. The manuscript's `imm` and `bocpd` baselines do carry temporal state, but they are off-the-shelf default-parameter implementations rather than tuned ensemble-clock predictors; a tuned random-walk-Kalman baseline would be a natural follow-up comparison and is not in the present menu.
+
 #### 5.1.4 Sign-fixed decomposition (Analytic Reference Pipeline v0.2)
 
 A more formal treatment of the *N* / *k*_eff observable lives separately in the project repository at [`analysis/docs/analytic_reference.md`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/analysis/docs/analytic_reference.md). The Analytic Reference Pipeline (ARP v0.2) formalises three quantities the present manuscript discusses informally:
@@ -459,7 +490,7 @@ ARP carries its own endorsement marker: it is a "local candidate framework (no p
 
 **This is not a hyperparameter problem within the ADMEC family.** No constraint setting, threshold value, or delay convention we tested bridges S3's 50 : 4 information ratio. To approach it, the architecture would need to either pool over more readings (which defeats the locality assumption) or integrate temporal information differently (the "decayed staleness" redesign in § 5.6).
 
-### 5.2 Threshold mismatch: null FPR vs consensus MSE
+### 5.2 Threshold mismatch: null FPR vs consensus MSE — and why this matters operationally
 
 The WP1-calibrated IC threshold of 2.976 bit was optimised under the worst-case null assumption to give a 5 % false-positive rate. That is the right calibration for hypothesis-test interpretation. For the *consensus problem*, the relevant criterion is signal-conditional MSE — and the optimal threshold for `admec_full`'s MSE is markedly lower (1.5–2.0) on signal-rich delayed scenarios. The two criteria pick different optimal operating points because they are measuring different things.
 
@@ -502,22 +533,27 @@ This is a useful design insight independent of the DG-2 verdict: ADMEC's constra
 
 ### 5.5 Operational recommendations
 
-For deployments where ADMEC is the chosen architecture (e.g. decentralised networks without a global aggregator):
+For deployments where ADMEC is the chosen architecture (e.g. decentralised networks without a global aggregator), and *subject to the deployment-specific revisions discussed in § 5.5.1*:
 
-- **Pair the IC threshold with the deployment topology**, not with the null calibration. Lower thresholds (1.5–2.0) are operationally better when delays are non-trivial.
-- **Use stale-reading mode** rather than drop-and-truncate. The drop convention starves the consensus on sparse delayed networks for no operational benefit.
+- **Pair the IC threshold with the deployment topology**, not with the null calibration — but bound it from below by the deployment's tolerable false-positive rate. Lower thresholds (1.5–2.0) improve consensus MSE on delayed scenarios in our simulation but produce 6–18 % per-reading null FPR (§ 4.4.1), which is operationally unacceptable for ensemble timekeeping. A threshold near 2.5–3.0 (FPR ≈ 1–3 %) is a more credible operating point.
+- **Use stale-reading mode** rather than drop-and-truncate. The drop convention starves the consensus on sparse delayed networks for no operational benefit. *Caveat:* the present manuscript's "stale" mode reads one delayed sample per neighbour without forward-propagating the neighbour's state; a deployment-grade implementation would propagate each neighbour with a clock model (random-walk frequency for hydrogen masers; an appropriate noise model otherwise). This is closer to standard ensemble-clock practice (NIST AT1 and similar) and is a deployment-grade refinement of the WP3 finding.
 - **Loosen the variance-ratio bound** (e.g. [0.35, 1.65]) when proposed updates inherit lag-induced variance; otherwise the bound rejects beneficial updates.
 - **Keep classification at the same step.** There is no simultaneity bias, and any lag introduces a detection-latency MSE penalty.
+- **Log the STRUCTURED stream for operator diagnosis even though the consensus does not consume it.** Real timekeeping facilities maintain logbooks of clock behaviour; an automated STRUCTURED flag is a candidate input to that logbook regardless of the syntactic gap at the consensus stage.
 
 **For deployments where centralised aggregation is feasible:** use `freq_exclude` or `imm`. They are cheaper, simpler, and outperform `admec_full` on every scenario where centralisation is feasible. The ADMEC architecture's competitive regime is bounded by *k*_eff/*N* close to 1 — the regime where the network is approximately fully connected at the operative latency.
+
+#### 5.5.1 Caveats on the recommendations
+
+The recommendations above are inferred from a simulation that uses unit-scale white frequency noise as the dominant noise term, uniform 3× σ inflation as the failure mode, symmetric Poisson link delays, and MSE-vs-zero as the figure of merit. Real timekeeping deployments differ on each of these dimensions (see § 2.6). In particular: standard practice scores ensemble performance with stability metrics (modified Allan deviation, time deviation TDEV) at operating timescales, not with point-MSE; failure modes include phase steps, frequency offsets, and intermittent outliers, none of which the simulation captures faithfully; and centralised aggregation is itself delay-constrained at intercontinental scales, so the *N* / *k*_eff reference (against an idealised omniscient centraliser) overstates the local-vs-real-centralised gap. A pre-deployment engineering study would reproduce this manuscript's measurements under the deployment's own clock-noise / failure / link model, and re-evaluate the threshold and constraint settings against the deployment's stability metric.
 
 ### 5.6 Reserved follow-up: two architectural redesigns
 
 Two architectural redesigns plausibly use data inside the topological boundary identified in § 5.1 more efficiently than the present ADMEC family. They are reserved for a follow-up study with its own pre-registration rather than added as opportunistic extra sweeps to this manuscript: each is a redesign of the consensus production rule itself, not a hyperparameter on the present rule, and pre-registering their decision gates against the new rule (rather than retrofitting the gates of this study) is the methodologically sound approach.
 
-1. **STRUCTURED with reduced weight.** Currently the consensus excludes STRUCTURED nodes outright; a continuous-treatment variant (include STRUCTURED with weight α < 1) would make the three-way distinction operationally visible. The natural starting point is α = 1 / (1 + IC_excess), where IC_excess is the per-reading IC above threshold. This would make the three-way > two-way comparison measurable rather than algebraically zero, and would let the regime-detection mapping in § 5.3.1 modulate the consensus directly.
+1. **STRUCTURED with reduced weight *and estimated drift*.** Currently the consensus excludes STRUCTURED nodes outright; a continuous-treatment variant (include STRUCTURED with weight α < 1) would make the three-way distinction operationally visible. A pre-release reader from operational timekeeping noted that "exclude STRUCTURED" is the *opposite* of standard ensemble-clock practice: NIST's AT1 algorithm and PTB-style ensembles do not exclude clocks showing structured drift but instead estimate the drift coefficient and steer the ensemble accordingly. The follow-up redesign should therefore not be "STRUCTURED with reduced weight" alone but **"STRUCTURED with reduced weight + drift parameter estimated and contributed back into the consensus"** — closer to AT1's per-clock state propagation. The natural starting point is α = 1 / (1 + IC_excess) with a separate drift-coefficient estimator on the STRUCTURED stream; the consensus then uses (reading − estimated_drift) as the contribution, weighted by α. This integrates the regime-detection role of § 5.3.1 with the established ensemble-clock practice.
 
-2. **Decayed-staleness weighting.** Currently neighbours are either dropped (delay > freshness) or used at full weight (stale-reading mode). A decayed weighting *w_j = exp(−λ τ_ij)* interpolates between these. The natural choice is λ ≈ 1/τ_correlation, where τ_correlation is the readings' autocorrelation time. This could push the local consensus closer to the centralised Cramér–Rao bound by using more information from each neighbour. Quantifying the staleness-vs-variance trade-off explicitly — the variance penalty from using stale data, vs the variance penalty from dropping the reading entirely — is the natural mini-ablation that would set the operating point for λ.
+2. **Decayed-staleness weighting *with state propagation*.** Currently neighbours are either dropped (delay > freshness) or used at full weight (stale-reading mode). A decayed weighting *w_j = exp(−λ τ_ij)* interpolates between these. The natural choice is λ ≈ 1/τ_correlation, where τ_correlation is the readings' autocorrelation time. Combined with **forward state propagation** (rather than the present manuscript's bare delayed-reading reuse) — i.e. each neighbour's contribution is its model-propagated state at time *t*, not its raw reading at time *t* − τ_ij — this is essentially a Kalman-filter-based ensemble structure analogous to AT1. Quantifying the staleness-vs-variance trade-off explicitly — the variance penalty from using stale data, vs the variance penalty from dropping the reading entirely — is the natural mini-ablation that would set the operating point for λ. **A baseline comparison against a tuned random-walk-FM Kalman ensemble is the appropriate yardstick for the redesigned architecture; the present manuscript's `bocpd` and `imm` are not such baselines.**
 
 Both are non-trivial code changes. They aim to use data *inside* the topological boundary more efficiently, not to escape it: even an ideal local-consensus architecture cannot exceed the *k*_eff / *N* pooling-limit reference identified in § 5.1.
 
@@ -571,13 +607,13 @@ A WP1 walkthrough lives at [docs/wp1_tutorial.md](wp1_tutorial.md); a WP2 walkth
 ## 8. References
 
 1. Adams, R. P. & MacKay, D. J. C. Bayesian online changepoint detection. arXiv:0710.3742 (2007).
-2. Allan, D. W. Statistics of atomic frequency standards. *Proc. IEEE* **54**, 221–230 (1966).
+2. Allan, D. W. Statistics of atomic frequency standards. *Proc. IEEE* **54**, 221–230 (1966). *(Cited as the standard stability-metric reference; the present manuscript does not use Allan deviation as a primary metric — see § 2.6 and § 5.5.1 for the implications.)*
 3. Blom, H. A. P. & Bar-Shalom, Y. The interacting multiple model algorithm. *IEEE Trans. Automat. Contr.* **33**, 780–783 (1988).
 4. Bothwell, T. et al. Resolving the gravitational redshift across a millimetre-scale atomic sample. *Nature* **602**, 420–424 (2022).
 5. Dakos, V. et al. Methods for detecting early warnings of critical transitions. *PLoS ONE* **7**, e41010 (2012).
 6. Huber, P. J. *Robust Statistics* (Wiley, 1981).
 7. Lamport, L. Time, clocks, and the ordering of events in a distributed system. *Commun. ACM* **21**, 558–565 (1978).
-8. Lisdat, C. et al. A clock network for geodesy and fundamental science. *Nat. Commun.* **7**, 12443 (2016).
+8. Lisdat, C. et al. A clock network for geodesy and fundamental science. *Nat. Commun.* **7**, 12443 (2016). *(The European optical-fibre clock network. The present simulation's symmetric Poisson-delay model is *not* representative of optical-fibre links, which are deterministic and sub-microsecond stable; § 2.6 hedges the manuscript's claims accordingly.)*
 9. Panfilo, G. & Arias, F. The Coordinated Universal Time (UTC). *Metrologia* **56**, 042001 (2019).
 10. Scheffer, M. et al. Early-warning signals for critical transitions. *Nature* **461**, 53–59 (2009).
 11. Warring, U. Causal Clock Unification Framework. Zenodo DOI: 10.5281/zenodo.17948436 (2026b).
@@ -588,7 +624,7 @@ A WP1 walkthrough lives at [docs/wp1_tutorial.md](wp1_tutorial.md); a WP2 walkth
 
 **Author contributions.** U.W. designed the study, pre-registered the decision gates and ablation menu in [docs/projektantrag.md](projektantrag.md), authored the source code in `src/`, ran the simulations and ablations, computed all numerical results, generated all figures, and authored the manuscript prose.
 
-**Acknowledgements.** Calibration sanity checks, manuscript and logbook reviewers, and code-test contributors are listed in the project repository's commit log (`git log --format='%aN'` and `git shortlog -sn`). The Council-3 review chart (Guardian, Architect, Integrator stances) that drove the present revision is recorded in the project's review notes; the convergent-finding analysis is preserved in the review correspondence files at the time of submission.
+**Acknowledgements.** Calibration sanity checks, manuscript and logbook reviewers, and code-test contributors are listed in the project repository's commit log (`git log --format='%aN'` and `git shortlog -sn`). The Council-3 review chart (Guardian, Architect, Integrator stances) that drove the previous revision pass is recorded in the project's review notes. The pre-release Atlas-integrity reader pass — a domain-expert reading from the perspective of operational hydrogen-maser and optical-clock ensemble engineering — drove the current §§ 2.6, 4.4.1, 5.5.1 caveats, the reframing of § 5.6 redesigns to align with AT1-style ensemble-clock practice, and the references-section commentary on Allan 1966 / Lisdat 2016. The reviewer's findings are summarised in the project's `docs/` review notes.
 
 **Funding.** This is a self-funded internal-discipline study; no external funding was received.
 

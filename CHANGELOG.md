@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.5] — 2026-05-05
+
+### Atlas-integrity reader pass
+
+A pre-release domain-expert reading from the perspective of operational hydrogen-maser and optical-clock ensemble engineering identified twelve specific concerns about the manuscript's metrology realism. The full review is recorded verbatim in [`docs/atlas_integrity_reader_pass.md`](docs/atlas_integrity_reader_pass.md). Headline finding: "The manuscript is a solid characterisation study with a strong methodological backbone. Its main weakness is that it is too pure-mathematics and not enough metrology."
+
+The manuscript revision below incorporates all HIGH-priority items, all MEDIUM-priority items either as edits or as scope-bounded follow-up commitments, and the LOW-priority items as edits where they require only prose. Items that would require new simulation infrastructure (tuned random-walk-FM Kalman baseline; physically-motivated S8 replacement; Allan-deviation metric on consensus residuals; parameter-sensitivity sweep on `bocpd` / `imm` defaults) are explicitly deferred to the follow-up project's pre-registration.
+
+### Added
+- `scripts/wp3_threshold_fpr_check.py`: per-threshold null-FPR check on S4 (15-node ring null) and S5 (50-node random-sparse null), 10 seeds. Output [`data/wp3_threshold_null_fpr_20260505.npz`](data/wp3_threshold_null_fpr_20260505.npz). Result: at the WP1 calibrated threshold (2.976) the empirical null FPR is **1.1–1.2 %**, close to the operational borderline; at threshold 1.5 (the consensus-MSE optimum on S1 / S3 delayed) it is **17.9–18.5 %**, an order of magnitude above the operational redline.
+- `docs/atlas_integrity_reader_pass.md`: verbatim record of the reader's findings, with a disposition table mapping each finding to its manuscript response.
+- **`docs/manuscript.md` § 2.6 "Scope and limitations vis-à-vis real clock networks"**: a five-row table mapping each of the simulation's key simplifications (white-noise residuals; 3× σ failure mode; Poisson delays; omniscient `freq_global` baseline; MSE-vs-zero figure of merit) to the real-network reality and the implication for the manuscript's claims.
+- **`docs/manuscript.md` § 4.4.1 "Operational cost of the low-threshold wins"**: empirical FPR table per threshold, with operational-redline contextualisation. Identifies the threshold-1.5 wins as a *characterisation* of the constraint layer's variance-absorption mechanism, not an operational recommendation.
+- **`docs/manuscript.md` § 5.5.1 "Caveats on the recommendations"**: explicit limitations of the operational-recommendation block, noting that real timekeeping uses Allan-deviation / TDEV stability metrics, real failure modes are phase steps and frequency offsets (not σ inflation), and centralised aggregation is itself delay-constrained.
+
+### Changed
+- **`docs/manuscript.md` § 5.1**: added a "spatial pooling only" caveat noting that the *N* / *k*_eff reference is the floor for *static memoryless* estimators on the ADMEC update rule; estimators with explicit temporal memory (Kalman with random-walk-FM clock model, AT1-style exponential averaging) may approach or sit below the line. The manuscript's `imm` and `bocpd` baselines carry temporal state but use off-the-shelf default parameters; a tuned random-walk-FM Kalman comparison is reserved for follow-up.
+- **`docs/manuscript.md` § 5.5 operational recommendations**: rewritten to (a) bound IC threshold from below by the deployment's tolerable FPR; (b) note that "stale mode" without forward state propagation is a primitive version of NIST AT1-style ensemble-clock practice and a deployment-grade implementation should propagate each neighbour with a clock model; (c) recommend logging the STRUCTURED stream for operator diagnosis even though the consensus rule does not consume it.
+- **`docs/manuscript.md` § 5.6 redesign (a)** reframed from "STRUCTURED with reduced weight" to **"STRUCTURED with reduced weight + drift parameter estimated and contributed back into the consensus"** — closer to AT1's per-clock state propagation. The reader's note: "exclude STRUCTURED" is the *opposite* of standard ensemble-clock practice.
+- **`docs/manuscript.md` § 5.6 redesign (b)** reframed to "Decayed-staleness weighting *with state propagation*" with explicit pointer to a tuned random-walk-FM Kalman baseline as the appropriate yardstick for the redesign's evaluation.
+- **`docs/manuscript.md` § 5.2 retitled** to "Threshold mismatch: null FPR vs consensus MSE — and why this matters operationally".
+- **`docs/manuscript.md` references**: Allan 1966 and Lisdat 2016 entries annotated to flag what the manuscript does *not* do (no Allan-deviation primary metric; Poisson delays not representative of optical-fibre links).
+- **`docs/manuscript.md` Acknowledgements**: now record the Atlas-integrity reader pass and its scope of influence.
+
+### Outstanding for v1.0 release tag
+The Atlas-integrity reader pass is now complete. Remaining items: tag, Zenodo DOI mint, optional final prose polish.
+
+### Status
+- Suite at 303 / 301 passing (no source-code changes; only manuscript prose, one new diagnostic script, one new archive, one new docs file).
+
 ## [0.8.4] — 2026-05-05
 
 ### Changed
