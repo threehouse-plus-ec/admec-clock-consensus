@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.4] — 2026-05-05
+
+### Changed
+- `docs/manuscript.md`: reframed from "draft manuscript scaffold" to **Technical Report v1.0 candidate**. The decision is to keep this work on GitHub Pages as a clean citable technical report rather than push it through journal peer review at this stage; the follow-up project (architectural redesigns from § 5.6 + a Cramér–Rao analysis pre-registered against the new architecture) is the natural home for peer-reviewed publication. Specific edits:
+  - Added "Technical Report v1.0 candidate" top-matter directly under the title with explicit framing.
+  - Added a preferred-citation block with the intended release tag (`v1.0-tech-report`) and a Zenodo DOI placeholder.
+  - Reframed `Type` and `Status` lines away from journal-manuscript language.
+  - § 7 now uses the release tag as the canonical anchor; explicit `git tag -a v1.0-tech-report` + push commands; instructions for replacing the DOI placeholders after Zenodo archival.
+  - Data-availability and code-availability statements updated to point at the future Zenodo record (DOI placeholders) rather than carrying journal-submission TODOs.
+  - Test-suite count updated to 303 / 301 passing (+27 from the user-authored ARP test files).
+- `README.md` and `index.md`: project-document tables updated to call the manuscript a "Technical Report v1.0 candidate" with the citable release tag mentioned. Test count row updated to 303 / 301.
+
+### Outstanding for v1.0 release tag
+- **Atlas-integrity reader pass.** Council-3 flagged that domain expertise on real clock-network engineering hasn't been invoked. One informed reader's eyes — someone who has touched real maser / optical-clock networks — before tagging.
+- **Zenodo DOI mint.** Tag the canonical commit and configure Zenodo's GitHub-release integration to produce a DOI; replace placeholders in manuscript front-matter and statements section.
+- **Optional final pass on prose clarity** based on the reader's feedback.
+
+The tag is intentionally not yet created.
+
+### Status
+- Project work is complete. The remaining items are pre-release release-management tasks (reader pass, tag, DOI), not new content.
+- Suite at 303 / 301 passing.
+
 ## [0.8.3] — 2026-05-05
 
 ### Changed

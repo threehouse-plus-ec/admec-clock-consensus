@@ -1,11 +1,15 @@
 # A Topological Information-Pooling Reference for Local Clock Consensus
 ## An empirical characterisation study using the ADMEC anomaly-aware scheme
 
+**Technical Report v1.0 candidate.** This document is prepared as a citable technical report, not as a journal-submission manuscript. The intended canonical release is the annotated Git tag `v1.0-tech-report`, to be created after the pre-release domain-expert / Atlas-integrity reader pass and archived through Zenodo.
+
+**Preferred citation (pending DOI).** Warring, U. (2026). *A Topological Information-Pooling Reference for Local Clock Consensus: An empirical characterisation study using the ADMEC anomaly-aware scheme*. Technical Report v1.0. GitHub repository: `threehouse-plus-ec/admec-clock-consensus`, release tag `v1.0-tech-report`. Zenodo DOI: TBD.
+
 > **Epistemic status.** This manuscript reports a *pre-registered characterisation study*. The central observable, the *N* / *k*_eff information-pooling reference, is a heuristic with empirical support across the eight tested scenarios and four parametric ablation axes — *not* a proven lower bound. A formal Cramér–Rao analysis on the specific noise model is left to follow-up work. Pre-registered decision-gate verdicts and post-hoc operational comparisons are kept visually distinct throughout.
 
 **Author:** Ulrich Warring (Physikalisches Institut, Albert-Ludwigs-Universität Freiburg).
-**Type:** Pre-registered characterisation study. Decision gates and ablation menu are defined verbatim in [docs/projektantrag.md](projektantrag.md); the project-internal labels DG-1, DG-2, DG-2b, DG-3, WP1–WP3, S1–S8 are the gates, work packages, and scenarios named there.
-**Status:** Draft manuscript scaffolded 2026-05-05.
+**Type:** Technical report; pre-registered characterisation study. Decision gates and ablation menu are defined verbatim in [docs/projektantrag.md](projektantrag.md); the project-internal labels DG-1, DG-2, DG-2b, DG-3, WP1–WP3, S1–S8 are the gates, work packages, and scenarios named there.
+**Status:** v1.0 technical-report candidate, pending Atlas-integrity reader pass, release tag, and Zenodo DOI.
 **Reproducibility:** every table in this manuscript is derivable from one of the canonical archives in [`data/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/data); each section cites the archive it draws from. Full numerical detail and supporting code live in the [logbook](../logbook/) and [scripts](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/scripts).
 
 ---
@@ -550,15 +554,17 @@ Every table in this manuscript is reproducible from a checked-in script in [`scr
 | § 4.6 (combined tuning) | [`wp3_combined_tuning_check.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/wp3_combined_tuning_check.py) | [`wp3_combined_tuning_20260505.npz`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/data/wp3_combined_tuning_20260505.npz) |
 | § 5.1 Fig. 1 (topology ceiling) | [`figure_topology_ceiling.py`](https://github.com/threehouse-plus-ec/admec-clock-consensus/blob/main/scripts/figure_topology_ceiling.py) | (consumes the WP2 + combined-tuning archives above) |
 
-Test suite: 276 tests, 274 passing on the canonical commit. The two known failures are documented σ-underestimation cases (logbook entry 002) that are mitigated downstream by the worst-case threshold calibration in entry 006; they exercise a pre-registered failure mode rather than indicating a regression.
+Test suite: 303 tests, 301 passing on the current pre-release technical-report state. The two known failures are documented σ-underestimation cases (logbook entry 002) that are mitigated downstream by the worst-case threshold calibration in entry 006; they exercise a pre-registered failure mode rather than indicating a regression.
 
-**Manuscript-canonical commit.** The numerical claims and figures in this manuscript correspond to a specific commit on the `main` branch. To pin the canonical version for citation, run
+**Technical-report canonical version.** The intended citable version is the annotated release tag `v1.0-tech-report`. The tag should be created only after the pre-release Atlas-integrity reader pass and the final DOI metadata are ready. Release commands:
 
 ```bash
-git rev-parse HEAD          # the SHA of the manuscript-canonical commit
+git tag -a v1.0-tech-report -m "Technical report v1.0"
+git push origin v1.0-tech-report
+git rev-parse v1.0-tech-report
 ```
 
-at the manuscript-publication tag and cite the resulting full-length SHA. *To do for journal submission: also mint a Zenodo DOI for that commit (Zenodo's GitHub integration produces a DOI per release tag) and cite it under the data-availability statement above.*
+The resulting full-length SHA is the canonical commit for the technical report. After GitHub release archival through Zenodo, replace the DOI placeholders in the preferred-citation, data-availability, and code-availability blocks with the Zenodo DOI for `v1.0-tech-report`.
 
 A WP1 walkthrough lives at [docs/wp1_tutorial.md](wp1_tutorial.md); a WP2 walkthrough at [docs/wp2_tutorial.md](wp2_tutorial.md). Both are runnable on Binder.
 
@@ -588,8 +594,8 @@ A WP1 walkthrough lives at [docs/wp1_tutorial.md](wp1_tutorial.md); a WP2 walkth
 
 **Competing interests.** None declared.
 
-**Data availability.** All data underlying the manuscript are deposited as compressed `.npz` archives in [`data/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/data). Section 7 maps every numerical claim to a (script, archive) pair that reproduces it.
+**Data availability.** All data underlying the technical report are deposited as compressed `.npz` archives in [`data/`](https://github.com/threehouse-plus-ec/admec-clock-consensus/tree/main/data). Section 7 maps every numerical claim to a (script, archive) pair that reproduces it. The intended permanent archive is the Zenodo record generated from the GitHub release tag `v1.0-tech-report`; DOI: TBD.
 
-**Code availability.** Source code is available at [https://github.com/threehouse-plus-ec/admec-clock-consensus](https://github.com/threehouse-plus-ec/admec-clock-consensus) under the MIT licence; documentation and figures under CC BY 4.0. *To do for journal submission: mint a Zenodo DOI for the manuscript-canonical commit (see § 7) and cite it here.*
+**Code availability.** Source code is available at [https://github.com/threehouse-plus-ec/admec-clock-consensus](https://github.com/threehouse-plus-ec/admec-clock-consensus) under the MIT licence; documentation and figures under CC BY 4.0. The citable technical-report version is intended to be release tag `v1.0-tech-report`, archived through Zenodo; DOI: TBD.
 
 **AI-assistance disclosure.** Claude (Anthropic) assisted with manuscript scaffolding, prose drafting, and code-template refinement. All simulations, calibrations, numerical results, code commits, scientific decisions, and claims are author-generated and author-verified. The author bears full responsibility for the manuscript's content. Specific AI-assisted activities are documented in commit messages throughout the project history (search for `Co-Authored-By: Claude` in the git log).

@@ -19,7 +19,7 @@ This project tests that question on simulated clock networks, comparing the prop
 
 ### Where to start
 
-1. **[Manuscript](docs/manuscript.md)** — the full WP2 + WP3 characterisation as a paper-style document: campaign results, all five ablations, the topology-ceiling figure, mechanism, recommendations, and follow-up redesign directions. Reads in ~15 min.
+1. **[Technical Report v1.0 candidate](docs/manuscript.md)** — the full WP2 + WP3 characterisation: campaign results, all five ablations, the topology-pooling-limit figure, mechanism, operational recommendations, and follow-up redesign directions. Reads in ~15 min. Citable through release tag `v1.0-tech-report` (pending Atlas-integrity reader pass + Zenodo DOI).
 2. **[WP1 Tutorial](docs/wp1_tutorial.md)** — IC definition, calibration, and classification — [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp1_tutorial.ipynb)
 3. **[WP2 Tutorial](docs/wp2_tutorial.md)** — network pipeline + the DG-2 verdict — [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp2_tutorial.ipynb)
 4. **[WP3 Tutorial](docs/wp3_tutorial.md)** — five ablations + integrated combined-tuning + the topology-ceiling figure — [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/threehouse-plus-ec/admec-clock-consensus/main?labpath=notebooks%2Fwp3_tutorial.ipynb)
@@ -33,7 +33,7 @@ This project tests that question on simulated clock networks, comparing the prop
 
 | Document | Description |
 |----------|-------------|
-| [Manuscript draft](docs/manuscript.md) | The full WP2 + WP3 characterisation as a paper-style document. Self-contained ~15 min read; tables reproducible from the canonical archives. |
+| [Technical Report v1.0 candidate](docs/manuscript.md) | The full WP2 + WP3 characterisation, prepared as a citable technical report rather than a journal manuscript. Self-contained ~15 min read; tables reproducible from the canonical archives. Citable via release tag + Zenodo DOI once the Atlas-integrity reader pass is complete. |
 | [Project Proposal](docs/projektantrag.md) | Internal project proposal (DFG Sachbeihilfe structure, v0.5.3 frozen). Defines objectives, work packages, scenarios, estimators, decision gates, and failure conditions. |
 | [Rebuttal](docs/rebuttal.md) | Point-by-point response to a hostile internal review of proposal v0.4. Documents what was conceded, what was cut, and why. |
 | [Outreach](docs/outreach.md) | Non-technical overview: when clocks disagree — noise, signal, and the value of anomalies. |
