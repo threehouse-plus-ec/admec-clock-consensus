@@ -12,11 +12,15 @@ the per-scenario marker). For 'drop' mode, freshness = 1 (the WP2
 default). For 'stale' mode, freshness = infinity (every adjacency
 neighbour contributes), so k_eff equals adjacency degree + 1.
 
-Baseline reference: freq_exclude at threshold 2.5 -- the matched
-across-scenario optimum (entry 011). Per-scenario values:
-    S1 freq_exclude(thr 2.5) = 0.122
-    S2 freq_exclude(thr 2.5) = 0.122
-    S3 freq_exclude(thr 2.5) = 0.027
+Baseline reference: freq_global. The N/k_eff heuristic is derived for
+inverse-variance weighted means of independent readings; freq_global is
+exactly that estimator (no exclusion, no temporal state). Using a
+filter-bank baseline like imm or freq_exclude in the denominator
+silently changes the comparator's character per scenario. Per-scenario
+freq_global mean MSE from data/wp2_campaign_20260504_fix.npz:
+    S1 freq_global = 0.323
+    S2 freq_global = 0.323
+    S3 freq_global = 0.041
 
 Saves docs/manuscript_files/fig_topology_ceiling.png.
 """
@@ -52,8 +56,10 @@ SCENARIOS = [
          T=200, n_signal=3, factory=_factory(5.0, 50.0)),
 ]
 
-# Best non-ADMEC baseline at threshold 2.5 (entry 011 cross-scenario optimum)
-BASELINE_MSE = {'S1': 0.122, 'S2': 0.122, 'S3': 0.027}
+# freq_global mean MSE, the derivation-faithful denominator for the
+# N/k_eff heuristic. Per-seed values used in the figure are loaded
+# from the canonical archive so the denominator is matched seed-for-
+# seed with the numerator (rather than a per-scenario mean).
 
 
 def _compute_k_eff(scn, freshness=1):
@@ -112,6 +118,16 @@ def _admec_full_mse_combined():
     return out
 
 
+def _freq_global_mse():
+    """Per-seed freq_global MSE per scenario from the canonical archive."""
+    base = '/Users/uwarring/Documents/GitHub/admec-clock-consensus/data'
+    d = np.load(f'{base}/wp2_campaign_20260504_fix.npz', allow_pickle=True)
+    ests = list(d['estimators'])
+    j = ests.index('freq_global')
+    scns = list(d['scenarios'])
+    return {s: d['mse'][scns.index(s), :, j] for s in ('S1', 'S2', 'S3')}
+
+
 def main():
     # Compute k_eff for both modes per scenario
     k_eff_drop = {scn['name']: _compute_k_eff(scn, freshness=1)
@@ -129,10 +145,20 @@ def main():
 
     af_baseline = _admec_full_mse_drop_baseline()
     af_combined = _admec_full_mse_combined()
+    fg = _freq_global_mse()
 
-    # Ratio of admec_full MSE / best non-ADMEC MSE per (scenario, seed)
-    ratio_baseline = {s: af_baseline[s] / BASELINE_MSE[s] for s in af_baseline}
-    ratio_combined = {s: af_combined[s] / BASELINE_MSE[s] for s in af_combined}
+    # Per-seed admec_full / freq_global ratios. Both numerator and
+    # denominator are evaluated on the same (Y, adj, delays) for the
+    # same seed, so this is a paired ratio.
+    ratio_baseline = {s: af_baseline[s] / fg[s] for s in af_baseline}
+    ratio_combined = {s: af_combined[s] / fg[s] for s in af_combined}
+
+    print('\nMean ratio admec_full / freq_global per scenario:')
+    for s in ('S1', 'S2', 'S3'):
+        print(f'  {s}: WP2 baseline ratio mean = '
+              f'{float(np.mean(ratio_baseline[s])):.3f}  '
+              f'WP3 combined ratio mean = '
+              f'{float(np.mean(ratio_combined[s])):.3f}')
 
     fig, ax = plt.subplots(figsize=(7.5, 5.0))
 
@@ -141,7 +167,7 @@ def main():
     ax.plot(x_ref, 1.0 / x_ref, 'k--', lw=1, alpha=0.6,
             label=r'theoretical ceiling $N/k_\mathrm{eff}$')
     ax.axhline(1.0, color='gray', lw=0.7, alpha=0.5)
-    ax.text(0.012, 1.05, 'admec_full = best non-ADMEC',
+    ax.text(0.012, 1.05, 'admec_full = freq_global  (parity line)',
             fontsize=8, color='gray', ha='left', va='bottom')
 
     colors = {'S1': '#2E86AB', 'S2': '#A23B72', 'S3': '#F18F01'}
@@ -162,9 +188,9 @@ def main():
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlabel(r'Effective neighbourhood fraction $k_\mathrm{eff}/N$')
-    ax.set_ylabel(r'admec_full MSE / centralised MSE')
-    ax.set_title('Topological ceiling on local consensus\n'
-                 'across the WP2 / WP3 ablation set')
+    ax.set_ylabel(r'admec_full MSE / freq_global MSE  (paired per seed)')
+    ax.set_title('Topological pooling-limit reference\n'
+                 'admec_full vs centralised inverse-variance mean')
     ax.legend(fontsize=7.5, loc='upper right', framealpha=0.92)
     ax.grid(which='both', alpha=0.25)
     ax.set_xlim(0.01, 1.0)

@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.3] — 2026-05-05
+
+### Changed
+- `docs/manuscript.md`: addresses Council-3 review (Guardian + Architect + Integrator stances). The convergent-finding diagnosis — that the central claim was being asserted at three different epistemic strengths in three parts of the document — is the through-line of this revision pass.
+  - **Fig. 1 regenerated with `freq_global` as denominator** (Architect A1). The previous figure used `freq_exclude at threshold 2.5` as the "best non-ADMEC baseline"; that denominator silently changed character per scenario (different filter banks won different scenarios) and was inconsistent with the *N* / *k*_eff heuristic's derivation, which is for inverse-variance weighted means of independent readings. `freq_global` is exactly that estimator. New per-seed-paired ratios: S1 baseline 2.28 / combined 0.78; S2 baseline 0.29 / combined 0.29; S3 baseline 18.2 / combined 4.8. Every measurement still sits at or below the *N* / *k*_eff line; the figure is now also consistent with its own derivation.
+  - **Algebraic-invisibility argument extended to the projection stage** (Architect A2). § 4.3 now shows that `project_update(state, proposed_update, sigmas, params)` does not read the classifier's mode array — the projection function is mode-blind by signature — so the algebraic invisibility extends through the full ADMEC pipeline, not just the consensus target.
+  - **Empty-neighbourhood fallback specified in § 2.2** (Architect A3): a node whose accessible STABLE neighbour set is empty carries the previous estimate forward (or initialises to `Y[0, i]` at *t* = 0; for `admec_full` the centralised inverse-variance weighted mean). Prevalence < 5 % at the WP1 threshold, ≈ 20 % on S3 drop at threshold 1.5.
+  - **Pivot statement added to § 1** (Integrator I1): explicit "From pre-registered test to characterised regime" subsection. The pre-registration was for Claim A (does ADMEC pass its gates? — answered NO); the manuscript headlines Claim B (in what regime would the ADMEC family be competitive? — characterised). Both are sourced from the same pre-registered ablation menu; neither rescues the other.
+  - **Reader's Map updated** (Integrator I2) to include § 4.3, § 5.3, § 5.4 in the express path; the previously-suppressed novel architectural results are now signposted explicitly.
+  - **§ 4.6 re-labelled as post-hoc combined-tuning harness** (Integrator I4) with explicit retraction of the proposal's orthogonality assumption (the data shows non-additive interaction).
+  - **§ 3.1 bug-fix paragraph extended** (Integrator I5): explicit statement that all § 4 ablation deltas are computed against the post-fix archive — the negative DG verdicts measure ADMEC against a working baseline, not a buggy one.
+  - **§ 4 forward-reference signposts** (Integrator I3): each ablation subsection (§§ 4.2–4.5) now has a one-line italicised forward reference to the discussion section that interprets it.
+  - **74 % S3 reduction decomposed** (Architect A4): the headline "74 %" is shown to combine a topological-mode change (drop → stale, *k*_eff 1.30 → 4.00, −38 %) with a parameter change (threshold 2.976 → 1.5, −40 %); the two compose multiplicatively. Headline number now broken into source contributions in a new sub-table in § 4.6.
+  - **Stale-mode-below-line mechanism relabelled speculative** (Architect A7): the "temporal pooling" attribution is now replaced with an explicit "bias reduction at the cost of staleness variance" candidate mechanism, marked speculative pending an explicit bias-variance decomposition.
+  - **§ 5.3.1 bracketed as "interpretation contingent on follow-up validation"** (Integrator I7).
+  - **Acknowledgements added** (Integrator I9) referencing the Council-3 review chart that drove this revision pass.
+  - **§ 5.1.4 added — Sign-fixed decomposition (Analytic Reference Pipeline v0.2)**. Bridges the manuscript's informal *N* / *k*_eff observable to the project-internal formal framework at `analysis/docs/analytic_reference.md`, which defines a Jensen gap Δ_J for topology heterogeneity and a sign-fixed deviation Δ_res with explicit interpretation (Δ_res < 0 = "helpful violation", Δ_res > 0 = "unmodelled degradation"). The manuscript adopts ARP's sign-fixed framing for the rest of § 5 as the more careful framing of the speculative mechanism in § 5.1's main text.
+
+- `scripts/figure_topology_ceiling.py`: switched denominator to `freq_global` (per-seed paired with the numerator), updated parity-line label, retitled axes / chart for the new denominator. Backwards-compatibility note: the figure file at `docs/manuscript_files/fig_topology_ceiling.png` is regenerated; numerical claims in older drafts of the manuscript that referenced "best non-ADMEC" denominators are now consistent with the freq_global-denominator framing.
+
+### Status
+- Manuscript revised under Council-3 review's HIGH and MEDIUM priorities. The convergent finding (title-vs-body epistemic-strength tension) is resolved across title, abstract, figure, body, reader's map. LOW items mostly addressed; the Cramér–Rao mini-derivation (Architect A8) is reserved for follow-up alongside the redesigns of § 5.6.
+- The user-authored Analytic Reference Pipeline (`analysis/`) is staged separately; this commit only references it from the manuscript, leaving the pipeline files for the user to commit themselves.
+- Suite unchanged at 276 / 274 passing for the existing test files; new tests under `tests/test_analytic_reference.py` and `tests/test_arp_metrics.py` are part of the user's separate commit.
+
 ## [0.8.2] — 2026-05-05
 
 ### Changed
