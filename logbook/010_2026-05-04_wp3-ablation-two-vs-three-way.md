@@ -70,9 +70,13 @@ This is the operational explanation for the byte-identical consensus output: eve
 
 ## Interpretation
 
-**The three-way distinction has no operational effect on the consensus output under the WP2/WP3 architecture.** The proposal's "tracked and gated" language implies STRUCTURED nodes should be preserved as a separate channel for downstream analysis; in the WP2 metrics (MSE, collapse index, structure correlation) the consensus value is what is scored, and the consensus value never reads the STRUCTURED channel. So at the level DG-3 measures, three-way collapses to two-way exactly.
+**The three-way distinction *cannot* help under the current architecture, not "did not help in this run".** The consensus mask is binary (STABLE / not-STABLE); the internal partitioning of "not-STABLE" into STRUCTURED vs UNSTRUCTURED is invisible to the estimator's update rule. As long as STRUCTURED and UNSTRUCTURED are treated identically at the consensus stage, no choice of input data, signal type, threshold, or seed can produce a non-zero delta — because the *function applied to the readings* is literally the same in both modes.
 
-This is **not** evidence that the three-way distinction is conceptually wrong, only that it does not contribute to the metrics that DG-3 was specified against. To make three-way affect those metrics, the architecture would need a different update rule — for example:
+This is a design-level finding, not a tuning failure. The 360 zero-delta cells are not statistical evidence that the distinction "doesn't help"; they are an algebraic consequence of the architecture. DG-3's "three-way > two-way" sub-criterion is *formally impossible* to satisfy without changing the update rule itself.
+
+The proposal's "tracked and gated" language implies STRUCTURED nodes should be preserved as a separate channel for downstream analysis; in the WP2 metrics (MSE, collapse index, structure correlation) the consensus value is what is scored, and the consensus value never reads the STRUCTURED channel. So at the level DG-3 measures, three-way is operationally equal to two-way by construction.
+
+To make three-way affect those metrics, the architecture would need a different update rule — for example:
 
 - include STRUCTURED nodes in the consensus with reduced weight, rather than excluding them outright;
 - use the STRUCTURED count as a signal-aware tuning knob for the constraint thresholds;
@@ -88,7 +92,7 @@ None of these is in the proposal's WP2 architecture. They are redesigns, not tun
 | Collapse index | identical | identical | NO (delta = 0) |
 | Structure correlation | identical | identical | NO (delta = 0) |
 
-**DG-3's "three-way > two-way" sub-criterion: NOT MET (with delta = 0 across all 360 cells).** This is a stronger negative result than ablations 1 / 3 produced for DG-2 — the gap is not "small" or "scenario-dependent"; it is exactly zero.
+**DG-3's "three-way > two-way" sub-criterion: NOT MET, formally unreachable under the current architecture.** This is a stronger negative result than ablations 1 / 3 produced for DG-2 — the gap is not "small" or "scenario-dependent"; it is *algebraically* zero. The 360 cells empirically confirm what the implementation already implies: when the consensus reads only `mode == STABLE`, the three-way / two-way distinction is invisible to the estimator.
 
 The other DG-3 sub-criterion ("each constraint layer ≥ 10 % on ≥ 1 metric") was already addressed in ablation 3: the constraint layer beats `admec_delay` everywhere on MSE under the WP2 baseline, so it satisfies that criterion. Per the proposal's logic, **DG-3 fails on the three-way clause regardless of the constraint clause.**
 

@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.3] — 2026-05-05
+
+### Added
+- `scripts/wp3_ablation_threshold_sweep.py`: WP3 ablation 2 harness — 7 IC thresholds × 2 delay modes × 3 scenarios × 10 seeds for `admec_full`, plus matched-threshold `freq_exclude` runs and the STABLE-fraction diagnostic grid.
+- `data/wp3_ablation_threshold_sweep_20260505.npz`: ablation archive.
+- `logbook/011_2026-05-05_wp3-ablation-threshold-sweep.md`: WP3 ablation-2 entry.
+
+### Changed
+- `logbook/010_2026-05-04_wp3-ablation-two-vs-three-way.md`: framing strengthened to architectural-impossibility ("three-way *cannot* help under the current architecture, not just *did not* help in this run") per user review of ablation 4.
+
+### Findings
+- **The expected "narrow active region" prediction was wrong.** The IC threshold has strong, asymmetric sensitivity: lower thresholds (1.5) substantially improve admec_full MSE on signal-rich delayed scenarios (S1 drop 0.732 → 0.308, −58 %; S3 stale 0.461 → 0.191, −59 %).
+- **The WP1-calibrated threshold (2.976, optimised for null FPR) is suboptimal for consensus MSE** in the WP2 problem regime. Different estimators have different optimal thresholds: admec_full prefers low (1.5–2.0); freq_exclude prefers moderate (2.5–3.5).
+- **At matched threshold 1.5, admec_full beats freq_exclude on S1 (0.238 vs 0.276) and S2 (0.111 vs 0.276)** — first signal-rich scenarios outside S2 where the architecture beats centralised exclusion. The mechanism: the constraint layer absorbs the per-step variance increase from aggressive exclusion that freq_exclude has no buffer for.
+- **Under independent per-estimator threshold tuning** (best-of-best), admec_full adds S2 stale to its win column (0.088 vs imm 0.147). **DG-2 still NOT MET** because the WP2 verdict was pre-registered at the calibrated threshold, and S3's 8× gap to centralised remains.
+
+### Status
+- WP3 ablations 1, 2, 3, 4 of 5 complete. Only ablation 5 (`admec-full-lagged`) remains; predicted outcome ≈ null given DG-2b TPR ≈ 0.7 % and entry-010's architectural-impossibility finding.
+- Test suite unchanged at 276 / 274 passing (no test additions in this commit).
+
 ## [0.7.2] — 2026-05-04
 
 ### Added
