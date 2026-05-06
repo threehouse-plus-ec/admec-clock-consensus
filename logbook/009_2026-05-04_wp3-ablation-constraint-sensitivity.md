@@ -64,7 +64,7 @@ The three other axes have only modest effects on S3 stale: `step_*` and `energy_
 
 ### 2. The fix does not close the gap to centralised baselines
 
-The S3 best-baseline target on MSE is `imm` = 0.025 (or `freq_exclude` 0.025; both are essentially the centralised inverse-variance weighted mean). Even `var_loose` admec_full at 0.307 is **12 × worse** than this floor. The ratio is consistent with the information-theoretic argument in entry 008: a centralised mean over 50 nodes has variance 1/50 of a single reading; a local consensus over ~3 adjacency neighbours plus self has variance 1/4. The ~12 × gap between these is set by network geometry, not by any constraint tuning.
+The S3 best-baseline target on MSE is `imm` = 0.025 (or `freq_exclude` 0.025; both are essentially the centralised inverse-variance weighted mean). Even `var_loose` admec_full at 0.307 is **12 × worse** than this centralised baseline. The ratio is consistent with the pooling-reference argument in entry 008: a centralised mean over 50 nodes has variance 1/50 of a single reading; a local consensus over ~3 adjacency neighbours plus self has variance 1/4. The ~12 × gap between these is set by network geometry, not by any constraint tuning.
 
 The same picture holds on S1: even the best variant (`step_tight` stale 0.374, `energy_tight` drop 0.594) leaves the gap to `freq_exclude` 0.135 wide open (~3 × on S1 stale).
 
@@ -92,7 +92,7 @@ Combined with entry 008, ablations 1 and 3 jointly characterise the WP2 failure 
 
 The remaining 12 × gap is structural and unrescuable by design tuning. It is set by the centralised-vs-local information advantage in a 50-node network with ~3-degree adjacency, exactly as the simple Cramér-Rao argument predicts.
 
-**This closes the WP3 design-tuning question.** Tuning the delay convention or the constraint thresholds can take admec_full from "ridiculous" (S3 drop 0.741) to "reasonable" (S3 stale + var_loose 0.307), but it cannot close the gap to centralised baselines on sparse networks with delays. Ablation 2 (classification threshold sweep), 4 (two-vs-three-way), and 5 (admec-full-lagged) remain in the WP3 menu, but none of them addresses the geometric ceiling identified above; they will refine the picture but cannot rescue DG-2.
+**This closes the WP3 design-tuning question.** Tuning the delay convention or the constraint thresholds can take admec_full from "ridiculous" (S3 drop 0.741) to "reasonable" (S3 stale + var_loose 0.307), but it cannot close the gap to centralised baselines on sparse networks with delays. Ablation 2 (classification threshold sweep), 4 (two-vs-three-way), and 5 (admec-full-lagged) remain in the WP3 menu, but none of them addresses the topology-access limitation identified above; they will refine the picture but cannot rescue DG-2.
 
 ## DG-2 verdict update
 

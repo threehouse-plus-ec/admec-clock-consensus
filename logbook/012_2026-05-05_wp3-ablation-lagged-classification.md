@@ -83,7 +83,7 @@ This entry closes the systematic WP3 sweep. Five ablations done:
 | 4 | Two-vs-three-way (entry 010) | δ = 0 (architectural) | No (formally impossible) |
 | 5 | Lagged classification (this entry) | lag=1 hurts; lag=0 already optimal | No (and not needed) |
 
-**Combined design tuning** (stale + var_loose + threshold 1.5 + same-step classification) takes admec_full S3 from 0.741 (WP2) to ~0.19 (WP3 best). Still 8 × worse than centralised `imm` 0.025. The information-theoretic ceiling (50 nodes pooled vs ~3-neighbour local consensus) holds.
+**Combined design tuning** (stale + var_loose + threshold 1.5 + same-step classification) takes admec_full S3 from 0.741 (WP2) to ~0.19 (WP3 best). Still 8 × worse than centralised `imm` 0.025, consistent with the sparse-delay pooling-reference picture.
 
 ## DG-2 / DG-3 final verdict (WP3 sweep complete)
 
@@ -95,7 +95,7 @@ This entry closes the systematic WP3 sweep. Five ablations done:
 | DG-3 constraint clause | satisfied | entries 007, 009 |
 | DG-3 three-way > two-way | NOT MET (architecturally impossible; δ = 0) | entry 010 |
 
-The negative gates are robust to all five ablations. The architecture is internally coherent and a cleanly tunable estimator family, but the centralised information-theoretic advantage on sparse delayed networks cannot be closed by classifier or constraint tuning alone.
+The negative gates are robust to all five ablations. The architecture is internally coherent and a cleanly tunable estimator family, but the centralised pooling advantage on sparse delayed networks cannot be closed by classifier or constraint tuning alone.
 
 ## What this does and does not show
 
@@ -121,7 +121,7 @@ The negative gates are robust to all five ablations. The architecture is interna
 With the WP3 systematic sweep complete, the residual question is no longer "what to tune?" but "what to redesign?" The ablations show:
 
 - The architecture has a real noise-absorption mechanism (constraint layer) that pays off when paired with aggressive exclusion (entry 011).
-- The structural ceiling on sparse delayed networks (~8 × on S3) is information-theoretic, not architectural; it cannot be closed by tuning.
+- The residual gap on sparse delayed networks (~8 × on S3) is topology-dominated, not threshold-tuning limited.
 - The three-way / two-way distinction is architecturally invisible to the consensus stage (entry 010).
 
 Two redesign directions could plausibly change DG-2 or DG-3:

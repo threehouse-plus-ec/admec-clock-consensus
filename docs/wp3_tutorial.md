@@ -430,11 +430,11 @@ The constraint is **topological**, not algorithmic. ADMEC is a clean, tunable es
 
 ## 10. Where to next
 
-The systematic sweep is closed. Two redesign directions could plausibly cross from "uses the data efficiently inside the topological boundary" to "rescues DG-2 / DG-3":
+The systematic sweep is closed. Two redesign directions could plausibly move from "uses delay-accessible data more efficiently" to "rescues DG-2 / DG-3":
 
 - **STRUCTURED with reduced weight** — would make the syntactic gap from §5 operationally visible (and make DG-3 measurable rather than algebraically zero).
 - **Decayed-staleness weighting** — would interpolate continuously between drop and stale, with `λ ≈ 1/τ_correlation`. Could push S3 closer to the pooling reference and should be compared against a tuned clock-model baseline.
 
-Both are non-trivial code changes that deserve their own pre-registered decision gates. They aim to use data inside the topological boundary more efficiently, not to escape it.
+Both are non-trivial code changes that deserve their own pre-registered decision gates. They aim to use delay-accessible data more efficiently, not to overturn the pooling-reference picture.
 
 For the full writeup, see [`docs/manuscript.md`](../docs/manuscript.md). For per-ablation details, see [logbook entries 008–012](../logbook/).

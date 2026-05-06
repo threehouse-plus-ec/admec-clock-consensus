@@ -89,7 +89,7 @@ Under independent threshold tuning, admec_full **adds S2 stale to its win column
 
 4. **At the optimal threshold for admec_full, it beats freq_exclude on S1 and S2.** S1 admec_full (stale, thr 1.5) = 0.238 vs freq_exclude (thr 1.5) = 0.276; S2 = 0.111 vs 0.276. Under independent threshold tuning per estimator, admec_full also adds S2 stale to its win column (best-of-best = 0.088 vs 0.122). DG-2 was pre-registered at the calibrated threshold so this does not formally rescue DG-2, but it does indicate the architecture is more competitive than the fixed-threshold WP2 verdict suggests.
 
-5. **DG-2 still NOT MET on S3.** Even at admec_full's best (stale, thr 1.5, MSE 0.191), the centralised `imm` 0.024 floor is 8× lower. The information-theoretic ceiling identified in entry 008 (a centralised mean over 50 nodes vs a local consensus over 3 ± 1) holds. No threshold value rescues this.
+5. **DG-2 still NOT MET on S3.** Even at admec_full's best (stale, thr 1.5, MSE 0.191), the centralised `imm` MSE of 0.024 is 8× lower. The sparse-delay residual identified in entry 008 (a centralised mean over 50 nodes vs a local consensus over 3 ± 1) remains. No threshold value rescues this.
 
 6. **Saturation above thr 4.5** corresponds to "no exclusion": every cell is STABLE, and admec_full degenerates to admec_unconstrained = freq_global. The high-threshold tail of the curve is admec_full giving up its anomaly handling entirely.
 
@@ -120,11 +120,11 @@ Three of five WP3 ablations done (1 = delay convention, 3 = constraint sensitivi
 - The threshold has substantial MSE sensitivity for admec_full on signal-rich delayed scenarios (factor of 2–3 between worst and best across the swept range).
 - Lower thresholds (1.5–2.0) optimise admec_full MSE; the WP1 calibration (2.976, optimised for null FPR) is suboptimal for consensus MSE.
 - At a matched aggressive threshold (1.5), admec_full's constraint layer adds value and the estimator beats freq_exclude on S1 and S2 — the architecture's "absorb-noise" mechanism is real.
-- Under independent per-estimator threshold tuning, admec_full adds S2 stale to its win column but still cannot close the S3 information-theoretic gap.
+- Under independent per-estimator threshold tuning, admec_full adds S2 stale to its win column but still leaves a large S3 residual gap.
 
 **It does not show:**
 - That the WP1 calibration was wrong. It was correct for its declared purpose (null FPR control). The mismatch is between two distinct optimisation criteria.
-- That re-calibrating the threshold rescues DG-2. The structural ceiling on S3 (sparse + delayed = small effective neighbourhood) cannot be closed by threshold tuning alone.
+- That re-calibrating the threshold rescues DG-2. The S3 sparse-plus-delayed regime (small effective neighbourhood) cannot be closed by threshold tuning alone.
 - That the optimal threshold transfers across scenarios. admec_full's optimal threshold is 1.5 on the delayed scenarios but 2.0 on S2 stale; in a deployment with mixed scenarios you would either pick a compromise value or adapt online.
 
 ## Files changed

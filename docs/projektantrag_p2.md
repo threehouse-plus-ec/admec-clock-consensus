@@ -1,6 +1,6 @@
 ---
 title: "Projektantrag — ADM-EC Clock Consensus Phase 2"
-subtitle: "Maser- and optical-clock-network redesign campaign with topological-pooling-limit baseline"
+subtitle: "Maser- and optical-clock-network redesign campaign with topological-pooling-reference baseline"
 author: "Ulrich Warring (Physikalisches Institut, Albert-Ludwigs-Universität Freiburg)"
 status: "Draft v0.2 — pending Ledger-identifier confirmation and Handbook §7 initialisation"
 date_drafted: "2026-05-06"
@@ -13,7 +13,7 @@ primary_audience: "External collaborators in metrology, statistical signal analy
 
 # Projektantrag — ADM-EC Clock Consensus Phase 2
 
-> *Delay-constrained anomaly-aware consensus in heterogeneous clock networks: a redesign campaign on the topological pooling-limit baseline established in Phase 1.*
+> *Delay-constrained anomaly-aware consensus in heterogeneous clock networks: a redesign campaign on the topological pooling-reference baseline established in Phase 1.*
 
 ---
 
@@ -21,9 +21,9 @@ primary_audience: "External collaborators in metrology, statistical signal analy
 
 When networked clocks — atomic clocks, hydrogen masers, optical frequency standards — need to agree on a common time reference without a single central authority, each clock must combine readings from its neighbours and decide what consensus value to use. Some neighbour readings are noisy; some carry information about real drift or near-instability that should not simply be averaged away. The challenge is to build a local consensus rule that filters noise but preserves information.
 
-Phase 1 of this programme tested one such rule on simulated networks. The main finding was simple and somewhat sobering: the dominant constraint on local consensus quality is not the cleverness of the rule, but the *amount of information each clock can reach* given the network topology and the message delays. A rule running on a sparse, high-delay network sees only a small fraction of the available data; no amount of statistical sophistication can recover information that does not arrive. This boundary was characterised quantitatively in Phase 1 and is treated in Phase 2 as an external constraint, not as a result to overturn.
+Phase 1 of this programme tested one such rule on simulated networks. The main finding was simple and somewhat sobering: the dominant constraint on local consensus quality is not the cleverness of the rule, but the *amount of information each clock can reach* given the network topology and the message delays. A rule running on a sparse, high-delay network sees only a small fraction of the available data; no amount of statistical sophistication can recover information that does not arrive. This topology-access effect was characterised quantitatively in Phase 1 and is treated in Phase 2 as an external constraint, not as a result to overturn.
 
-**Phase 2 asks a narrower question:** given that the topological boundary holds, can we use the data inside it more efficiently? Two redesigns of the consensus rule are tested:
+**Phase 2 asks a narrower question:** given that topology-access remains binding, can we use the delay-accessible data more efficiently? Two redesigns of the consensus rule are tested:
 
 1. One that gives partial weight to readings flagged as carrying *structured* anomalies (rather than excluding them outright).
 2. One that decays the weight of older readings smoothly with their delay (rather than choosing sharply between "use" and "drop").
@@ -38,7 +38,7 @@ Each redesign is tested independently before any combined version is considered.
 - Allan deviation, modified Allan deviation, and time deviation are reported as standard diagnostic figures alongside mean-squared error (MSE), but MSE remains the decision criterion. Allan figures characterise *what kind* of noise the consensus passes through; they do not by themselves determine whether a redesign succeeds.
 - Each redesign must improve performance on at least one realistic scenario *without* significantly worsening performance on others — a Pareto-locality requirement that prevents narrow-regime overfitting.
 
-**Honest negative results are anticipated.** If neither redesign closes a meaningful portion of the topological gap, the programme reports that finding directly: the topological boundary is the binding constraint regardless of consensus-rule sophistication, and the Phase-1 result stands stronger as a consequence. This outcome is publishable and is not treated as a project failure.
+**Honest negative results are anticipated.** If neither redesign closes a meaningful portion of the topological gap, the programme reports that finding directly: topology-access is the binding constraint regardless of consensus-rule sophistication, and the Phase-1 result stands stronger as a consequence. This outcome is publishable and is not treated as a project failure.
 
 The remainder of this Projektantrag formalises these decisions: which noise families are included, which scenarios are tested, what statistical machinery is used for recalibration, what counts as success or failure for each redesign, and how reproducibility of the simulation campaign is guaranteed. The internal governance machinery (standing vetoes, decision gates, pre-registration registry) exists to prevent Phase-2 conclusions from drifting under the pressure of any single result. Readers unfamiliar with that vocabulary may consult the glossary in **Appendix C**.
 
@@ -61,7 +61,7 @@ This Projektantrag is a Coastline-shaped document under Open-Science Harbour tem
 
 **Harbour-internal coastlines (referenced as constraints):**
 
-- Phase-1 manuscript: *A Topological Information-Pooling Bound on Local Clock Consensus* (this repository, `docs/manuscript.md`). The §5.1 *N* / *k*_eff topological pooling-limit reference is inherited as a boundary on this study, not re-tested.
+- Phase-1 manuscript: *A Topological Information-Pooling Reference for Local Clock Consensus* (this repository, `docs/manuscript.md`). The §5.1 *N* / *k*_eff topological pooling reference is inherited as a regime-locating baseline on this study, not re-tested.
 - CL-2026-002 *Topological Thesis* (design isomorphism, not ontology) — invoked under the lock / key discipline (§1).
 
 **Sail (framing only, no decision gate):**
@@ -83,7 +83,7 @@ This Projektantrag is a Coastline-shaped document under Open-Science Harbour tem
 
 Phase 2 of the ADM-EC Clock Consensus programme. Same repository, `p2_*` archive namespace, **strictly additive separation from Phase-1 archives** (no migration, no overwrite). Continuity scenarios re-run under Phase 2 produce `p2_continuity_*.npz` distinct from `wp2_*` originals so harness drift is detectable by direct comparison.
 
-The Phase-1 manuscript reports DG-2 NOT MET at the pre-registered operating point and identifies the binding constraint as topological access to information rather than estimator sophistication. Phase 2 evaluates two redesigns of the consensus update rule that aim to use data inside the topological boundary more efficiently. **The redesigns are evaluated by how close they push the local consensus toward the *N* / *k*_eff floor, not by whether they cross it.**
+The Phase-1 manuscript reports DG-2 NOT MET at the pre-registered operating point and identifies the binding constraint as topological access to information rather than estimator sophistication. Phase 2 evaluates two redesigns of the consensus update rule that aim to use delay-accessible data more efficiently. **The redesigns are evaluated by how they move local consensus relative to the *N* / *k*_eff reference line, not by treating that heuristic as a pass/fail criterion.**
 
 ---
 
@@ -91,7 +91,7 @@ The Phase-1 manuscript reports DG-2 NOT MET at the pre-registered operating poin
 
 The following are not re-tested in Phase 2. They are external constraints on every WP design and reporting decision.
 
-1. **Topological pooling-limit boundary.** The local-to-centralised MSE ratio is bounded below in approximate form by *N* / *k*_eff under independent-reading pooling, with corrections in two directions (signal correlation, temporal pooling from staleness). WP-β replaces this heuristic with a per-scenario Cramér–Rao floor.
+1. **Topological pooling-reference baseline.** The local-to-centralised MSE ratio empirically tracks the static independent-reading reference *N* / *k*_eff, with corrections in two directions (signal correlation, temporal pooling from staleness). WP-β annotates this heuristic against a per-scenario Cramér–Rao floor.
 2. **IC observable definition.** Per-reading information content as defined in Phase-1 logbook entries 001–006. The *value* of the threshold is a Phase-2 variable (key); the *definition* of the observable is a lock.
 3. **Simulation-harness signature.** `(Y, Sigmas, adj, delays, **kwargs) → Estimates(T, N)`. Any new estimator in Phase 2 implements this signature.
 4. **Parameters-layer SI mapping.** Abstract σ-units inside the harness; SI mapping at the reporting layer. Direct heir of the `single_25Mg-plus` parameters.py contract.
@@ -321,7 +321,7 @@ The triad enters the Phase-2 deliberation log at the transition moment and is mi
 
 The Cramér–Rao floor is computed for the **minimum-variance unbiased estimator of the network-average fractional-frequency offset** (the canonical quantity Phase-1 MSE evaluates). The bound is derived under the **centralised omniscient model with full noise-family knowledge** — every reading from every clock at every step is available, and the noise-family parameters are known. This bound represents the theoretical floor for *any* unbiased estimator of the network-average offset given the underlying statistical model; it is **not** a constraint that follows from the local-graph structure.
 
-Local-graph constraints (which readings each node can access, and at what staleness) enter Phase 2 as **upper bounds on what any local consensus can achieve**. The gap between the local-consensus baseline and the centralised CR floor is therefore the well-defined "topological pooling gap" that WP-γ / WP-δ aim to narrow without expecting to close.
+Local-graph constraints (which readings each node can access, and at what staleness) enter Phase 2 as constraints on what information any local consensus can use. The gap between the local-consensus baseline and the centralised CR floor is therefore the well-defined "topological pooling gap" that WP-γ / WP-δ aim to narrow without expecting to close.
 
 #### 8.3.2 Decision gate — DG-β
 
@@ -390,7 +390,7 @@ Allan-family auxiliaries reported per §3; residual to Cramér–Rao floor repor
 
 ## 9. Failure-disposition clause
 
-> If neither DG-γ nor DG-δ closes the *N* / *k*_eff gap on at least one signal-rich scenario at matched threshold and delay convention, the Phase-2 contribution is empirical confirmation that the topological boundary is the binding constraint on local consensus regardless of consensus-rule sophistication. The §5.6 Sail of the Phase-1 manuscript is then closed; the §5.1 Coastline stands as the stronger result. This outcome is publishable and is not a project failure.
+> If neither DG-γ nor DG-δ narrows the *N* / *k*_eff residual gap on at least one signal-rich scenario at matched threshold and delay convention, the Phase-2 contribution is empirical confirmation that topological access is the binding constraint on local consensus regardless of consensus-rule sophistication. The §5.6 Sail of the Phase-1 manuscript is then closed; the §5.1 Coastline stands as the stronger result. This outcome is publishable and is not a project failure.
 
 This clause descends directly from the Phase-1 Projektantrag's negative-result disposition.
 
@@ -480,7 +480,7 @@ All gates evaluated on MSE per §3 Reporting Clause; Allan-family auxiliaries ma
 10. Lisdat, C. et al. (2016). A clock network for geodesy and fundamental science. *Nat. Commun.* **7**, 12443.
 11. Panfilo, G. & Arias, F. (2019). The Coordinated Universal Time (UTC). *Metrologia* **56**, 042001.
 12. Sullivan, D. B., Allan, D. W., Howe, D. A. & Walls, F. L. (1990). Characterization of clocks and oscillators. *NIST Technical Note* 1337.
-13. Warring, U. (2026). *A Topological Information-Pooling Bound on Local Clock Consensus.* This repository, `docs/manuscript.md`.
+13. Warring, U. (2026). *A Topological Information-Pooling Reference for Local Clock Consensus.* This repository, `docs/manuscript.md`.
 
 ---
 

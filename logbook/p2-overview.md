@@ -12,12 +12,12 @@ Phase 1 closed with:
 - DG-2, DG-2b, DG-3 NOT MET (entries 007, 010, plus the WP3 ablation series 008–012).
 - The Technical Report v1.0 candidate ([`docs/manuscript.md`](../docs/manuscript.md)) is the citable Phase-1 deliverable.
 
-Phase 2 is a *redesign campaign* on the topological pooling-limit baseline characterised in Phase 1. The Projektantrag in [`docs/projektantrag_p2.md`](../docs/projektantrag_p2.md) defines:
+Phase 2 is a *redesign campaign* on the topological pooling-reference baseline characterised in Phase 1. The Projektantrag in [`docs/projektantrag_p2.md`](../docs/projektantrag_p2.md) defines:
 
 - Two consensus-rule redesigns to test independently before any combined version: WP-γ (α-rule, STRUCTURED with reduced weight + estimated drift) and WP-δ (λ-rule, decayed-staleness weighting with state propagation).
 - A WP-α₀ recalibration pass for the IC threshold under four canonical noise families (white FM, flicker FM, random-walk FM, power-law FM) with three-tier T1 / T2 / T3 escalation logic.
 - A WP-α STRUCTURED-channel separability check that gates the WP-γ main path.
-- A WP-β Cramér–Rao floor pass that replaces the heuristic *N* / *k*_eff line with a per-(scenario, family) bound.
+- A WP-β Cramér–Rao floor pass that annotates the heuristic *N* / *k*_eff line against a per-(scenario, family) bound.
 - Two new metrology-anchored scenarios: S9 (linear fibre chain, 10 nodes) and S10 (hub-and-spoke, 12 nodes).
 - A frozen Reporting Clause requiring Allan-family auxiliaries (σ_y(τ), Mod-σ_y(τ), TDEV) on every output, with MSE governing the decision gates and the residual *N* / *k*_eff or Cramér–Rao gap paired on the same line.
 - A Pareto-locality clause on every redesign decision gate (≥ 20 % MSE gain on at least one signal-rich scenario *and* ≤ 10 % degradation on every other Phase-2 scenario at the same operating point).

@@ -104,7 +104,7 @@ DG-3 NOT MET on three-way > two-way (this entry) — the consensus output is byt
 
 The three findings cohere: STRUCTURED detection is rare (DG-2b), and even when it fires it does not change the consensus (this entry), because both anomaly classes produce the same STABLE mask. The architectural complexity of the structured/unstructured distinction buys nothing on the metrics WP2 was designed to score.
 
-The constructive findings — `stale` reduces MSE 38–44 % on S1/S3 (entry 008), `var_loose` recovers the constraint ordering on S3 stale (entry 009) — remain independently useful as design levers for any future decentralised-consensus application that has to live with the structural information-theoretic ceiling. They do not depend on the three-way classification.
+The constructive findings — `stale` reduces MSE 38–44 % on S1/S3 (entry 008), `var_loose` recovers the constraint ordering on S3 stale (entry 009) — remain independently useful as design levers for any future decentralised-consensus application that has to live with sparse-delay topology access. They do not depend on the three-way classification.
 
 ## What this does and does not show
 

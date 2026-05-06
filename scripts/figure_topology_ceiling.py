@@ -1,8 +1,8 @@
-"""Manuscript figure: topological ceiling on local consensus.
+"""Manuscript figure: topological pooling reference on local consensus.
 
 Plots the empirical admec_full / centralised MSE ratio against the
 effective neighbourhood fraction k_eff / N for each (scenario, seed)
-in the canonical archives, with the theoretical ceiling 1 / (k_eff / N)
+in the canonical archives, with the pooling reference 1 / (k_eff / N)
 overlaid.
 
 Effective neighbourhood:
@@ -162,10 +162,10 @@ def main():
 
     fig, ax = plt.subplots(figsize=(7.5, 5.0))
 
-    # Theoretical ceiling: ratio = 1/(k_eff/N) = N/k_eff (independent-readings limit)
+    # Pooling reference: ratio = 1/(k_eff/N) = N/k_eff (independent-readings heuristic)
     x_ref = np.geomspace(0.01, 1.0, 200)
     ax.plot(x_ref, 1.0 / x_ref, 'k--', lw=1, alpha=0.6,
-            label=r'theoretical ceiling $N/k_\mathrm{eff}$')
+            label=r'pooling reference $N/k_\mathrm{eff}$')
     ax.axhline(1.0, color='gray', lw=0.7, alpha=0.5)
     ax.text(0.012, 1.05, 'admec_full = freq_global  (parity line)',
             fontsize=8, color='gray', ha='left', va='bottom')
@@ -189,7 +189,7 @@ def main():
     ax.set_yscale('log')
     ax.set_xlabel(r'Effective neighbourhood fraction $k_\mathrm{eff}/N$')
     ax.set_ylabel(r'admec_full MSE / freq_global MSE  (paired per seed)')
-    ax.set_title('Topological pooling-limit reference\n'
+    ax.set_title('Topological pooling reference\n'
                  'admec_full vs centralised inverse-variance mean')
     ax.legend(fontsize=7.5, loc='upper right', framealpha=0.92)
     ax.grid(which='both', alpha=0.25)
