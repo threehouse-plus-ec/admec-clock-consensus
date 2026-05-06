@@ -42,7 +42,7 @@ The project may produce a positive result (the three-way classification improves
 | `src/metrics.py` | WP2 simulation metrics: MSE, collapse index, structure correlation, classification diagnostics (TPR/FPR/F1) | Implemented (WP2) |
 | `tests/` | Unit tests for IC, noise, σ-sensitivity, threshold stability, temporal structure, comparison, per-reading threshold, clocks, network, classifier (incl. WP3 two-way), constraints, estimators (incl. WP3 delay-mode), metrics, ARP analytic-reference pipeline | 303 tests (301 passing, 2 known failures) |
 | `data/` | Numerical output from each logbook entry (.npz archives) — WP1 entries 001–006, WP2 campaign, four WP3 ablation archives, integrated combined-tuning archive | WP1 + WP2 + WP3 |
-| `notebooks/` | Three tutorials, one per work package: `wp1_tutorial.ipynb` (IC calibration, ~30 s), `wp2_tutorial.ipynb` (network campaign + DG-2 verdict, ~3 min), `wp3_tutorial.ipynb` (five ablations + topology-ceiling figure, ~3 min). All three load the canonical archives rather than re-simulating from scratch. | WP1 + WP2 + WP3 done |
+| `notebooks/` | Three tutorials, one per work package: `wp1_tutorial.ipynb` (IC calibration, ~30 s), `wp2_tutorial.ipynb` (network campaign + DG-2 verdict, ~3 min), `wp3_tutorial.ipynb` (five ablations + topology pooling-reference figure, ~3 min). All three load the canonical archives rather than re-simulating from scratch. | WP1 + WP2 + WP3 done |
 
 ## Decision gates
 

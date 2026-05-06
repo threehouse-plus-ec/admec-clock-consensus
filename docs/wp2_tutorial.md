@@ -105,6 +105,8 @@ ax.legend(loc='upper right', fontsize=8); plt.tight_layout()
 
 WP1 calibrated IC longitudinally (each clock's own history). WP2 reuses the same `compute_ic` cross-sectionally — at each timestep, the N readings are the "ensemble" against which each individual reading is scored. Combined with longitudinal temporal stats (variance slope, lag-1 autocorrelation), this drives the three-way classifier with the calibrated thresholds from entries 004 and 006.
 
+> **Architecture note.** The classifier is computed from the *full same-time ensemble* — every node's STABLE / STRUCTURED / UNSTRUCTURED label depends on every other node's reading at the same timestep. The consensus update rule that follows is *local* (each node averages over its delay-accessible neighbours only). The architecture is therefore **partially decentralised**: a global classifier feeding a local consensus rule. A truly local IC, where each node uses only its delay-accessible readings, is reserved for follow-up work — see § 2.6 of the manuscript for the full caveat.
+
 
 
 ```python
@@ -387,32 +389,14 @@ plt.tight_layout()
 
 **WP3 ablations are now scoped to *characterise* this failure mode, not to rescue DG-2:**
 
-1. **Delay convention** — does using stale readings `Y[t − τ_ij, j]` instead of dropping inaccessible neighbours close the S1/S3 gap? Test directly addresses the binding limitation found here.
-2. **Classification threshold sweep** — at what threshold does `admec_full` start to differ from `freq_exclude`? The current per-reading 2.976-bit threshold is selective, so the gate rarely binds; the sweep tells us where the active region is.
-3. **Constraint sensitivity (±30 %)** — DG-3's core question.
-4. **Two-way vs three-way (DG-3)** — given DG-2b's 0.7 % strict-STRUCTURED TPR, a clean test of whether the structured/unstructured distinction adds anything.
-5. **ADMEC-full-lagged** — IC(t-1) vs IC(t) in classification; tests for simultaneity bias.
+1. **Delay convention** — Stale-reading mode improves S1/S3 substantially but does not close the gap to centralised baselines.
+2. **Constraint sensitivity (±30 %)** — `var_loose` constraint recovers performance on S3 stale, confirming the variance-ratio bound acts as a noise-absorption mechanism.
+3. **Two-way vs three-way (DG-3)** — Three-way vs two-way produces a max delta of 0 across 360 cells; the distinction is algebraically invisible to the consensus target.
+4. **Classification threshold sweep** — At a matched lower threshold (1.5), `admec_full` beats `freq_exclude` on S1 and S2.
+5. **Lagged classification** — No simultaneity bias detected; lagging classification strictly hurts.
 
-The negative DG-2 result was anticipated in the proposal: *"If it fails, the contribution is a careful negative result showing that established robust methods are sufficient for the tested regime."* WP3 converts that into a *characterised* negative result, which is more publishable than a flat failure.
+**Combined Tuning:** Applying `stale` + `thr 1.5` + `var_loose` simultaneously reduced S3 MSE from 0.741 to 0.196. However, the ~ 4.8× gap to the `freq_global` centralised baseline (0.041) on sparse networks remains consistent with the topology-limited *N* / *k*_eff pooling reference.
+
+The negative DG-2 result was anticipated in the proposal. WP3 converts that into a *characterised* negative result, mapping the regime where local anomaly-aware consensus competes. For the full picture and ablation walkthroughs, see the WP3 Tutorial and the Technical Report v1.0 candidate.
 
 For the full picture, see [`logbook/wp2-summary.md`](../logbook/wp2-summary.md). For the harness build and the two bug fixes that produced this canonical archive, see [`logbook/007_2026-05-04_wp2-simulation-harness.md`](../logbook/007_2026-05-04_wp2-simulation-harness.md).
-
-
-## What happened next
-
-This tutorial reflects WP2 as the work package closed: campaign harness built, two methodological bug fixes documented, **DG-2 NOT MET** verdict recorded ([logbook entry 007](../logbook/007_2026-05-04_wp2-simulation-harness.md), [WP2 summary](../logbook/wp2-summary.md)). The single-scenario S2 win was the only positive DG-2 result.
-
-WP3 then ran a five-axis ablation sweep to characterise the failure mode rather than rescue DG-2:
-
-| Ablation | Effect on `admec_full` | DG-2 closure? |
-|----------|------------------------|:-------------:|
-| 1 — delay convention (drop vs stale) | stale: −38–44 % MSE on S1 / S3 | No |
-| 2 — IC threshold sweep | thr 1.5 halves MSE on delayed signal-rich scenarios | No on S3 |
-| 3 — constraint sensitivity (±30 %) | `var_loose` [0.35, 1.65]: −33 % S3 stale | No |
-| 4 — two-vs-three-way classifier | δ = 0 across 360 cells (architectural impossibility) | No |
-| 5 — lagged classification | lag = 1 strictly hurts; same-step is optimal | No (and not needed) |
-
-**Combined design tuning** (stale + threshold 1.5 + `var_loose`) reduces S3 `admec_full` from 0.741 to **0.196** — a 74 % reduction — but the residual ~ 8 × gap to centralised `imm` (0.025) tracks the simple information-pooling ratio *N* / *k*_eff and cannot be closed by parameter tuning. **The constraint is topological, not algorithmic.** See [`docs/wp3_tutorial.md`](../docs/wp3_tutorial.md) for the WP3 walkthrough and [`docs/manuscript.md`](../docs/manuscript.md) for the constraint-discovery synthesis.
-
-A useful side-finding for any deployment that uses ADMEC: **at matched IC threshold 1.5, `admec_full` actually beats `freq_exclude` on S1 and S2** — the constraint layer's variance-absorption mechanism only pays off when exclusion is aggressive enough to need absorbing.
-

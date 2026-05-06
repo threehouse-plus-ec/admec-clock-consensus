@@ -2,10 +2,12 @@
 
 **Time to run:** ~3 minutes on a laptop (loads pre-computed archives; no fresh simulation runs).
 **Audience:** Anyone who has read the WP2 tutorial and wants to see how the WP3 ablations were done and what they found.
-**What this covers:** The five-ablation systematic sweep (delay convention, constraint sensitivity, two-vs-three-way, threshold sweep, lagged classification), the integrated combined-tuning verification, and the topological-ceiling figure that is the manuscript's main diagnostic.
+**What this covers:** The five-ablation systematic sweep (delay convention, constraint sensitivity, two-vs-three-way, threshold sweep, lagged classification), the integrated combined-tuning verification, and the topological pooling-reference figure that is the manuscript's main diagnostic.
 **What this does not cover:** Re-running the ablations from scratch (each archive took 5–15 min to generate). Source scripts are in `scripts/wp3_ablation_*.py` if you want to regenerate.
 
 The WP2 tutorial closed with **DG-2 NOT MET** — `admec_full` beat centralised baselines on only S2, the fully-connected control. The WP3 question is *why*, and whether any architectural tuning closes the gap. The answer is no, but the *characterisation* of why is the project's contribution.
+
+> **Architecture note.** The ADMEC variants studied in WP3 are **partially decentralised** — every node's STABLE / STRUCTURED / UNSTRUCTURED label is computed from the full same-time ensemble (a global classifier), while the consensus update rule that consumes the STABLE mask is local (each node averages over its delay-accessible neighbours). The WP3 ablations vary parameters of *both* layers, but neither layer is replaced. A fully decentralised redesign — each node's IC computed over its delay-accessible readings only — is reserved for follow-up work (manuscript §§ 2.6, 5.6). Under that redesign the negative DG-2 verdict should *strengthen* (the classifier loses information), so the gap reported here is in that sense an optimistic lower bound.
 
 For the full picture, see [`docs/manuscript.md`](../docs/manuscript.md). For the per-ablation details, see [logbook entries 008–012](../logbook/).
 
@@ -75,7 +77,7 @@ for s in ('S1', 'S2', 'S3'):
 S1 and S3 fail by 5× and 30×. S2 wins. The WP3 question: is this a tuning problem (fixable by hyperparameters) or a structural one (set by network topology)? The five ablations test the candidates one axis at a time.
 
 
-## 3. Ablation 1 — delay convention (drop vs stale)
+## 3. Delay convention — drop vs stale (Ablation 1)
 
 The WP2 baseline drops neighbours whose communication delay exceeds the freshness window. The "stale" alternative pulls `Y[t − delays[i, j], j]` instead — the most recent reading sent by each adjacency neighbour, regardless of how stale.
 
@@ -106,12 +108,12 @@ for si, n in enumerate(scns):
       S3      0.7408      0.4606          -37.8%
 
 
-Stale convention reduces `admec_full` MSE by 38–44 % on S1/S3 (the delay-restricted scenarios) and slightly hurts S2 (no delays to recover). **DG-2 stays NOT MET** — even at S3 stale 0.461, the gap to centralised `imm` 0.025 is still 18×.
+Stale convention reduces `admec_full` MSE by 38–44 % on S1/S3 (the delay-restricted scenarios) and slightly hurts S2 (no delays to recover). **DG-2 stays NOT MET** — even at S3 stale 0.461, the gap to the best centralised baseline (`imm` 0.025) is still 18×.
 
 The `admec_delay` numbers (not shown) reveal something interesting: under stale, `admec_delay` sometimes *beats* `admec_full` — the constraint layer is hurting rather than helping. That motivated ablation 3.
 
 
-## 4. Ablation 3 — constraint sensitivity (the diagnostic case)
+## 4. Constraint sensitivity — the diagnostic case (Ablation 3)
 
 The hypothesis from ablation 1: when stale lags inject extra variance into the proposed update, the variance-ratio bound `[0.5, 1.5]` rejects too many beneficial updates. Sweep ±30 % on each constraint axis to test.
 
@@ -157,7 +159,7 @@ print(f'\nadmec_delay (S3 stale, comparator): {float(np.mean(ad_mse[si, :, mi]))
 But `var_loose` is **scenario-conditional**: it hurts S1 drop by +13.4 %. Adopting it as a global default would trade the S3 stale gain for an S1 drop loss. The recommendation is conditional on the deployment topology.
 
 
-## 5. Ablation 4 — two-way vs three-way (a syntactic gap)
+## 5. Two-way vs three-way — a syntactic gap (Ablation 4)
 
 The proposal motivates a three-way classifier over a binary STABLE/ANOMALOUS one. DG-3 requires three-way > two-way. We collapsed the STRUCTURED/UNSTRUCTURED split into a single ANOMALOUS class and re-ran the consensus on every (scenario, seed, estimator, delay-mode, classifier) combination.
 
@@ -192,7 +194,7 @@ target_i(t) = ( Σ_{j ∈ N(i, t)}  w_j(t) · y_j(t) ) / Σ_{j ∈ N(i, t)} w_j(
 The classifier emits a three-valued symbol; the consensus consumes the two-valued projection. **DG-3's "three-way > two-way" is formally unreachable** under this architecture — not because the experiment failed, but because the mask is binary by construction. To make three-way operationally visible, the consensus rule would need a production that reads STRUCTURED — for example reduced-weight inclusion `w_j ← α · w_j` when `mode[t, j] == STRUCTURED`. That is a redesign, not a tuning ablation. See § 5.6 in the manuscript.
 
 
-## 6. Ablation 2 — IC threshold sweep
+## 6. IC threshold sweep (Ablation 2)
 
 The WP1-calibrated threshold of 2.976 bit was optimised for null FPR control. The hypothesis going in was that the threshold sat in a narrow active region and the sweep would be flat. It wasn't.
 
@@ -261,7 +263,7 @@ for si, n in enumerate(['S1', 'S2', 'S3']):
 This is the most interesting *positive* finding of the WP3 sweep. DG-2 was pre-registered at threshold 2.976 so this doesn't formally rescue the gate, but it identifies the architecture's actual operating regime.
 
 
-## 7. Ablation 5 — lagged classification (no simultaneity bias)
+## 7. Lagged classification — no simultaneity bias (Ablation 5)
 
 If the same-step IC computation were biased by self-reference (each clock's IC includes its own reading in the integrand), lagging the classifier should help. It doesn't:
 
@@ -326,21 +328,23 @@ for si, n in enumerate(list(d['scenarios'])):
       S3          0.7408          0.1957       -73.6%
 
 
-Combined tuning takes S3 from 0.741 to 0.196 — a 74 % reduction. **Still 8× worse than centralised `imm` (0.025)**. The interaction is *not strictly additive*: on S1 the combined value (0.252) is slightly worse than the best individual-ablation result (0.238 from threshold-sweep alone, without `var_loose`), confirming the entry-009 finding that `var_loose` is scenario-conditional.
+Combined tuning takes S3 from 0.741 to 0.196 — a 74 % reduction. **Still 8× worse than the best centralised estimator (`imm` 0.025)**. The interaction is *not strictly additive*: on S1 the combined value (0.252) is slightly worse than the best individual-ablation result (0.238 from threshold-sweep alone, without `var_loose`), confirming the entry-009 finding that `var_loose` is scenario-conditional.
 
-The 8× S3 residual is the *topological ceiling* — the next section makes this visible.
+> **On uncertainty.** The means above are over 10 seeds. Paired-difference t-statistics (manuscript § 4.6) give t = −23 on S3 and t = −4.3 on S1 — both well-determined — but t = −0.13 on S2, which means **the apparent S2 −2 % effect is consistent with seed noise**, not a real combined-tuning improvement. Per-axis SEMs are recorded in [logbook entries 008–012](../logbook/); the manuscript reports the paired SEMs and t-values directly in § 4.6's table.
+
+The 8× S3 residual is topology-limited — the next section makes the pooling reference visible.
 
 
-## 9. The topological ceiling
+## 9. The topological pooling reference
 
-The diagnostic figure of the manuscript: empirical `admec_full` / centralised MSE ratio against effective neighbourhood fraction *k*_eff / *N*. For S2 *k*_eff/*N* ≈ 1 (every node sees the whole network); for S1 and S3 *k*_eff/*N* < 0.2 (local consensus is restricted).
+The diagnostic figure of the manuscript: empirical `admec_full` / `freq_global` MSE ratio against effective neighbourhood fraction *k*_eff / *N*. For S2 *k*_eff/*N* ≈ 1 (every node sees the whole network); for S1 and S3 *k*_eff/*N* < 0.2 (local consensus is restricted).
 
-The theoretical upper bound on the ratio under independent-reading pooling is *N* / *k*_eff (the dashed line). Every measured ratio sits at or below it; no design tuning crosses the line.
+The static independent-reading pooling reference is *N* / *k*_eff (the dashed line). Every measured ratio in this campaign sits at or below it; the line is a regime locator, not a proven bound for all estimator families.
 
 
 
 ```python
-# Reproduce the topology-ceiling figure inline
+# Reproduce the topology-reference figure inline
 from clocks import (ClockParams, build_scenario_clocks,
                     simulate_network_clocks, signal_sinusoidal)
 from network import make_network
@@ -370,7 +374,7 @@ def k_eff(scn, freshness=1):
 k_drop = {s['name']: k_eff(s, freshness=1) for s in SCN_SETUP}
 k_stale = {s['name']: k_eff(s, freshness=None) for s in SCN_SETUP}
 N = {s['name']: s['n'] for s in SCN_SETUP}
-BASE_MSE = {'S1': 0.122, 'S2': 0.122, 'S3': 0.027}  # freq_exclude at thr 2.5
+BASE_MSE = {'S1': 0.323, 'S2': 0.323, 'S3': 0.041}  # freq_global baseline
 
 # WP2 baseline admec_full
 d = load('wp2')
@@ -387,7 +391,7 @@ af_combined = {s: dc['mse'][list(dc['scenarios']).index(s), :,
 
 fig, ax = plt.subplots(figsize=(8, 5))
 x_ref = np.geomspace(0.01, 1.0, 200)
-ax.plot(x_ref, 1.0/x_ref, 'k--', lw=1, alpha=0.6, label=r'theoretical ceiling $N/k_\mathrm{eff}$')
+ax.plot(x_ref, 1.0/x_ref, 'k--', lw=1, alpha=0.6, label=r'pooling reference $N/k_\mathrm{eff}$')
 ax.axhline(1.0, color='gray', lw=0.7, alpha=0.5)
 
 colors = {'S1': '#2E86AB', 'S2': '#A23B72', 'S3': '#F18F01'}
@@ -402,8 +406,8 @@ for s in ('S1', 'S2', 'S3'):
                label=f'{s} WP3 combined')
 ax.set_xscale('log'); ax.set_yscale('log')
 ax.set_xlabel(r'Effective neighbourhood fraction $k_\mathrm{eff}/N$')
-ax.set_ylabel('admec_full MSE / centralised MSE')
-ax.set_title('Topological ceiling on local consensus')
+ax.set_ylabel('admec_full MSE / freq_global MSE')
+ax.set_title('Topological pooling reference for local consensus')
 ax.legend(fontsize=7.5, loc='upper right'); ax.grid(which='both', alpha=0.25)
 ax.set_xlim(0.01, 1.0); ax.set_ylim(0.4, 60); plt.tight_layout()
 
@@ -417,21 +421,20 @@ ax.set_xlim(0.01, 1.0); ax.set_ylim(0.4, 60); plt.tight_layout()
 
 **Reading the figure:**
 
-1. Every measured ratio sits at or below the *N* / *k*_eff line — no escape.
-2. S2 (right cluster) is at parity with centralised regardless of tuning — locality doesn't bind.
-3. S1 baseline (middle, light blue) sits *on* the ceiling; combined-tuned points (dark) pull off it via temporal pooling.
-4. S3 baseline (left, light orange) sits at the ceiling at ratio ≈ 30; combined-tuned moves to *k*_eff/*N* = 0.08 with ratio ≈ 7.8 — about as far as design tuning can pull on this geometry.
+1. Every measured ratio sits at or below the *N* / *k*_eff reference in this campaign.
+2. S2 (right cluster) is the dense no-locality-bound regime; `admec_full` sits below `freq_global` there.
+3. S1 baseline (middle, light blue) sits below the reference; combined-tuned points (dark) pull further off it.
+4. S3 baseline (left, light orange) sits below the reference at ratio ≈ 18.2; combined-tuned moves to *k*_eff/*N* = 0.08 with ratio ≈ 4.8 — about as far as design tuning can pull on this geometry.
 
-The constraint is **topological**, not algorithmic. ADMEC is a clean, tunable estimator family, but tunable estimators cannot escape the network's information geometry.
+The constraint is **topological**, not algorithmic. ADMEC is a clean, tunable estimator family, but tuning alone does not remove the network's information geometry.
 
 ## 10. Where to next
 
 The systematic sweep is closed. Two redesign directions could plausibly cross from "uses the data efficiently inside the topological boundary" to "rescues DG-2 / DG-3":
 
 - **STRUCTURED with reduced weight** — would make the syntactic gap from §5 operationally visible (and make DG-3 measurable rather than algebraically zero).
-- **Decayed-staleness weighting** — would interpolate continuously between drop and stale, with `λ ≈ 1/τ_correlation`. Could push S3 closer to the centralised CRB.
+- **Decayed-staleness weighting** — would interpolate continuously between drop and stale, with `λ ≈ 1/τ_correlation`. Could push S3 closer to the pooling reference and should be compared against a tuned clock-model baseline.
 
 Both are non-trivial code changes that deserve their own pre-registered decision gates. They aim to use data inside the topological boundary more efficiently, not to escape it.
 
 For the full writeup, see [`docs/manuscript.md`](../docs/manuscript.md). For per-ablation details, see [logbook entries 008–012](../logbook/).
-
