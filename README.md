@@ -1,6 +1,8 @@
 # Delay-Constrained Anomaly-Aware Consensus in Heterogeneous Clock Networks
 
-**Status:** WP1 complete. WP2 complete. **WP3 systematic sweep complete (5 of 5 ablations).** **DG-2 NOT MET. DG-2b NOT MET. DG-3 NOT MET on the "three-way > two-way" clause** (negative results, as anticipated by the proposal). Combined design tuning (stale-reading + `var_loose` + lower IC threshold + same-step classification) closes most of the WP2 admec_full MSE gap on S1/S2 but cannot close the S3 ~8 × information-theoretic gap to centralised baselines. The three-way / two-way distinction is architecturally impossible to separate at the consensus stage. No simultaneity bias detected (entry 012). See [WP2 summary](logbook/wp2-summary.md), entries [008–012](logbook/).
+**Status:** **Phase 1 complete** (WP1 + WP2 + WP3, 5 of 5 ablations). **DG-2 NOT MET. DG-2b NOT MET. DG-3 NOT MET on the "three-way > two-way" clause** (negative results, as anticipated by the proposal). Combined design tuning (stale-reading + `var_loose` + lower IC threshold + same-step classification) closes most of the WP2 admec_full MSE gap on S1/S2 but cannot close the S3 ~8 × information-theoretic gap to centralised baselines. The three-way / two-way distinction is architecturally impossible to separate at the consensus stage. See [WP2 summary](logbook/wp2-summary.md) and [Technical Report v1.0 candidate](docs/manuscript.md).
+
+**Phase 2** is in pre-freeze planning: [`docs/projektantrag_p2.md`](docs/projektantrag_p2.md) (draft v0.2). Two consensus-rule redesigns (α-rule WP-γ, λ-rule WP-δ) tested against the *N*/*k*_eff pooling-limit baseline; six new gates DG-α₀ through DG-ε; new metrology-anchored scenarios S9 (fibre chain) and S10 (hub-and-spoke). **No Phase-2 work has started** — pending Integrator confirmation of CL-2026-006 and Handbook §7 anchor before v1.0 freeze.
 
 ---
 
@@ -22,8 +24,11 @@ The project may produce a positive result (the three-way classification improves
 
 | Document | Description | Status |
 |----------|-------------|--------|
-| [`docs/manuscript.md`](docs/manuscript.md) | Technical Report v1.0 candidate. WP2 + WP3 characterisation: campaign results, five ablations, mechanism, operational recommendations, follow-up redesign directions. ~15 min read; tables reproducible from canonical archives. Citable through release tag `v1.0-tech-report` + Zenodo DOI (pending). | Tech-report v1.0 candidate (2026-05-05) |
-| [`docs/projektantrag.md`](docs/projektantrag.md) | Project proposal (DFG Sachbeihilfe structure). Defines objectives, work packages, decision gates, and failure conditions. | v0.5.3 (frozen) |
+| [`docs/manuscript.md`](docs/manuscript.md) | Technical Report v1.0 candidate. Phase-1 WP2 + WP3 characterisation: campaign results, five ablations, mechanism, operational recommendations, follow-up redesign directions. ~15 min read; tables reproducible from canonical archives. Citable through release tag `v1.0-tech-report` + Zenodo DOI (pending). | Tech-report v1.0 candidate (2026-05-05) |
+| [`docs/projektantrag.md`](docs/projektantrag.md) | Phase-1 project proposal (DFG Sachbeihilfe structure). Defines Phase-1 objectives, work packages WP1–WP3, decision gates DG-1/2/2b/3, and failure conditions. | v0.5.3 (frozen) |
+| [`docs/projektantrag_p2.md`](docs/projektantrag_p2.md) | **Phase-2** Projektantrag (Coastline document under Open-Science Harbour template v2.0). Two consensus-rule redesigns (α-rule, λ-rule) on the topological pooling-limit baseline; new scenarios S9, S10; six gates DG-α₀ through DG-ε. | v0.2 — pre-freeze (CL-2026-006 + Handbook §7) |
+| [`docs/handbook.md`](docs/handbook.md) | Reusable methodology reference. Procedures (not outcomes). §7 Statistical Methodology is the Phase-2 prerequisite chapter. | Stub — content lands when WP-α₀ opens |
+| [`docs/ledger.md`](docs/ledger.md) | Claim Analysis Ledger. Registers claim-shaped outcomes per phase. Phase-2 entry CL-2026-006 (proposed) staged for Integrator confirmation at v1.0 freeze. | Stub — Phase-2 entry pending |
 | [`docs/rebuttal.md`](docs/rebuttal.md) | Point-by-point rebuttal to a hostile internal review. Documents how the project scope was contracted. | v1.0 |
 
 ## Code

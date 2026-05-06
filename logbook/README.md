@@ -23,5 +23,6 @@ Entries are Markdown files named `NNN_YYYY-MM-DD_title.md`. Figures are stored i
 
 | Document | Scope |
 |----------|-------|
-| [WP1 Summary](wp1-summary.md) | Calibration and positioning of IC — what was defined, demonstrated, and not solved |
-| [WP2 Summary](wp2-summary.md) | Network simulation, the negative DG-2 verdict, and the WP3 ablation framing scoped to characterise the failure mode |
+| [WP1 Summary](wp1-summary.md) | Phase 1 — calibration and positioning of IC; what was defined, demonstrated, and not solved |
+| [WP2 Summary](wp2-summary.md) | Phase 1 — network simulation, the negative DG-2 verdict, and the WP3 ablation framing scoped to characterise the failure mode |
+| [Phase-2 Overview](p2-overview.md) | Phase 2 — pre-freeze status; planned WP block numbering; Projektantrag §13 handshakes outstanding. **No Phase-2 simulation work has started.** |
